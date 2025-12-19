@@ -144,7 +144,7 @@ export class Apply implements AfterViewInit {
 
   calculateFee() {
     this.powerFee = Math.max(this.powerHP, this.generatorHP) * 100;
-    this.licenseFee = this.totalAmount + this.powerFee + 500; // OC Exemption sample
+    this.licenseFee = this.totalAmount + this.powerFee + 500; 
   }
 
   /* =========================
@@ -165,6 +165,7 @@ export class Apply implements AfterViewInit {
       alert('File size must be less than 5MB');
       return;
     }
+
 
     this.documents[key] = file;
   }
