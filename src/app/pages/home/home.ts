@@ -2,12 +2,12 @@ import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
 
-
 @Component({
   selector: 'app-home',
+  standalone: true,              // ✅ MISSING LINE (VERY IMPORTANT)
   imports: [CommonModule, RouterModule],
   templateUrl: './home.html',
-  styleUrl: './home.css',
+  styleUrls: ['./home.css'],     // ✅ FIXED (see problem 2)
 })
 export class Home {
   features = [
@@ -61,10 +61,9 @@ export class Home {
       icon: 'bi-shield-lock',
       link: '/admin/login',
       color: 'bg-dark'
-    },
+    }
   ];
 
-  // ===== FOOTER DATA =====
   footer = {
     brand: {
       title: 'GBA Trade License',
@@ -97,9 +96,9 @@ export class Home {
     copyright:
       '© 2024 Greater Bengaluru Authority. All rights reserved.'
   };
+
   officialBadge = {
     text: 'Official Portal of Greater Bengaluru Authority',
     icon: 'bi-check-circle-fill'
   };
 }
-

@@ -1,0 +1,435 @@
+<div class="container my-5">
+  <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+
+    <!-- HEADER -->
+    <div class="card-header bg-primary text-white py-3">
+      <h4 class="mb-0">New Trade License Registration</h4>
+      <small>Greater Bengaluru Authority</small>
+    </div>
+
+    <div class="card-body">
+<div *ngIf="currentStep === 0">
+
+  <h5 class="text-center fw-bold mb-3">
+    DECLARATION BY APPLICANT
+  </h5>
+
+  <div class="alert alert-light border">
+    <ol class="small">
+      <li>I/We affirm that the information furnished is true and correct.</li>
+      <li>The trade license is applicable only for the declared trade.</li>
+      <li>Unauthorized constructions are not regularized.</li>
+      <li>The license may be cancelled if violations are found.</li>
+      <li>No child labour will be employed.</li>
+      <li>I/We agree to comply with BBMP / GBA regulations.</li>
+    </ol>
+  </div>
+
+  <div class="form-check mb-4">
+    <input class="form-check-input" type="checkbox" [(ngModel)]="agree">
+    <label class="form-check-label fw-semibold">
+      I/We hereby agree to the above terms and conditions
+    </label>
+  </div>
+
+  <div class="text-center">
+    <button class="btn btn-primary btn-lg"
+            [disabled]="!agree"
+            (click)="startApplication()">
+      Continue →
+    </button>
+  </div>
+
+</div>
+
+      <!-- ================= STEPPER ================= -->
+      <!-- ================= STEPPER ================= -->
+<div *ngIf="currentStep > 0" class="stepper-container mb-4">
+
+  <div class="step" [class.active]="currentStep >= 1">
+    <div class="circle">1</div>
+    <span>Basic</span>
+  </div>
+
+  <div class="line" [class.active]="currentStep >= 2"></div>
+
+  <div class="step" [class.active]="currentStep >= 2">
+    <div class="circle">2</div>
+    <span>Trade</span>
+  </div>
+
+  <div class="line" [class.active]="currentStep >= 3"></div>
+
+  <div class="step" [class.active]="currentStep >= 3">
+    <div class="circle">3</div>
+    <span>Fee</span>
+  </div>
+
+  <div class="line" [class.active]="currentStep >= 4"></div>
+
+  <div class="step" [class.active]="currentStep >= 4">
+    <div class="circle">4</div>
+    <span>Location</span>
+  </div>
+
+</div>
+
+
+      <!-- ======================================================
+           STEP 1 – BASIC DETAILS
+      ======================================================= -->
+      <div *ngIf="currentStep === 1">
+
+        <h5 class="section-title">Applicant Representation</h5>
+        <div class="mb-3">
+          <label class="form-check form-check-inline" *ngFor="let r of representations">
+            <input type="radio" class="form-check-input" name="rep">
+            {{ r }}
+          </label>
+        </div>
+
+        <h5 class="section-title">Trade Details</h5>
+        <div class="row g-3">
+          <div class="col-md-4">
+            <label>Trade Type *</label>
+            <select class="form-select">
+              <option>Select</option>
+              <option>Trade</option>
+              <option>Power</option>
+              <option>Trade & Power</option>
+            </select>
+          </div>
+          <div class="col-md-4">
+            <label>Trade Name *</label>
+            <input class="form-control">
+          </div>
+          <div class="col-md-4">
+            <label>BESCOM RR No *</label>
+            <input class="form-control">
+          </div>
+        </div>
+
+        <h5 class="section-title mt-4">Address Information</h5>
+        <div class="row g-3">
+          <div class="col-md-3"><input class="form-control" placeholder="Ward"></div>
+          <div class="col-md-3"><input class="form-control" placeholder="Door No"></div>
+          <div class="col-md-3"><input class="form-control" placeholder="Street"></div>
+          <div class="col-md-3"><input class="form-control" placeholder="Area"></div>
+          <div class="col-md-3"><input class="form-control" placeholder="Pincode"></div>
+        </div>
+
+        <div class="text-end mt-4">
+          <button class="btn btn-primary btn-lg" (click)="nextStep()">
+            Continue →
+          </button>
+        </div>
+      </div>
+
+      <!-- ======================================================
+           STEP 2 – TRADE
+      ======================================================= -->
+      <div *ngIf="currentStep === 2">
+
+        <h5 class="section-title">Trade Classification (Schedule X)</h5>
+
+        <div class="row g-3 align-items-end">
+          <div class="col-md-4">
+            <label>Major Trade</label>
+            <select class="form-select"
+                    [(ngModel)]="selectedMajor"
+                    (change)="selectedMinor=null;selectedSub=null">
+              <option [ngValue]="null">Select</option>
+              <option *ngFor="let m of majorTrades" [ngValue]="m">
+                {{ m.name }}
+              </option>
+            </select>
+          </div>
+
+          <div class="col-md-4">
+            <label>Minor Trade</label>
+            <select class="form-select"
+                    [(ngModel)]="selectedMinor"
+                    [disabled]="!selectedMajor">
+              <option [ngValue]="null">Select</option>
+              <option *ngFor="let mi of selectedMajor?.minors" [ngValue]="mi">
+                {{ mi.name }}
+              </option>
+            </select>
+          </div>
+
+          <div class="col-md-4">
+            <label>Sub Trade</label>
+            <select class="form-select"
+                    [(ngModel)]="selectedSub"
+                    [disabled]="!selectedMinor">
+              <option [ngValue]="null">Select</option>
+              <option *ngFor="let s of selectedMinor?.subs" [ngValue]="s">
+                {{ s.name }}
+              </option>
+            </select>
+          </div>
+        </div>
+
+        <div class="mt-3">
+          <strong>Rate:</strong> {{ selectedSub?.rate || '--' }}
+          <button class="btn btn-primary ms-3" (click)="addTrade()">Add</button>
+        </div>
+
+        <table class="table table-bordered mt-3" *ngIf="tradeGrid.length">
+          <thead class="table-primary">
+            <tr>
+              <th>#</th>
+              <th>Major</th>
+              <th>Minor</th>
+              <th>Sub</th>
+              <th>Rate</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tr *ngFor="let t of tradeGrid; let i = index">
+            <td>{{ i+1 }}</td>
+            <td>{{ t.major }}</td>
+            <td>{{ t.minor }}</td>
+            <td>{{ t.sub }}</td>
+            <td>{{ t.rate }}</td>
+            <td>
+              <button class="btn btn-danger btn-sm" (click)="removeTrade(i)">
+                Remove
+              </button>
+            </td>
+          </tr>
+          <tfoot>
+            <tr>
+              <th colspan="4" class="text-end">Total</th>
+              <th>{{ totalAmount }}</th>
+              <th></th>
+            </tr>
+          </tfoot>
+        </table>
+
+        <div class="d-flex justify-content-between mt-4">
+          <button class="btn btn-outline-secondary" (click)="prevStep()">← Back</button>
+          <button class="btn btn-primary" (click)="nextStep()">Continue →</button>
+        </div>
+      </div>
+
+      <!-- ======================================================
+           STEP 3 – FEE
+      ======================================================= -->
+      <div *ngIf="currentStep === 3">
+
+        <h5 class="section-title">Application & Fee Details</h5>
+
+        <div class="row g-3">
+          <div class="col-md-4">
+            <label>Date of Application</label>
+            <input class="form-control" [value]="applicationDate" readonly>
+          </div>
+          <div class="col-md-4">
+            <label>Proposed Commencement</label>
+            <input type="date" class="form-control" [(ngModel)]="commencementDate">
+          </div>
+          <div class="col-md-4">
+            <label>Zone Classification</label>
+            <select class="form-select" [(ngModel)]="zone">
+              <option>Select</option>
+              <option>Residential</option>
+              <option>Commercial</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="mt-3 fw-bold">
+          License Fee Prescribed (Rs.): {{ licenseFee }}
+        </div>
+
+        <div class="d-flex justify-content-between mt-4">
+          <button class="btn btn-outline-secondary" (click)="prevStep()">← Back</button>
+          <button class="btn btn-primary" (click)="nextStep()">Continue →</button>
+        </div>
+      </div>
+
+     <!-- ======================================================
+     STEP 4 – LOCATION
+======================================================= -->
+<div *ngIf="currentStep === 4">
+
+  <h5 class="section-title">Road Width Check (Location)</h5>
+
+  <!-- SEARCH -->
+  <input class="form-control mb-1"
+         placeholder="Search location (HSR Layout, Bengaluru)"
+         [(ngModel)]="searchText"
+         (input)="searchLocation()">
+
+  <!-- SUGGESTIONS -->
+  <ul class="list-group position-absolute w-100 shadow"
+      *ngIf="searchResults.length">
+    <li class="list-group-item list-group-item-action"
+        *ngFor="let r of searchResults"
+        (click)="selectLocation(r)">
+      {{ r.display_name }}
+    </li>
+  </ul>
+
+  <div class="row my-2">
+    <div class="col-md-6">
+      <input class="form-control" placeholder="Latitude" [value]="latitude" readonly>
+    </div>
+    <div class="col-md-6">
+      <input class="form-control" placeholder="Longitude" [value]="longitude" readonly>
+    </div>
+  </div>
+
+  <div id="map"></div>
+
+  <div class="d-flex justify-content-between mt-4">
+    <button class="btn btn-outline-secondary" (click)="prevStep()">← Back</button>
+    <button class="btn btn-primary" (click)="nextStep()">Continue →</button>
+  </div>
+
+</div>
+
+<!-- ======================================================
+     STEP 5 – DOCUMENTS & POWER DETAILS
+======================================================= -->
+<div *ngIf="currentStep === 5">
+
+  <h5 class="section-title">Documents to be Enclosed</h5>
+
+  <table class="table table-bordered">
+    <tr>
+      <td>Owner Consent / Lease Agreement *</td>
+      <td><input type="file" accept="application/pdf"
+                 (change)="onFileChange($event,'ownerConsent')"></td>
+    </tr>
+    <tr>
+      <td>Electricity Bill *</td>
+      <td><input type="file" accept="application/pdf"
+                 (change)="onFileChange($event,'electricityBill')"></td>
+    </tr>
+    <tr>
+      <td>Occupancy Certificate</td>
+      <td><input type="file" accept="application/pdf"
+                 (change)="onFileChange($event,'oc')"></td>
+    </tr>
+    <tr>
+      <td>Neighbour Consent *</td>
+      <td><input type="file" accept="application/pdf"
+                 (change)="onFileChange($event,'neighbour')"></td>
+    </tr>
+  </table>
+
+  <h5 class="section-title mt-4">Power / Generator Details</h5>
+
+  <div class="row g-3">
+    <div class="col-md-6">
+      <label>Seeking Power License (HP)</label>
+      <input type="number" class="form-control"
+             [(ngModel)]="powerHP"
+             (input)="calculateFee()">
+    </div>
+
+    <div class="col-md-6">
+      <label>Installed Generator (HP)</label>
+      <input type="number" class="form-control"
+             [(ngModel)]="generatorHP"
+             (input)="calculateFee()">
+    </div>
+  </div>
+
+  <div class="alert alert-info mt-3">
+    Power Fee (Higher of HP/KVA): ₹ {{ powerFee }}
+  </div>
+
+  <div class="d-flex justify-content-between mt-4">
+    <button class="btn btn-outline-secondary" (click)="prevStep()">← Back</button>
+    <button class="btn btn-primary" (click)="nextStep()">Send OTP →</button>
+  </div>
+
+</div>
+<!-- ======================================================
+     STEP 6 – OTP VERIFICATION
+======================================================= -->
+<div *ngIf="currentStep === 6">
+
+  <h5 class="section-title">OTP Verification</h5>
+
+  <div *ngIf="!otpSent" class="text-center">
+    <button class="btn btn-primary btn-lg" (click)="sendOtp()">
+      Send OTP
+    </button>
+  </div>
+
+  <div *ngIf="otpSent && !otpVerified" class="mt-3">
+    <label>Enter OTP</label>
+    <input class="form-control mb-2"
+           [(ngModel)]="otp"
+           placeholder="Enter OTP (1234)">
+    <button class="btn btn-success" (click)="verifyOtp()">Verify OTP</button>
+  </div>
+
+  <div *ngIf="otpVerified" class="alert alert-success mt-3">
+    OTP verified successfully.
+  </div>
+
+  <div class="d-flex justify-content-between mt-4">
+    <button class="btn btn-outline-secondary" (click)="prevStep()">← Back</button>
+    <button class="btn btn-primary"
+            [disabled]="!otpVerified"
+            (click)="nextStep()">
+      Continue →
+    </button>
+  </div>
+
+</div>
+<!-- ======================================================
+     STEP 7 – FINAL PREVIEW
+======================================================= -->
+<div *ngIf="currentStep === 7">
+
+  <div class="alert alert-success fw-bold text-center">
+    ✔ APPLICATION SUBMITTED SUCCESSFULLY
+  </div>
+
+  <h6>Temporary Application No:</h6>
+  <strong class="fs-5 text-primary">T4RE1821K</strong>
+
+  <h5 class="section-title mt-4">Trade & Fee Summary</h5>
+
+  <table class="table table-bordered">
+    <tr>
+      <th>Trade Fee</th>
+      <td>₹ {{ totalAmount }}</td>
+    </tr>
+    <tr>
+      <th>Power Fee</th>
+      <td>₹ {{ powerFee }}</td>
+    </tr>
+    <tr>
+      <th>OC Exempted Fee</th>
+      <td>₹ 500</td>
+    </tr>
+    <tr class="table-success fw-bold">
+      <th>Total Payable</th>
+      <td>₹ {{ licenseFee + powerFee + 500 }}</td>
+    </tr>
+  </table>
+
+  <h5 class="section-title">Select Payment Gateway</h5>
+
+  <div class="form-check">
+    <input type="radio" class="form-check-input" checked>
+    <label class="form-check-label">BillDesk</label>
+  </div>
+
+  <div class="d-flex justify-content-between mt-4">
+    <button class="btn btn-outline-secondary">
+      Save & Pay Later
+    </button>
+    <button class="btn btn-success btn-lg">
+      Proceed for Payment →
+    </button>
+  </div>
+
+</div>

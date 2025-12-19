@@ -3,15 +3,16 @@ import { Home } from './pages/home/home';
 
 export const routes: Routes = [
 
-    { path: '', component: Home },
+  // HOME PAGE
+  { path: '', component: Home },
 
-  // future routes
-  //   { path: 'login', loadComponent: () => import('./pages/login/login.component')
-  //     .then(m => m.LoginComponent)
-  //   },
-  //   { path: 'trader/apply', loadComponent: () => import('./pages/apply/apply.component')
-  //     .then(m => m.ApplyComponent)
-  //   },
+  // APPLY NEW TRADE LICENSE
+  {
+    path: 'trader/apply',
+    loadComponent: () =>
+      import('./pages/trader/apply')
+        .then(m => m.Apply)
+  },
 
   // fallback
   { path: '**', redirectTo: '' }
