@@ -1,0 +1,243 @@
+/* =====================================================
+   GLOBAL FORM STYLING
+===================================================== */
+* {
+  box-sizing: border-box;
+}
+
+.section-title {
+  font-weight: 600;
+  font-size: 16px;
+  border-left: 4px solid #084298;
+  padding-left: 10px;
+  margin: 25px 0 15px;
+  color: #0d2c54;
+}
+
+/* =====================================================
+   LABELS & INPUTS
+===================================================== */
+label {
+  font-weight: 500;
+  font-size: 14px;
+  margin-bottom: 4px;
+  color: #333;
+}
+
+input,
+select {
+  font-size: 14px;
+  border-radius: 6px;
+}
+
+input::placeholder {
+  font-size: 13px;
+  color: #999;
+}
+
+input[readonly] {
+  background-color: #f5f5f5;
+  cursor: not-allowed;
+}
+
+/* =====================================================
+   CARD & LAYOUT
+===================================================== */
+.card {
+  border-radius: 14px;
+}
+
+.card-header {
+  padding: 16px 22px;
+  background-color: #084298;
+}
+
+
+.card-body {
+  padding: 25px;
+}
+
+.row.g-3 > div {
+  margin-bottom: 6px;
+}
+
+/* =====================================================
+   DECLARATION BOX
+===================================================== */
+.declaration-box {
+  background: #f8f9fa;
+  border-left: 4px solid #198754;
+  padding: 12px 15px;
+  font-size: 14px;
+  color: #333;
+  border-radius: 6px;
+}
+
+/* =====================================================
+   TABLE (TRADE GRID)
+===================================================== */
+table {
+  font-size: 14px;
+}
+
+.table {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.table thead th {
+  background-color: #e9f1ff;
+  color: #0d2c54;
+  font-weight: 600;
+  vertical-align: middle;
+}
+
+.table tbody td {
+  vertical-align: middle;
+}
+
+.table tfoot th {
+  background: #f8f9fa;
+  font-weight: 600;
+}
+
+/* =====================================================
+   BUTTONS
+===================================================== */
+.btn {
+  font-size: 14px;
+  border-radius: 6px;
+  padding: 6px 14px;
+}
+
+.btn-sm {
+  font-size: 13px;
+  padding: 4px 10px;
+}
+
+.btn-primary {
+  background-color: #084298;
+  border-color: #084298;
+}
+
+.btn-danger {
+  background-color: #dc3545;
+  border-color: #dc3545;
+}
+
+.btn-success {
+  background-color: #198754;
+  border-color: #198754;
+}
+
+.btn-outline-secondary {
+  border-color: #adb5bd;
+  color: #495057;
+}
+
+/* =====================================================
+   STEPPER (MULTI STEP FORM)
+===================================================== */
+.stepper-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 30px;
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 80px;
+}
+
+.circle {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #e9ecef;
+  color: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+}
+
+.step.active .circle {
+  background: #084298;
+  color: #fff;
+}
+
+.step span {
+  margin-top: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #6c757d;
+}
+
+.step.active span {
+  color: #084298;
+}
+
+.line {
+  flex: 1;
+  height: 3px;
+  background: #dee2e6;
+  margin: 0 10px;
+}
+
+.line.active {
+  background: #084298;
+}
+
+
+/* =====================================================
+   MAP (LEAFLET)
+===================================================== */
+#map {
+  height: 350px;
+  width: 100%;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+}
+
+/* =====================================================
+   LOCATION SEARCH INPUT
+===================================================== */
+.location-input {
+  margin-bottom: 10px;
+}
+
+/* =====================================================
+   RESPONSIVE FIXES
+===================================================== */
+@media (max-width: 992px) {
+  .step span {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 768px) {
+  .section-title {
+    font-size: 15px;
+  }
+
+  .card-body {
+    padding: 16px;
+  }
+
+  table {
+    font-size: 13px;
+  }
+
+  .stepper-container {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .step::after {
+    display: none;
+  }
+}
+

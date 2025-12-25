@@ -1,0 +1,123 @@
+/* PAGE BACKGROUND */
+.page-wrapper {
+  min-height: 100vh;
+  background: #f4f7fb;
+  padding: 40px 0;
+}
+
+/* HEADER */
+.back-link {
+  text-decoration: none;
+  color: #6c757d;
+  font-size: 14px;
+}
+
+.icon-box {
+  width: 36px;
+  height: 36px;
+  background: #0d6efd;
+  color: white;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.header-title {
+  font-weight: 600;
+}
+
+/* MAIN CARD */
+.main-card {
+  background: white;
+  border-radius: 20px;
+  padding: 32px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+}
+
+/* SEARCH */
+.search-box {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 40px;
+}
+
+.search-box .input-group {
+  width: 420px;
+}
+
+/* RESULT CARD */
+.result-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 24px;
+}
+
+/* STATUS BOX */
+.status-box {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  background: #fff3cd;
+  border-radius: 12px;
+  padding: 16px;
+  margin: 20px 0;
+}
+
+.status-icon {
+  background: #ffc107;
+  color: #212529;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* TIMELINE */
+.timeline {
+  position: relative;
+}
+
+.timeline-item {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.timeline-icon {
+  width: 32px;
+  height: 32px;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.timeline-content {
+  padding-top: 4px;
+}
+
+/* HELP */
+.help-card {
+  margin-top: 40px;
+  text-align: center;
+  border: 1px dashed #dee2e6;
+  border-radius: 16px;
+  padding: 24px;
+}
+
+.action-buttons .btn {
+  border-radius: 12px;
+  font-weight: 500;
+  min-width: 240px;
+}
+
+.action-buttons .btn i {
+  font-size: 18px;
+}
+

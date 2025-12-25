@@ -6,15 +6,6 @@ export const routes: Routes = [
   // HOME PAGE
   { path: '', component: Home },
 
-  // APPLY NEW TRADE LICENSE
-  {
-    path: 'trader/apply',
-    loadComponent: () =>
-      import('./pages/trader/apply')
-        .then(m => m.Apply)
-  },
-
- 
     {
       path: 'login',
       loadComponent: () => import('./pages/login/login')
