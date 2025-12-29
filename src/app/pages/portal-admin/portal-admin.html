@@ -1,57 +1,57 @@
 <div class="admin-dashboard-content">
 
-  <!-- Header -->
-  <div class="mb-4">
-    <h4 class="fw-semibold">Welcome, Portal Administrator</h4>
-    <p class="text-muted">
+  <!-- HEADER -->
+  <div class="dashboard-header">
+    <h4>Welcome, Portal Administrator</h4>
+    <p>
       Manage users, workflows, system settings, and monitor overall portal health.
     </p>
   </div>
 
-  <!-- Stats -->
+  <!-- STATS ROW -->
   <div class="row g-3 mb-4 equal-height-row">
-    <div class="col-md-3">
-      <div class="admin-stat-card h-100">
-        <div class="icon-wrap bg-primary">
+    <div class="col-lg-3 col-md-6">
+      <div class="stat-card">
+        <div class="stat-icon bg-primary">
           <i class="bi bi-people"></i>
         </div>
-        <div class="stat-text">
+        <div>
           <span>Total Users</span>
           <h4>1,248</h4>
         </div>
       </div>
     </div>
 
-    <div class="col-md-3">
-      <div class="admin-stat-card h-100">
-        <div class="icon-wrap bg-success">
+    <div class="col-lg-3 col-md-6">
+      <div class="stat-card">
+        <div class="stat-icon bg-success">
           <i class="bi bi-diagram-3"></i>
         </div>
-        <div class="stat-text">
+        <div>
           <span>Active Workflows</span>
           <h4>8</h4>
         </div>
       </div>
     </div>
 
-    <div class="col-md-3">
-      <div class="admin-stat-card h-100">
-        <div class="icon-wrap bg-warning">
+    <div class="col-lg-3 col-md-6">
+      <div class="stat-card">
+        <div class="stat-icon bg-warning">
           <i class="bi bi-clock-history"></i>
         </div>
-        <div class="stat-text">
+        <div>
           <span>Pending Approvals</span>
           <h4>37</h4>
         </div>
       </div>
     </div>
 
-    <div class="col-md-3">
-      <div class="admin-stat-card h-100">
-        <div class="icon-wrap bg-info">
+    <div class="col-lg-3 col-md-6">
+      <div class="stat-card">
+        <div class="stat-icon bg-info">
           <i class="bi bi-activity"></i>
         </div>
-        <div class="stat-text">
+        <div>
           <span>System Health</span>
           <h4 class="text-success">Stable</h4>
         </div>
@@ -59,56 +59,52 @@
     </div>
   </div>
 
-  <!-- Admin Actions -->
+  <!-- ADMIN ACTIONS -->
   <div class="row g-3 mb-4 equal-height-row">
-    <div class="col-md-4">
-      <div class="admin-action-card h-100">
+    <div class="col-lg-3 col-md-6">
+      <div class="action-card">
         <i class="bi bi-people"></i>
         <h6>Manage Users & Roles</h6>
-        <p>Create, edit, deactivate users and assign roles.</p>
-
-        <div class="mt-auto">
-          <button class="btn btn-outline-primary btn-sm">
-            Go to User Management
-          </button>
-        </div>
+        <p>Create users, assign roles, and manage approver hierarchy.</p>
+        <button class="btn btn-outline-primary btn-sm">Manage Users</button>
       </div>
     </div>
 
-    <div class="col-md-4">
-      <div class="admin-action-card h-100">
+    <div class="col-lg-3 col-md-6">
+      <div class="action-card">
         <i class="bi bi-gear"></i>
         <h6>System Settings</h6>
-        <p>Configure portal settings and approval workflows.</p>
-
-        <div class="mt-auto">
-          <button class="btn btn-outline-primary btn-sm">
-            Configure System
-          </button>
-        </div>
+        <p>Configure approval workflows, reminders, and escalations.</p>
+        <button class="btn btn-outline-primary btn-sm">Configure System</button>
       </div>
     </div>
 
-    <div class="col-md-4">
-      <div class="admin-action-card h-100">
+    <div class="col-lg-3 col-md-6">
+      <div class="action-card">
         <i class="bi bi-database"></i>
         <h6>Master Data & Compliance</h6>
-        <p>Maintain trade categories, zones, and compliance rules.</p>
+        <p>Maintain trade categories, zones, rules, and fee structures.</p>
+        <button class="btn btn-outline-primary btn-sm">Manage Master Data</button>
+      </div>
+    </div>
 
-        <div class="mt-auto">
-          <button class="btn btn-outline-primary btn-sm">
-            Manage Master Data
-          </button>
-        </div>
+    <div class="col-lg-3 col-md-6">
+      <div class="action-card">
+        <i class="bi bi-arrow-left-right"></i>
+        <h6>Data Migration & Validation</h6>
+        <p>Import legacy data, validate records, and resolve inconsistencies.</p>
+        <button class="btn btn-outline-primary btn-sm">
+          Data Migration
+        </button>
       </div>
     </div>
   </div>
 
-  <!-- Bottom Panels -->
+  <!-- BOTTOM PANELS -->
   <div class="row g-3 equal-height-row">
-    <div class="col-md-6">
-      <div class="admin-panel-card h-100">
-        <h6 class="fw-semibold">System Monitoring</h6>
+    <div class="col-lg-6">
+      <div class="panel-card">
+        <h6>System Monitoring</h6>
         <ul class="status-list">
           <li class="ok">API Status: Running</li>
           <li class="ok">Database: Connected</li>
@@ -117,18 +113,13 @@
       </div>
     </div>
 
-    <div class="col-md-6">
-      <div class="admin-panel-card h-100">
-        <h6 class="fw-semibold">Administrative Reports</h6>
-        <p class="text-muted">
-          Generate usage, approval, and audit reports.
+    <div class="col-lg-6">
+      <div class="panel-card">
+        <h6>Administrative Reports</h6>
+        <p>
+          Generate usage, approval, audit, and compliance reports.
         </p>
-
-        <div class="mt-auto">
-          <button class="btn btn-primary btn-sm">
-            View Reports
-          </button>
-        </div>
+        <button class="btn btn-primary btn-sm">View Reports</button>
       </div>
     </div>
   </div>

@@ -13,7 +13,7 @@ import { BusinessOwner } from '../../pages/business-owner/business-owner';
 })
 export class DashboardLayout {
   sidebarOpen = false;
-
+  isSidebarCollapsed = false;
   constructor(private router: Router) {}
 
   licenses = [
@@ -51,12 +51,11 @@ export class DashboardLayout {
     { message: 'License renewal due in 30 days for Sharma Food Corner', type: 'warning' },
     { message: 'Inspection scheduled for Sharma Textiles on 15 Dec 2024', type: 'info' },
   ];
-
-  toggleSidebar() {
-    this.sidebarOpen = !this.sidebarOpen;
-  }
   logout(){
 
+  }
+    toggleSidebar() {
+    this.isSidebarCollapsed = !this.isSidebarCollapsed;
   }
   badgeClass(status: string) {
     return {
