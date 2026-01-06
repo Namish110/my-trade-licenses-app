@@ -6,6 +6,15 @@ export const routes: Routes = [
   // HOME PAGE
   { path: '', component: Home },
 
+    //Example to implement the AuthGuard
+    // {
+    //   path: 'dashboard',
+    //   canActivate: [AuthGuard],
+    //   loadComponent: () =>
+    //     import('./pages/dashboard/dashboard.component')
+    //       .then(m => m.DashboardComponent)
+    // }
+
     {
       path: 'login',
       loadComponent: () => import('./pages/login/login')
@@ -55,6 +64,11 @@ export const routes: Routes = [
       path: 'dashboard-layout',
       loadComponent: () => import('./layout/dashboard-layout/dashboard-layout')
         .then(m => m.DashboardLayout)
+    },
+    {
+      path: 'create-account',
+      loadComponent: () => import('./pages/create-account/create-account')
+        .then(m => m.CreateAccount)
     },
     
     { path: '**', redirectTo: '' }

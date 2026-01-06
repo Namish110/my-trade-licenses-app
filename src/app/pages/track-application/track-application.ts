@@ -2,12 +2,13 @@ import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
+import { Loader } from '../../shared/components/loader/loader';
 
 
 type SearchResult = 'found' | 'not_found' | null;
 @Component({
   selector: 'app-track-application',
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, Loader],
   templateUrl: './track-application.html',
   styleUrls: ['./track-application.css'],
 })
@@ -16,6 +17,7 @@ export class TrackApplication {
 
   applicationId: string = '';
   searchResult: SearchResult = null;
+  loading = false;
 
   applicationData = {
     id: 'APP-2024-005678',
@@ -37,6 +39,7 @@ export class TrackApplication {
   };
 
   onSearch() {
+    this.loading = true;
     if (this.applicationId.trim()) {
       // later replace with API call
       this.searchResult = 'found';

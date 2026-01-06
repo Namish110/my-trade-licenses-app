@@ -1,0 +1,129 @@
+<div class="page">
+
+  <!-- ================= LEFT PANEL ================= -->
+    <div class="left-panel">
+        <a routerLink="/login" class="back-link">← Back to Home</a>
+
+        <!-- Visual watermark -->
+        <div class="watermark">
+            <i class="bi bi-buildings"></i>
+        </div>
+
+        <div class="left-content-box">
+
+            <div class="brand">
+            <div class="brand-icon">
+                <i class="bi bi-building"></i>
+            </div>
+            <div>
+                <h1>GBA Trade License</h1>
+                <span>Greater Bengaluru Authority</span>
+            </div>
+            </div>
+
+            <h2 class="hero-title">
+            Digital Trade Licensing Portal
+            </h2>
+
+            <p class="hero-desc">
+            A unified platform for applying, renewing, tracking, and managing
+            trade licenses securely under the Greater Bengaluru Authority.
+            </p>
+
+            <div class="hero-points">
+            <div>✔ 24/7 Online Applications</div>
+            <div>✔ Real-time Status Tracking</div>
+            <div>✔ Instant Downloads & Receipts</div>
+            </div>
+        </div>
+    </div>
+
+
+
+  <!-- ================= RIGHT PANEL ================= -->
+  <div class="right-panel">
+
+    <div class="card card-lg">
+
+      <div class="card-header">
+        <h2>Create New Account</h2>
+        <p>Register to apply, renew, or manage your Trade License</p>
+      </div>
+
+      <form (ngSubmit)="onRegister()">
+
+        <!-- ===== SECTION 1 ===== -->
+        <div class="form-section">
+          <h4>Personal Details</h4>
+
+          <div class="form-grid">
+            <div>
+              <label>Full Name</label>
+              <input type="text" placeholder="Enter full name" required />
+            </div>
+
+            <div>
+              <label>Mobile Number</label>
+              <input type="tel" placeholder="Enter mobile number" required />
+            </div>
+
+            <div>
+              <label>Email Address</label>
+              <input type="email" placeholder="Enter email address" required />
+            </div>
+
+            <div>
+              <label>Residential Address</label>
+              <input type="text" placeholder="Enter residential address" required />
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== SECTION 2 ===== -->
+        <div class="form-section">
+          <h4>Login Credentials</h4>
+
+          <div class="form-grid">
+            <div>
+              <label>Password</label>
+              <input type="password" placeholder="Create password" required />
+            </div>
+
+            <div>
+              <label>Confirm Password</label>
+              <input type="password" placeholder="Confirm password" required />
+            </div>
+          </div>
+        </div>
+
+        <!-- ===== SECTION 3 ===== -->
+        <div class="form-section">
+          <h4>Mobile Verification</h4>
+
+          <div class="otp-field">
+            <input placeholder="Enter OTP" />
+            <button type="button" class="btn-outline">
+              Send OTP
+            </button>
+          </div>
+        </div>
+
+        <!-- ACTION -->
+        <button class="btn-primary btn-lg" type="submit">
+          Create Account →
+        </button>
+
+        <p class="switch">
+          Already registered?
+          <a routerLink="/login">Login here</a>
+        </p>
+
+      </form>
+
+      <p class="terms">
+        By continuing, you agree to GBA's Terms of Service and Privacy Policy
+      </p>
+
+    </div>
+  </div>
+</div>
