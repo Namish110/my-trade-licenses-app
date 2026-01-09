@@ -4,12 +4,20 @@ import { Injectable } from '@angular/core';
 @Injectable({
   providedIn: 'root'
 })
-export class ApiService {
+export class PortalAdminService {
 
   private baseUrl = 'https://localhost:7181/api'; // 👈 change to your backend
-
+  //https://localhost:7181/api/dashboard/application-status-count
   constructor(private http: HttpClient) {}
 
+  //#region Getting data to load in dashboard
+  getApplicationStatusCount(portalAdminId: number) {
+    return this.http.get<any>(
+      `${this.baseUrl}/dashboard/application-status-count/${portalAdminId}`
+    );
+  }
+  //#endregion
+  
   get<T>(url: string) {
     return this.http.get<T>(`${this.baseUrl}${url}`);
   }

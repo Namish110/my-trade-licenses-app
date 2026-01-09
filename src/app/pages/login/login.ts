@@ -13,39 +13,31 @@ import { AuthService } from '../../core/services/auth.service';
 })
 export class Login {
 
-  isLogin = true;
+  isLogin = false;
   showPassword = false;
   email = '';
   password = '';
-  username = '';
-  phone = '';
-
   constructor(private router: Router, private auth: AuthService) {}
 
   togglePassword() {
     this.showPassword = !this.showPassword;
   }
-
-  //We need to check the Authorization in backend and redirect the user accordingly 
-  // onSubmit() {
-  //   if (this.isLogin) {
-  //     alert('Login Successful\nWelcome to GBA Trade License Portal');
-  //     this.router.navigate(['/dashboard-layout']);
-  //   } else {
-  //     alert('Registration Successful\nPlease check your email to verify your account');
-  //   }
-  // }
-
   onSubmit() {
     const payload = {
-      username: this.username,
+      usernameOrPhone: this.email,
       password: this.password
     };
 
     this.auth.login(payload).subscribe({
-      next: () => this.router.navigate(['/dashboard']),
-      error: () => alert('Invalid credentials')
+    next: () => {
+        this.router.navigate(['/dashboard']);
+      },
+      error: (err) => {
+        alert('Invalid credentials');
+        console.error(err);
+      }
     });
   }
-
 }
+
+

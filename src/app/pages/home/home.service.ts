@@ -4,9 +4,9 @@ import { Injectable } from '@angular/core';
 @Injectable({
   providedIn: 'root'
 })
-export class ApiService {
+export class HomeService {
 
-  private baseUrl = 'https://localhost:7181/api'; // 👈 change to your backend
+  private baseUrl = 'https://localhost:5001/api'; // 👈 change to your backend
 
   constructor(private http: HttpClient) {}
 

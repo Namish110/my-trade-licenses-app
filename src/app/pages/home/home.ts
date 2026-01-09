@@ -76,7 +76,7 @@ export class Home {
     quickLinks: [
       { label: 'Apply for License', link: '/new-licenses' },
       { label: 'Track Application', link: '/track-application' },
-      { label: 'Renew License', link: '/trader/renew' },
+      { label: 'Renew License', link: '/renew-license' },
       { label: 'Fee Structure', link: '/fees' }
     ],
 

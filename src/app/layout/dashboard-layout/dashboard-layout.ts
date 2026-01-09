@@ -4,17 +4,40 @@ import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { BusinessOwner } from '../../pages/business-owner/business-owner';
+import { ApprovingOfficer } from '../../pages/approving-officer/approving-officer';
+import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-dashboard-layout',
-  imports: [PortalAdmin, CommonModule, FormsModule, RouterModule],  //PortalAdmin, BusinessOwner,
+  imports: [CommonModule, FormsModule, RouterModule],  //PortalAdmin, BusinessOwner,ApprovingOfficer
   templateUrl: './dashboard-layout.html',
   styleUrl: './dashboard-layout.css',
 })
 export class DashboardLayout {
+  workflowOpen = false;
   sidebarOpen = false;
   isSidebarCollapsed = false;
-  constructor(private router: Router) {}
+  constructor(private router: Router, private authService: AuthService) {}
+  role = ''; // Admin | Trader | Approver
+
+  
+
+  ngOnInit() {
+    //this.role = this.authService.getUserRole(); // from JWT
+    this.role = 'Admin'; // hardcoded for testing
+  }
+
+  isAdmin() {
+    return this.role === 'Admin';
+  }
+
+  isTrader() {
+    return this.role === 'Trader';
+  }
+
+  isApprover() {
+    return this.role === 'Approver';
+  }
 
   licenses = [
     {
@@ -64,5 +87,8 @@ export class DashboardLayout {
       under_review: 'badge bg-primary-subtle text-primary',
     }
     [status];
+  }
+  toggleWorkflowMenu() {
+    this.workflowOpen = !this.workflowOpen;
   }
 }

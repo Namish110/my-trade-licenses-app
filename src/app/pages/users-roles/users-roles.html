@@ -1,0 +1,78 @@
+<div class="page-header">
+  <div>
+    <h2>Manage Users & Roles</h2>
+    <p>Create users, assign roles, and manage approver hierarchy</p>
+  </div>
+
+  <button class="btn-primary">
+    <i class="bi bi-plus-lg"></i>
+    Add New User
+  </button>
+</div>
+
+<!-- FILTER BAR -->
+<div class="filter-bar">
+  <input type="text" placeholder="Search by name / email / user ID" />
+
+  <select>
+    <option value="">All Roles</option>
+    <option value="approver">Approver</option>
+    <option value="senior-approver">Senior Approver</option>
+  </select>
+
+  <select>
+    <option value="">All Status</option>
+    <option value="active">Active</option>
+    <option value="inactive">Inactive</option>
+  </select>
+</div>
+
+<!-- USERS TABLE -->
+<div class="card">
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>User ID</th>
+        <th>Name</th>
+        <th>Role</th>
+        <th>Email</th>
+        <th>Mobile</th>
+        <th>Jurisdiction</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <tr>
+        <td>GBA-APR-1023</td>
+        <td>Ramesh Kumar</td>
+        <td>Approver</td>
+        <td>ramesh@gba.gov.in</td>
+        <td>9876543210</td>
+        <td>Ward 42</td>
+        <td><span class="badge active">Active</span></td>
+        <td class="actions">
+          <button class="icon-btn"><i class="bi bi-pencil"></i></button>
+          <button class="icon-btn"><i class="bi bi-arrow-repeat"></i></button>
+          <button class="icon-btn danger"><i class="bi bi-x-circle"></i></button>
+        </td>
+      </tr>
+
+      <tr>
+        <td>GBA-SAPR-2011</td>
+        <td>Suresh Rao</td>
+        <td>Senior Approver</td>
+        <td>suresh@gba.gov.in</td>
+        <td>9123456780</td>
+        <td>Zone East</td>
+        <td><span class="badge inactive">Inactive</span></td>
+        <td class="actions">
+          <button class="icon-btn"><i class="bi bi-pencil"></i></button>
+          <button class="icon-btn"><i class="bi bi-arrow-repeat"></i></button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+

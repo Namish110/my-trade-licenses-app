@@ -1,0 +1,118 @@
+.trade-license-page {
+  max-width: 1100px;
+  margin: auto;
+  padding: 30px 0;
+}
+
+.page-header .title {
+  font-weight: 600;
+  color: #0d47a1;
+}
+
+.page-header .subtitle {
+  font-size: 15px;
+  color: #555;
+}
+
+.form-card {
+  border-radius: 6px;
+  border: 1px solid #dcdcdc;
+}
+
+.section-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #0d47a1;
+  border-bottom: 1px solid #e0e0e0;
+  padding-bottom: 6px;
+  margin-bottom: 15px;
+}
+
+.required::after {
+  content: " *";
+  color: red;
+}
+
+.form-label {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.form-control,
+.form-select {
+  font-size: 13px;
+}
+
+.btn-primary {
+  background-color: #0d47a1;
+  border-color: #0d47a1;
+}
+/* ===== LAYOUT ===== */
+.trade-layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ===== HEADER ===== */
+.portal-header {
+  background: #0d47a1;
+  color: #fff;
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.back-link {
+  color: #e3edff;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.back-link:hover {
+  text-decoration: underline;
+}
+
+.logo-box {
+  width: 40px;
+  height: 40px;
+  background: #ffffff;
+  color: #0d47a1;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+}
+
+.portal-title .main-title {
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.portal-title .sub-title {
+  font-size: 12px;
+  opacity: 0.85;
+}
+
+/* ===== PAGE ===== */
+.trade-license-page {
+  flex: 1;
+  padding: 30px 0;
+}
+
+/* ===== FOOTER ===== */
+.portal-footer {
+  background: #f1f3f6;
+  text-align: center;
+  font-size: 12px;
+  padding: 10px;
+  color: #555;
+}
+

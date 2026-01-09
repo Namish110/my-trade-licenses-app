@@ -1,0 +1,80 @@
+<div class="page-header">
+  <div>
+    <h2>System Settings</h2>
+    <p>Configure approval workflows, reminders, and escalations</p>
+  </div>
+</div>
+
+<!-- APPROVAL WORKFLOW -->
+<div class="card">
+  <h3>Approval Workflow Configuration</h3>
+
+  <div class="form-row">
+    <label>Default Approval Flow</label>
+    <select>
+      <option>Approver → Senior Approver</option>
+      <option>Direct Senior Approver (High Risk Trades)</option>
+    </select>
+  </div>
+
+  <div class="form-row">
+    <label>High-Risk Trade Threshold (₹)</label>
+    <input type="number" placeholder="e.g. 500000" />
+  </div>
+
+  <div class="form-row">
+    <label>Require Inspection Before Approval</label>
+    <select>
+      <option value="yes">Yes</option>
+      <option value="no">No</option>
+    </select>
+  </div>
+</div>
+
+<!-- REMINDER SETTINGS -->
+<div class="card">
+  <h3>Automated Reminder Settings</h3>
+
+  <div class="form-grid">
+    <div class="form-row">
+      <label>Renewal Reminder – First Alert</label>
+      <input type="number" placeholder="Days before expiry (e.g. 30)" />
+    </div>
+
+    <div class="form-row">
+      <label>Renewal Reminder – Second Alert</label>
+      <input type="number" placeholder="Days before expiry (e.g. 15)" />
+    </div>
+
+    <div class="form-row">
+      <label>Renewal Reminder – Final Alert</label>
+      <input type="number" placeholder="Days before expiry (e.g. 5)" />
+    </div>
+  </div>
+</div>
+
+<!-- ESCALATION RULES -->
+<div class="card">
+  <h3>Escalation Rules</h3>
+
+  <div class="form-row">
+    <label>Escalate to Senior Approver if Approver does not act within</label>
+    <input type="number" placeholder="Number of days (e.g. 7)" />
+  </div>
+
+  <div class="form-row">
+    <label>Escalation Notification</label>
+    <select>
+      <option>Email + SMS</option>
+      <option>Email Only</option>
+      <option>SMS Only</option>
+    </select>
+  </div>
+</div>
+
+<!-- ACTION BAR -->
+<div class="action-bar">
+  <button class="btn-secondary">Reset</button>
+  <button class="btn-primary">Save Settings</button>
+</div>
+

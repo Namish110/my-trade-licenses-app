@@ -14,11 +14,19 @@ export class AuthService {
   ) {}
 
   login(payload: any) {
-    return this.api.post<any>('/auth/login', payload).pipe(
+    return this.api.post<any>('/Auth/login', payload).pipe(
       tap(res => {
-        this.tokenService.setToken(res.token); // 👈 backend JWT
+        this.tokenService.setToken(res.accessToken); // JWT token
       })
     );
+  }
+
+  getUserRole(): string {
+    const token = this.tokenService.getToken();
+    if (!token) return '';
+
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return payload.role; // must match backend claim
   }
 
   logout() {

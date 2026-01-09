@@ -1,1 +1,141 @@
-<p>approving-officer works!</p>
+<div class="dashboard-wrapper">
+  <!-- ================= CONTENT ================= -->
+  <div class="container dashboard-content">
+
+    <!-- KPI CARDS -->
+    <div class="row g-3 mb-4">
+      <div class="col-md-3">
+        <div class="kpi-card warning">
+          <span>Pending Applications</span>
+          <h3>24</h3>
+        </div>
+      </div>
+
+      <div class="col-md-3">
+        <div class="kpi-card info">
+          <span>Inspections Scheduled</span>
+          <h3>7</h3>
+        </div>
+      </div>
+
+      <div class="col-md-3">
+        <div class="kpi-card danger">
+          <span>Overdue Items</span>
+          <h3>3</h3>
+        </div>
+      </div>
+
+      <div class="col-md-3">
+        <div class="kpi-card success">
+          <span>Renewals Pending</span>
+          <h3>12</h3>
+        </div>
+      </div>
+    </div>
+
+    <!-- ALERTS -->
+    <div class="alert alert-danger">
+      ⚠ Application <strong>TL-2026-0045</strong> is overdue for inspection
+    </div>
+
+    <!-- FILTERS -->
+    <div class="card filter-card mb-3">
+      <div class="card-body">
+        <div class="row g-2 align-items-end">
+          <div class="col-md-3">
+            <label class="form-label">Search</label>
+            <input class="form-control" placeholder="App No / Trader / TL ID" />
+          </div>
+
+          <div class="col-md-2">
+            <label class="form-label">Status</label>
+            <select class="form-select">
+              <option>All</option>
+              <option>Pending</option>
+              <option>Inspection</option>
+              <option>Forwarded</option>
+            </select>
+          </div>
+
+          <div class="col-md-2">
+            <label class="form-label">Trade Type</label>
+            <select class="form-select">
+              <option>All</option>
+              <option>Food</option>
+              <option>Commercial</option>
+            </select>
+          </div>
+
+          <div class="col-md-2">
+            <label class="form-label">Ward</label>
+            <select class="form-select">
+              <option>All</option>
+              <option>Ward 32</option>
+              <option>Ward 45</option>
+            </select>
+          </div>
+
+          <div class="col-md-3 text-end">
+            <button class="btn btn-secondary">Apply Filters</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- APPLICATION TABLE -->
+    <div class="card table-card">
+      <div class="card-body p-0">
+        <table class="table table-bordered table-hover mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Application No</th>
+              <th>Trader Name</th>
+              <th>Trade Type</th>
+              <th>Ward</th>
+              <th>Status</th>
+              <th>Deadline</th>
+              <th width="220">Actions</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr class="deadline-warning">
+              <td>TL-2026-0045</td>
+              <td>Ravi Bakery</td>
+              <td>Food & Beverage</td>
+              <td>Ward 32</td>
+              <td>Inspection Pending</td>
+              <td>06-Jan-2026</td>
+              <td>
+                <button class="btn btn-sm btn-primary">Inspect</button>
+                <button class="btn btn-sm btn-success">Approve</button>
+                <button class="btn btn-sm btn-warning">Forward</button>
+              </td>
+            </tr>
+
+            <tr>
+              <td>TL-2026-0048</td>
+              <td>Sri Stores</td>
+              <td>Retail</td>
+              <td>Ward 45</td>
+              <td>Pending</td>
+              <td>10-Jan-2026</td>
+              <td>
+                <button class="btn btn-sm btn-primary">Inspect</button>
+                <button class="btn btn-sm btn-danger">Reject</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ================= FOOTER ================= -->
+  <!-- <footer class="portal-footer">
+    © 2026 Greater Bengaluru Authority | Trade License Portal
+  </footer> -->
+
+</div>
+

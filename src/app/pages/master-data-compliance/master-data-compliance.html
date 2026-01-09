@@ -1,0 +1,137 @@
+<div class="page-header">
+  <div>
+    <h2>Master Data & Compliance</h2>
+    <p>Maintain trade categories, zones, rules, and fee structures</p>
+  </div>
+</div>
+
+<!-- TRADE CATEGORIES -->
+<div class="card">
+  <h3>Trade Categories</h3>
+
+  <div class="table-actions">
+    <button class="btn-primary">
+      <i class="bi bi-plus-lg"></i> Add Trade Category
+    </button>
+  </div>
+
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Trade Code</th>
+        <th>Trade Name</th>
+        <th>Risk Type</th>
+        <th>Requires Inspection</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <tr>
+        <td>TRD-001</td>
+        <td>Restaurant / Food Outlet</td>
+        <td>Medium</td>
+        <td>Yes</td>
+        <td><span class="badge active">Active</span></td>
+        <td class="actions">
+          <button class="icon-btn"><i class="bi bi-pencil"></i></button>
+          <button class="icon-btn danger"><i class="bi bi-x-circle"></i></button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- JURISDICTION MASTER -->
+<div class="card">
+  <h3>Jurisdiction Master</h3>
+
+  <div class="form-grid">
+    <div class="form-row">
+      <label>Zone</label>
+      <select>
+        <option>East Zone</option>
+        <option>West Zone</option>
+        <option>North Zone</option>
+        <option>South Zone</option>
+      </select>
+    </div>
+
+    <div class="form-row">
+      <label>Ward</label>
+      <input type="text" placeholder="Enter ward number/name" />
+    </div>
+  </div>
+</div>
+
+<!-- COMPLIANCE RULES -->
+<div class="card">
+  <h3>Compliance Rules</h3>
+
+  <div class="form-grid">
+    <div class="form-row">
+      <label>Trade Category</label>
+      <select>
+        <option>Restaurant / Food Outlet</option>
+        <option>Manufacturing</option>
+        <option>Retail Shop</option>
+      </select>
+    </div>
+
+    <div class="form-row">
+      <label>Minimum Road Width (meters)</label>
+      <input type="number" placeholder="e.g. 6" />
+    </div>
+
+    <div class="form-row">
+      <label>Maximum Power Load (KW)</label>
+      <input type="number" placeholder="e.g. 10" />
+    </div>
+
+    <div class="form-row">
+      <label>Fire Safety Required</label>
+      <select>
+        <option>Yes</option>
+        <option>No</option>
+      </select>
+    </div>
+  </div>
+</div>
+
+<!-- FEE STRUCTURE -->
+<div class="card">
+  <h3>Fee Structure Configuration</h3>
+
+  <div class="form-grid">
+    <div class="form-row">
+      <label>Trade Category</label>
+      <select>
+        <option>Restaurant / Food Outlet</option>
+        <option>Retail Shop</option>
+      </select>
+    </div>
+
+    <div class="form-row">
+      <label>Base License Fee (₹)</label>
+      <input type="number" placeholder="e.g. 2500" />
+    </div>
+
+    <div class="form-row">
+      <label>Additional Fee per KW (₹)</label>
+      <input type="number" placeholder="e.g. 200" />
+    </div>
+
+    <div class="form-row">
+      <label>Late Renewal Penalty (%)</label>
+      <input type="number" placeholder="e.g. 10" />
+    </div>
+  </div>
+</div>
+
+<!-- ACTION BAR -->
+<div class="action-bar">
+  <button class="btn-secondary">Reset</button>
+  <button class="btn-primary">Save Changes</button>
+</div>
+
