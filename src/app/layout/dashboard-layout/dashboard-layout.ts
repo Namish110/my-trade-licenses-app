@@ -18,13 +18,13 @@ export class DashboardLayout {
   sidebarOpen = false;
   isSidebarCollapsed = false;
   constructor(private router: Router, private authService: AuthService) {}
-  role = ''; // Admin | Trader | Approver
+  role = ''; // Admin | Trader | Approver | SeniorApprover
 
   
 
   ngOnInit() {
     //this.role = this.authService.getUserRole(); // from JWT
-    this.role = 'Admin'; // hardcoded for testing
+    this.role = 'SeniorApprover'; // hardcoded for testing
   }
 
   isAdmin() {
@@ -37,6 +37,10 @@ export class DashboardLayout {
 
   isApprover() {
     return this.role === 'Approver';
+  }
+
+  isSeniorApprover() {
+    return this.role === 'SeniorApprover';
   }
 
   licenses = [
@@ -74,12 +78,11 @@ export class DashboardLayout {
     { message: 'License renewal due in 30 days for Sharma Food Corner', type: 'warning' },
     { message: 'Inspection scheduled for Sharma Textiles on 15 Dec 2024', type: 'info' },
   ];
-  logout(){
-
-  }
+  
     toggleSidebar() {
     this.isSidebarCollapsed = !this.isSidebarCollapsed;
   }
+
   badgeClass(status: string) {
     return {
       active: 'badge bg-success-subtle text-success',
@@ -88,7 +91,15 @@ export class DashboardLayout {
     }
     [status];
   }
+
   toggleWorkflowMenu() {
     this.workflowOpen = !this.workflowOpen;
+  }
+
+  logout() {
+    this.authService.logout();
+    this.router.navigate(['/login'], {
+      replaceUrl: true
+    });
   }
 }

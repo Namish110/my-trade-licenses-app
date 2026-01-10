@@ -1,20 +1,12 @@
-import { Component, AfterViewInit } from '@angular/core';
+import { Component, AfterViewInit, Inject, PLATFORM_ID } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import * as L from 'leaflet';
 import { RouterModule } from '@angular/router';
+import { isPlatformBrowser } from '@angular/common';
 
 /* =========================
    FIX LEAFLET ICON ISSUE
 ========================= */
-delete (L.Icon.Default.prototype as any)._getIconUrl;
-
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'marker-icon-2x.png',
-  iconUrl: 'marker-icon.png',
-  shadowUrl: 'marker-shadow.png'
-});
-
 interface TradeGridItem {
   major: string;
   minor: string;
@@ -29,11 +21,16 @@ interface TradeGridItem {
   styleUrl: './new-licenses.css',
 })
 export class NewLicenses {
-  /* =========================
-     STEPPER
-  ========================= */
+  //Stepper Logic
   currentStep = 0; // 0 = Declaration
   agree = false;
+
+  //For map
+  private L: any;
+  map: any;
+  marker: any;
+
+  constructor(@Inject(PLATFORM_ID) private platformId: Object) {}
 
   startApplication() {
     this.currentStep = 1;
@@ -190,32 +187,44 @@ export class NewLicenses {
   /* =========================
      MAP + LOCATION SEARCH
   ========================= */
-  map!: L.Map;
-  marker!: L.Marker;
-
   latitude: number | null = null;
   longitude: number | null = null;
 
   searchText = '';
   searchResults: any[] = [];
 
-  ngAfterViewInit(): void {}
+  //ngAfterViewInit(): void {}
 
   initMap() {
-    if (this.map) return;
+    if (!this.L || this.map) return;
 
-    this.map = L.map('map', {
+    this.map = this.L.map('map', {
       center: [12.9716, 77.5946],
       zoom: 11
     });
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    this.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© OpenStreetMap contributors'
     }).addTo(this.map);
 
     this.map.on('click', (e: any) => {
       this.setMarker(e.latlng.lat, e.latlng.lng);
     });
+  }
+
+  async ngAfterViewInit() {
+    if (isPlatformBrowser(this.platformId)) {
+      const leaflet = await import('leaflet');
+      this.L = leaflet;
+
+      delete (this.L.Icon.Default.prototype as any)._getIconUrl;
+
+      this.L.Icon.Default.mergeOptions({
+        iconRetinaUrl: 'marker-icon-2x.png',
+        iconUrl: 'marker-icon.png',
+        shadowUrl: 'marker-shadow.png'
+      });
+    }
   }
 
   setMarker(lat: number, lng: number) {
@@ -225,9 +234,10 @@ export class NewLicenses {
     if (this.marker) {
       this.marker.setLatLng([lat, lng]);
     } else {
-      this.marker = L.marker([lat, lng]).addTo(this.map);
+      this.marker = this.L.marker([lat, lng]).addTo(this.map);
     }
   }
+
 
   /* =========================
      LOCATION SEARCH (NOMINATIM)

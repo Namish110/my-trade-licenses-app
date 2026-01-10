@@ -30,10 +30,16 @@ export class AuthService {
   }
 
   logout() {
-    this.tokenService.clear();
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    sessionStorage.clear();
   }
 
   isLoggedIn(): boolean {
     return !!this.tokenService.getToken();
+  }
+
+  getToken(): string | null {
+    return localStorage.getItem('token');
   }
 }

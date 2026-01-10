@@ -1,113 +1,78 @@
-<div class="dashboard-wrapper">
-  <!-- ================= CONTENT ================= -->
-  <div class="container dashboard-content">
 
-    <!-- KPI CARDS -->
-    <div class="row g-3 mb-4">
+
+<!-- ALERT -->
+<div class="alert alert-warning">
+  ⚠ Application <strong>TL-2026-0102</strong> pending final decision beyond SLA
+</div>
+
+<!-- FILTERS -->
+<div class="card filter-card mb-3">
+  <div class="card-body">
+    <div class="row g-2 align-items-end">
       <div class="col-md-3">
-        <div class="kpi-card primary">
-          <span>Forwarded Applications</span>
-          <h3>18</h3>
-        </div>
+        <label class="form-label">Search</label>
+        <input class="form-control" placeholder="Application No / Trader" />
       </div>
 
-      <div class="col-md-3">
-        <div class="kpi-card warning">
-          <span>Pending Final Approval</span>
-          <h3>6</h3>
-        </div>
+      <div class="col-md-2">
+        <label class="form-label">Status</label>
+        <select class="form-select">
+          <option>All</option>
+          <option>Pending</option>
+          <option>Approved</option>
+          <option>Rejected</option>
+        </select>
       </div>
 
-      <div class="col-md-3">
-        <div class="kpi-card info">
-          <span>High-Value Inspections</span>
-          <h3>4</h3>
-        </div>
+      <div class="col-md-2">
+        <label class="form-label">Priority</label>
+        <select class="form-select">
+          <option>All</option>
+          <option>High</option>
+          <option>Normal</option>
+        </select>
       </div>
 
-      <div class="col-md-3">
-        <div class="kpi-card danger">
-          <span>Overdue Decisions</span>
-          <h3>2</h3>
-        </div>
+      <div class="col-md-3 text-end">
+        <button class="btn btn-secondary">Apply Filters</button>
       </div>
     </div>
+  </div>
+</div>
 
-    <!-- ALERT -->
-    <div class="alert alert-warning">
-      ⚠ Application <strong>TL-2026-0102</strong> pending final decision beyond SLA
-    </div>
+<!-- TABLE -->
+<div class="card table-card">
+  <div class="card-body p-0">
+    <table class="table table-bordered table-hover mb-0">
+      <thead class="table-light">
+        <tr>
+          <th>Application No</th>
+          <th>Trader Name</th>
+          <th>Approver</th>
+          <th>Status</th>
+          <th>Inspection</th>
+          <th>Deadline</th>
+          <th width="240">Actions</th>
+        </tr>
+      </thead>
 
-    <!-- FILTERS -->
-    <div class="card filter-card mb-3">
-      <div class="card-body">
-        <div class="row g-2 align-items-end">
-          <div class="col-md-3">
-            <label class="form-label">Search</label>
-            <input class="form-control" placeholder="Application No / Trader" />
-          </div>
-
-          <div class="col-md-2">
-            <label class="form-label">Status</label>
-            <select class="form-select">
-              <option>All</option>
-              <option>Pending</option>
-              <option>Approved</option>
-              <option>Rejected</option>
-            </select>
-          </div>
-
-          <div class="col-md-2">
-            <label class="form-label">Priority</label>
-            <select class="form-select">
-              <option>All</option>
-              <option>High</option>
-              <option>Normal</option>
-            </select>
-          </div>
-
-          <div class="col-md-3 text-end">
-            <button class="btn btn-secondary">Apply Filters</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- TABLE -->
-    <div class="card table-card">
-      <div class="card-body p-0">
-        <table class="table table-bordered table-hover mb-0">
-          <thead class="table-light">
-            <tr>
-              <th>Application No</th>
-              <th>Trader Name</th>
-              <th>Approver</th>
-              <th>Status</th>
-              <th>Inspection</th>
-              <th>Deadline</th>
-              <th width="240">Actions</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            <tr class="deadline-warning">
-              <td>TL-2026-0102</td>
-              <td>Shree Foods</td>
-              <td>Ward Officer – 32</td>
-              <td>Forwarded</td>
-              <td>Completed</td>
-              <td>07-Jan-2026</td>
-              <td>
-                <button class="btn btn-sm btn-primary">View</button>
-                <button class="btn btn-sm btn-success">Final Approve</button>
-                <button class="btn btn-sm btn-warning">Send Back</button>
-                <button class="btn btn-sm btn-danger">Reject</button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
+      <tbody>
+        <tr class="deadline-warning">
+          <td>TL-2026-0102</td>
+          <td>Shree Foods</td>
+          <td>Ward Officer – 32</td>
+          <td>Forwarded</td>
+          <td>Completed</td>
+          <td>07-Jan-2026</td>
+          <td>
+            <button class="btn btn-sm btn-primary">View</button>
+            <button class="btn btn-sm btn-success">Final Approve</button>
+            <button class="btn btn-sm btn-warning">Send Back</button>
+            <button class="btn btn-sm btn-danger">Reject</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 </div>
 

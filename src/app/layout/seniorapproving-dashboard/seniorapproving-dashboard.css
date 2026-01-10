@@ -1,0 +1,31 @@
+.dashboard-wrapper {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+/* CONTENT */
+.dashboard-content {
+  flex: 1;
+  padding: 25px 0;
+}
+
+/* KPI CARDS */
+.kpi-card {
+  padding: 15px;
+  border-radius: 6px;
+  color: #fff;
+}
+
+.kpi-card h3 {
+  margin: 5px 0 0;
+  font-weight: 700;
+}
+
+.kpi-card span {
+  font-size: 13px;
+}
+
+.kpi-card.primary { background: #3f51b5; }
+.kpi-card.warning { background: #ff9800; }
+.kpi-card.info    { background: #2196f3; }
+.kpi-card.danger  { background: #f44336; }

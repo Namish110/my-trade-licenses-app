@@ -6,6 +6,15 @@ import { ReportsDashboard } from './layout/reports-dashboard/reports-dashboard';
 import { UsersRoles } from './pages/users-roles/users-roles';
 import { SystemSettings } from './pages/system-settings/system-settings';
 import { MasterDataCompliance } from './pages/master-data-compliance/master-data-compliance';
+import { TraderLicenses } from './pages/trader-licenses/trader-licenses';
+import { NewLicenses } from './pages/new-licenses/new-licenses';
+import { ApprovingOfficer } from './pages/approving-officer/approving-officer';
+import { RenewLicense } from './pages/renew-license/renew-license';
+import { RenewalStatus } from './pages/renewal-status/renewal-status';
+import { TrackApplication } from './pages/track-application/track-application';
+import { SeniorApprovingOfficer } from './pages/senior-approving-officer/senior-approving-officer';
+import { ApprovingDashboard } from './layout/approving-dashboard/approving-dashboard';
+import { SeniorapprovingDashboard } from './layout/seniorapproving-dashboard/seniorapproving-dashboard';
 
 export const routes: Routes = [
   { path: '', component: Home },
@@ -24,6 +33,49 @@ export const routes: Routes = [
       { path: 'system-settings', component: SystemSettings },
       { path: 'master-data-compliance', component: MasterDataCompliance }
 
+    ]
+  },
+
+  {
+    path: 'trader',
+    component: DashboardLayout,
+    children: [
+
+      // DEFAULT PAGE inside dashboard
+      { path: '', component: TraderLicenses },
+
+      // OTHER PAGES
+      { path: 'trader-licenses', component: TraderLicenses },
+      { path: 'new-licenses', component: NewLicenses },
+      { path: 'renew-license', component: RenewLicense },
+      { path: 'renewal-status', component: RenewalStatus },
+      { path: 'track-application', component: TrackApplication }
+    ]
+  },
+  {
+    path: 'senior-approver',
+    component: DashboardLayout,
+    children: [
+
+      // DEFAULT PAGE inside dashboard
+      { path: '', component: SeniorapprovingDashboard },
+      { path: 'senior-approving-officer', component: SeniorApprovingOfficer },
+      { path: 'reports', component: ReportsDashboard }
+
+      // OTHER PAGES
+    ]
+  },
+  {
+    path: 'approver',
+    component: DashboardLayout,
+    children: [
+
+      // DEFAULT PAGE inside dashboard
+      { path: '', component: ApprovingDashboard },
+      { path: 'approving-officer', component: ApprovingOfficer },
+      { path: 'reports', component: ReportsDashboard }
+
+      // OTHER PAGES
     ]
   },
 
@@ -104,11 +156,11 @@ export const routes: Routes = [
       loadComponent: () => import('./pages/approver-renewal-list/approver-renewal-list')
         .then(m => m.ApproverRenewalList)
     },
-    {
-      path: 'renew-license',
-      loadComponent: () => import('./pages/renew-license/renew-license')
-        .then(m => m.RenewLicense)
-    },
+    // {
+    //   path: 'renew-license',
+    //   loadComponent: () => import('./pages/renew-license/renew-license')
+    //     .then(m => m.RenewLicense)
+    // },
     {
       path: 'renewal-status',
       loadComponent: () => import('./pages/renewal-status/renewal-status')
