@@ -170,3 +170,62 @@
   margin-left: 70px;
   width: calc(100% - 70px);
 }
+
+/* ============================= */
+/* APPROVAL WORKFLOWS SUB MENU   */
+/* ============================= */
+
+/* Container */
+.menu-group {
+  width: 100%;
+}
+
+/* Parent menu item */
+.menu-group > .menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Submenu wrapper */
+.submenu {
+  margin-top: 4px;
+  margin-left: 28px;
+}
+
+/* Submenu items */
+.submenu .menu-item {
+  padding: 6px 12px;
+  font-size: 13.5px;
+  border-radius: 8px;
+  color: #64748b; /* calm grey */
+  background: transparent;
+}
+
+/* Hover (very soft) */
+.submenu .menu-item:hover {
+  background: #f8fafc;
+  color: #1e293b;
+}
+
+/* Active submenu */
+.submenu .menu-item.active {
+  background: #eef2ff;
+  color: #1d4ed8;
+  font-weight: 500;
+}
+
+/* Parent active when submenu open */
+.menu-group > .menu-item.active {
+  background: #f1f5ff;
+  color: #1d4ed8;
+  font-weight: 500;
+}
+
+/* Chevron */
+.menu-group .bi-chevron-down {
+  margin-left: auto;
+  font-size: 12px;
+  opacity: 0.6;
+}
+

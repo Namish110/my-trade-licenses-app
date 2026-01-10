@@ -15,6 +15,10 @@ import { TrackApplication } from './pages/track-application/track-application';
 import { SeniorApprovingOfficer } from './pages/senior-approving-officer/senior-approving-officer';
 import { ApprovingDashboard } from './layout/approving-dashboard/approving-dashboard';
 import { SeniorapprovingDashboard } from './layout/seniorapproving-dashboard/seniorapproving-dashboard';
+import { ControlSheet } from './shared/components/reports/control-sheet/control-sheet';
+import { NotRenewedLicenses } from './shared/components/reports/not-renewed-licenses/not-renewed-licenses';
+import { RevenueCollection } from './shared/components/reports/revenue-collection/revenue-collection';
+import { WardWiseLicenses } from './shared/components/reports/ward-wise-licenses/ward-wise-licenses';
 
 export const routes: Routes = [
   { path: '', component: Home },
@@ -22,6 +26,20 @@ export const routes: Routes = [
     path: 'admin',
     component: DashboardLayout,
     children: [
+
+      {
+        path: 'workflows',
+        children: [
+          {
+            path: 'approving-officer',
+            component: ApprovingOfficer
+          },
+          {
+            path: 'senior-approving-officer',
+            component: SeniorApprovingOfficer
+          }
+        ]
+      },
 
       // DEFAULT PAGE inside dashboard
       { path: '', component: PortalAdmin },
@@ -31,7 +49,13 @@ export const routes: Routes = [
       { path: 'reports', component: ReportsDashboard },
       { path: 'user-roles', component: UsersRoles },
       { path: 'system-settings', component: SystemSettings },
-      { path: 'master-data-compliance', component: MasterDataCompliance }
+      { path: 'master-data-compliance', component: MasterDataCompliance },
+
+      // REPORT PAGES (FLAT)
+      { path: 'reports/control-sheet', component: ControlSheet },
+      { path: 'reports/not-renewed-licenses', component: NotRenewedLicenses },
+      { path: 'reports/revenue-collection', component: RevenueCollection },
+      { path: 'reports/ward-wise-licenses', component: WardWiseLicenses },
 
     ]
   },

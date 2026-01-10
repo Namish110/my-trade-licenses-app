@@ -1,0 +1,111 @@
+<div class="control-sheet-container">
+   <!-- BACK LINK -->
+    <div class="back-link">
+        <a routerLink="/admin/reports">
+            <i class="bi bi-arrow-left"></i>
+            <span>Back to Reports</span>
+        </a>
+    </div>
+
+  <!-- HEADER -->
+  <div class="page-header">
+    <div>
+      <h2>Control Sheet</h2>
+      <p>Summary of applications by status</p>
+    </div>
+
+    <div class="header-actions">
+      <button class="btn secondary">Export PDF</button>
+      <button class="btn primary">Export Excel</button>
+    </div>
+  </div>
+
+  <!-- FILTERS -->
+  <div class="filters-card">
+    <div class="filter-group">
+      <label>Financial Year</label>
+      <select>
+        <option>2024–2025</option>
+        <option>2023–2024</option>
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <label>Zone</label>
+      <select>
+        <option>All Zones</option>
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <label>Status</label>
+      <select>
+        <option>All</option>
+        <option>Approved</option>
+        <option>Pending</option>
+        <option>Rejected</option>
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <button class="btn primary">Apply</button>
+    </div>
+  </div>
+
+  <!-- SUMMARY CARDS -->
+  <div class="summary-grid">
+
+    <div class="summary-card approved">
+      <h4>Approved</h4>
+      <span class="count">1,245</span>
+    </div>
+
+    <div class="summary-card pending">
+      <h4>Pending</h4>
+      <span class="count">342</span>
+    </div>
+
+    <div class="summary-card rejected">
+      <h4>Rejected</h4>
+      <span class="count">58</span>
+    </div>
+
+    <div class="summary-card total">
+      <h4>Total Applications</h4>
+      <span class="count">1,645</span>
+    </div>
+
+  </div>
+
+  <!-- TABLE -->
+  <div class="table-card">
+    <table>
+      <thead>
+        <tr>
+          <th>Status</th>
+          <th>No. of Applications</th>
+          <th>Percentage</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Approved</td>
+          <td>1,245</td>
+          <td>75.7%</td>
+        </tr>
+        <tr>
+          <td>Pending</td>
+          <td>342</td>
+          <td>20.8%</td>
+        </tr>
+        <tr>
+          <td>Rejected</td>
+          <td>58</td>
+          <td>3.5%</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+

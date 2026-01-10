@@ -31,7 +31,7 @@ export class Login {
     this.auth.login(payload).subscribe({
     next: () => {
         //write a logic to redirect based on role
-        this.router.navigate(['/senior-approver']);
+        this.router.navigate(['/admin']);
       },
       error: (err) => {
         alert('Invalid credentials');

@@ -13,21 +13,21 @@
     <div class="report-card">
       <h3>Control Sheet</h3>
       <p>Summary of applications by status</p>
-      <button>View Report</button>
+      <button (click)="onControlSheetClick()">View Report</button>
     </div>
 
     <!-- Not Renewed -->
     <div class="report-card">
       <h3>Not Renewed Licenses</h3>
       <p>Licenses not renewed for selected year</p>
-      <button>View Report</button>
+      <button (click)="onNotRenewedLicensesClick()">View Report</button>
     </div>
 
     <!-- Ward-wise -->
     <div class="report-card">
       <h3>Ward-wise Licenses</h3>
       <p>Detailed report by ward / zone</p>
-      <button>View Report</button>
+      <button (click)="onWardWiseLicensesClick()">View Report</button>
     </div>
 
     <!-- Compliance -->
@@ -41,9 +41,8 @@
     <div class="report-card">
       <h3>Revenue & Collections</h3>
       <p>Payments and collection summary</p>
-      <button>View Report</button>
+      <button (click)="onRevenueCollectionClick()">View Report</button>
     </div>
-
   </div>
 </div>
 

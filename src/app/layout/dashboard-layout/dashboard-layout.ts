@@ -14,8 +14,9 @@ import { AuthService } from '../../core/services/auth.service';
   styleUrl: './dashboard-layout.css',
 })
 export class DashboardLayout {
-  workflowOpen = false;
+  //workflowOpen = false;
   sidebarOpen = false;
+  isWorkflowMenuOpen = false;
   isSidebarCollapsed = false;
   constructor(private router: Router, private authService: AuthService) {}
   role = ''; // Admin | Trader | Approver | SeniorApprover
@@ -24,7 +25,7 @@ export class DashboardLayout {
 
   ngOnInit() {
     //this.role = this.authService.getUserRole(); // from JWT
-    this.role = 'SeniorApprover'; // hardcoded for testing
+    this.role = 'Admin'; // hardcoded for testing
   }
 
   isAdmin() {
@@ -92,8 +93,11 @@ export class DashboardLayout {
     [status];
   }
 
+  // toggleWorkflowMenu() {
+  //   this.workflowOpen = !this.workflowOpen;
+  // }
   toggleWorkflowMenu() {
-    this.workflowOpen = !this.workflowOpen;
+    this.isWorkflowMenuOpen = !this.isWorkflowMenuOpen;
   }
 
   logout() {

@@ -54,20 +54,53 @@
           <span>System Settings</span>
         </a>
 
-        <a class="menu-item" routerLink="/admin/workflows" routerLinkActive="active">
+        <!-- <a class="menu-item" routerLink="/admin/workflows" routerLinkActive="active">
           <i class="bi bi-diagram-3"></i>
           <span>Approval Workflows</span>
-        </a>
+        </a> -->
+        <div class="menu-group">
+          <div class="menu-item"
+              (click)="toggleWorkflowMenu()"
+              [class.active]="isWorkflowMenuOpen">
+            <i class="bi bi-diagram-3"></i>
+            <span>Approval Workflows</span>
+            <i class="bi bi-chevron-down ms-auto small"></i>
+          </div>
+          <div class="submenu" *ngIf="isWorkflowMenuOpen">
+            <a class="menu-item submenu-item"
+              routerLink="/admin/workflows/approving-officer"
+              routerLinkActive="active">
+              <i class="bi bi-dot"></i>
+              <span>Approving Officer</span>
+            </a>
+            <a class="menu-item submenu-item"
+              routerLink="/admin/workflows/senior-approving-officer"
+              routerLinkActive="active">
+              <i class="bi bi-dot"></i>
+              <span>Senior Approving Officer</span>
+            </a>
+          </div>
+        </div>
+
+
 
         <a class="menu-item" routerLink="/admin/master-data-compliance" routerLinkActive="active">
           <i class="bi bi-database"></i>
           <span>Master Data</span>
         </a>
 
-        <a class="menu-item" routerLink="/admin/compliance" routerLinkActive="active">
+        <!-- <a class="menu-item" routerLink="/admin/compliance" routerLinkActive="active">
           <i class="bi bi-shield-check"></i>
           <span>Compliance Rules</span>
-        </a>
+        </a> -->
+        <!-- <a
+          class="menu-item"
+          routerLink="/payments"
+          routerLinkActive="active"
+          >
+          <i class="bi bi-credit-card"></i>
+          Payments
+        </a> -->
 
         <a class="menu-item" routerLink="/admin/monitoring" routerLinkActive="active">
           <i class="bi bi-activity"></i>
