@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { PortalAdminModel } from '../../core/models/portal-admin.model';
 
 @Injectable({
   providedIn: 'root'
@@ -28,5 +29,9 @@ export class PortalAdminService {
 
   put<T>(url: string, body: any) {
     return this.http.put<T>(`${this.baseUrl}${url}`, body);
+  }
+  
+   getAdminStatusCount(url: string) {
+    return this.http.get<PortalAdminModel[]>(`${this.baseUrl}${url}`);
   }
 }

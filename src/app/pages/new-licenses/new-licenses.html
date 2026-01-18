@@ -9,19 +9,21 @@
 
     <div class="card-body">
 <div *ngIf="currentStep === 0">
-
+  <h6>
+    {{ infoAboutIssueRelated }}
+  </h6>
   <h5 class="text-center fw-bold mb-3">
     DECLARATION BY APPLICANT
   </h5>
 
   <div class="alert alert-light border">
     <ol class="small">
-      <li>I/We affirm that the information furnished is true and correct.</li>
-      <li>The trade license is applicable only for the declared trade.</li>
-      <li>Unauthorized constructions are not regularized.</li>
-      <li>The license may be cancelled if violations are found.</li>
-      <li>No child labour will be employed.</li>
-      <li>I/We agree to comply with BBMP / GBA regulations.</li>
+      <li>{{ infoAboutRules1 }}</li>
+      <li>{{ infoAboutRules2 }}</li>
+      <li>{{ infoAboutRules3 }}</li>
+      <li>{{ infoAboutRules4 }}</li>
+      <li>{{ infoAboutRules5 }}</li>
+      <li>{{ infoAboutRules6 }}</li>
     </ol>
   </div>
 
@@ -78,9 +80,8 @@
       <!-- ======================================================
            STEP 1 – BASIC DETAILS
       ======================================================= -->
-      <div *ngIf="currentStep === 1">
-
-        <h5 class="section-title">Applicant Representation</h5>
+      <div [hidden]="currentStep !== 1">
+        <h5 class="section-title required">Applicant Representation</h5>
         <div class="mb-3">
           <label class="form-check form-check-inline" *ngFor="let r of representations">
             <input type="radio" class="form-check-input" name="rep">
@@ -91,31 +92,73 @@
         <h5 class="section-title">Trade Details</h5>
         <div class="row g-3">
           <div class="col-md-4">
-            <label>Trade Type *</label>
-            <select class="form-select">
-              <option>Select</option>
-              <option>Trade</option>
-              <option>Power</option>
-              <option>Trade & Power</option>
+            <label class="required">Trade Type</label>
+            <select class="form-select" [(ngModel)]="selectedTradeType">
+              <option [ngValue]="null">Select</option>
+              <option *ngFor="let trade of tradeTypes" [ngValue]="trade">
+                {{ trade.tradeTypeName }}
+              </option>
             </select>
           </div>
           <div class="col-md-4">
-            <label>Trade Name *</label>
-            <input class="form-control">
+            <label class="required">Trade Name</label>
+            <input class="form-control" id="tradeName" [(ngModel)]="tradeLicenseApplicationDetails.tradeName">
           </div>
           <div class="col-md-4">
-            <label>BESCOM RR No *</label>
-            <input class="form-control">
+            <label class="required">Application Name</label>
+            <input class="form-control" id="applicationName" [(ngModel)]="tradeLicenseApplicationDetails.applicantName">
+          </div>
+        </div>
+        <div class="row g-3">
+          <div class="col-md-4">
+            <label>Email</label>
+            <input class="form-control" [(ngModel)]="tradeLicenseApplicationDetails.emailID">
+          </div>
+          <div class="col-md-4">
+            <label class="required">Mobile No.</label>
+            <input class="form-control"
+              type="text"
+              maxlength="10"
+              [(ngModel)]="tradeLicenseApplicationDetails.mobileNumber"
+              name="mobileNo">
+          </div>
+          <div class="col-md-4">
+            <label>Telephone No.</label>
+            <input class="form-control" [(ngModel)]="tradeLicenseApplicationDetails.landLineNumber">
+          </div>
+        </div>
+        <div class="row g-3">
+          <div class="col-md-4">
+            <label class="required">MLA Constituency</label>
+            <select class="form-select" [(ngModel)]="selectedMLAConstituency" (change)="onMLAConstituencyChange()">
+              <option [ngValue]="null">Select</option>
+              <option *ngFor="let mla of mlaConstituencies" [ngValue]="mla">
+                {{ mla.mohName }}
+              </option>
+            </select>
+          </div>
+          <div class="col-md-4">
+            <label class="required">Ward</label>
+            <select class="form-select" [(ngModel)]="selectedWard" [disabled]="!selectedMLAConstituency">
+              <option [ngValue]="null">Select</option>
+              <option *ngFor="let w of wards" [ngValue]="w">
+                {{ w.wardName }}
+              </option>
+            </select>
+          </div>
+          <div class="col-md-4">
+            <label class="required">BESCOM RR No.</label>
+            <input class="form-control" id="bescom" [(ngModel)]="tradeLicenseApplications.bescomRRNumber">
           </div>
         </div>
 
         <h5 class="section-title mt-4">Address Information</h5>
         <div class="row g-3">
-          <div class="col-md-3"><input class="form-control" placeholder="Ward"></div>
-          <div class="col-md-3"><input class="form-control" placeholder="Door No"></div>
-          <div class="col-md-3"><input class="form-control" placeholder="Street"></div>
-          <div class="col-md-3"><input class="form-control" placeholder="Area"></div>
-          <div class="col-md-3"><input class="form-control" placeholder="Pincode"></div>
+          <!-- <div class="col-md-3"><input class="form-control" placeholder="Ward"></div> -->
+          <div class="col-md-3"><input class="form-control" placeholder="Door No *" id="doorNo" [(ngModel)]="tradeLicenseApplicationDetails.doorNumber"></div>
+          <div class="col-md-3"><input class="form-control" placeholder="Street *" id="street" [(ngModel)]="tradeLicenseApplicationDetails.address1"></div>
+          <div class="col-md-3"><input class="form-control" placeholder="Area *" id="area" [(ngModel)]="tradeLicenseApplicationDetails.address2"></div>
+          <div class="col-md-3"><input class="form-control" placeholder="Pincode *" id="pincode" [(ngModel)]="tradeLicenseApplicationDetails.pincode"></div>
         </div>
 
         <div class="text-end mt-4">
@@ -134,44 +177,45 @@
 
         <div class="row g-3 align-items-end">
           <div class="col-md-4">
-            <label>Major Trade</label>
+            <label class="required">Major Trade</label>
             <select class="form-select"
                     [(ngModel)]="selectedMajor"
-                    (change)="selectedMinor=null;selectedSub=null">
+                    (change)="onMajorChange()">
               <option [ngValue]="null">Select</option>
-              <option *ngFor="let m of majorTrades" [ngValue]="m">
-                {{ m.name }}
+              <option *ngFor="let m of tradeMajors" [ngValue]="m">
+                {{ m.tradeMajorName }}
               </option>
             </select>
           </div>
 
           <div class="col-md-4">
-            <label>Minor Trade</label>
+            <label class="required">Minor Trade</label>
             <select class="form-select"
                     [(ngModel)]="selectedMinor"
+                    (change)="onMinorChange()"
                     [disabled]="!selectedMajor">
               <option [ngValue]="null">Select</option>
-              <option *ngFor="let mi of selectedMajor?.minors" [ngValue]="mi">
-                {{ mi.name }}
+              <option *ngFor="let mi of tradeMinors" [ngValue]="mi">
+                {{ mi.tradeMinorName }}
               </option>
             </select>
           </div>
 
           <div class="col-md-4">
-            <label>Sub Trade</label>
+            <label class="required">Sub Trade</label>
             <select class="form-select"
                     [(ngModel)]="selectedSub"
                     [disabled]="!selectedMinor">
               <option [ngValue]="null">Select</option>
-              <option *ngFor="let s of selectedMinor?.subs" [ngValue]="s">
-                {{ s.name }}
+              <option *ngFor="let s of tradeSubs" [ngValue]="s">
+                {{ s.tradeSubName }}
               </option>
             </select>
           </div>
         </div>
 
         <div class="mt-3">
-          <strong>Rate:</strong> {{ selectedSub?.rate || '--' }}
+          <strong>Rate:</strong> {{ '--' }}
           <button class="btn btn-primary ms-3" (click)="addTrade()">Add</button>
         </div>
 
@@ -222,25 +266,50 @@
 
         <div class="row g-3">
           <div class="col-md-4">
-            <label>Date of Application</label>
+            <label class="required">Jurisdiction of Health Officer (Zone)</label>
+            <select class="form-select" [(ngModel)]="selectedZone">
+              <option [ngValue]="null">Select</option>
+              <option *ngFor="let z of zones" [ngValue]="z">
+                {{ z.zoneName }}
+              </option>
+            </select>
+          </div>
+          <div class="col-md-4">
+            <label class="required">Date of Application</label>
             <input class="form-control" [value]="applicationDate" readonly>
           </div>
-          <div class="col-md-4">
+          <!-- <div class="col-md-4">
             <label>Proposed Commencement</label>
             <input type="date" class="form-control" [(ngModel)]="commencementDate">
-          </div>
+          </div> -->
           <div class="col-md-4">
-            <label>Zone Classification</label>
-            <select class="form-select" [(ngModel)]="zone">
-              <option>Select</option>
-              <option>Residential</option>
-              <option>Commercial</option>
-            </select>
+            <label>Proposed Commencement</label>
+            <input
+              type="date"
+              class="form-control"
+              [(ngModel)]="commencementDate"
+              (change)="bindCommencementDate()"
+            >
           </div>
         </div>
 
         <div class="mt-3 fw-bold">
-          License Fee Prescribed (Rs.): {{ licenseFee }}
+          <h5 class="section-title">Zone Classification & Compounded Licence Fees</h5>
+          <div class="row g-3">
+          <div class="col-md-4">
+            <label class="required">Zone Classification</label>
+            <select class="form-select" [(ngModel)]="selectedZoneClassification">
+              <option [ngValue]="null">Select</option>
+              <option *ngFor="let zc of zoneClassifications" [ngValue]="zc">
+                {{ zc.zonalClassificationName }}
+              </option>
+            </select>
+          </div>
+          <div class="col-md-4">
+            <label class="required">License Fee Prescribed</label>
+            <input type="text" class="form-control" [value]="licenseFee" readonly>
+          </div>
+        </div>
         </div>
 
         <div class="d-flex justify-content-between mt-4">
@@ -293,18 +362,18 @@
 <!-- ======================================================
      STEP 5 – DOCUMENTS & POWER DETAILS
 ======================================================= -->
-<div *ngIf="currentStep === 5">
+<div [hidden]="currentStep !== 5">
 
   <h5 class="section-title">Documents to be Enclosed</h5>
 
   <table class="table table-bordered">
     <tr>
-      <td>Owner Consent / Lease Agreement *</td>
+      <td class="required">Owner Consent / Lease Agreement</td>
       <td><input type="file" accept="application/pdf"
                  (change)="onFileChange($event,'ownerConsent')"></td>
     </tr>
     <tr>
-      <td>Electricity Bill *</td>
+      <td class="required">Electricity Bill</td>
       <td><input type="file" accept="application/pdf"
                  (change)="onFileChange($event,'electricityBill')"></td>
     </tr>
@@ -314,7 +383,7 @@
                  (change)="onFileChange($event,'oc')"></td>
     </tr>
     <tr>
-      <td>Neighbour Consent *</td>
+      <td class="required">Neighbour Consent</td>
       <td><input type="file" accept="application/pdf"
                  (change)="onFileChange($event,'neighbour')"></td>
     </tr>
@@ -356,7 +425,9 @@
   <h5 class="section-title">OTP Verification</h5>
 
   <div *ngIf="!otpSent" class="text-center">
-    <button class="btn btn-primary btn-lg" (click)="sendOtp()">
+    <button class="btn btn-primary"
+          (click)="sendOtp()"
+          [disabled]="!this.tradeLicenseApplicationDetails.mobileNumber || this.tradeLicenseApplicationDetails.mobileNumber.length !== 10">
       Send OTP
     </button>
   </div>
@@ -376,10 +447,10 @@
   <div class="d-flex justify-content-between mt-4">
     <button class="btn btn-outline-secondary" (click)="prevStep()">← Back</button>
     <button class="btn btn-primary"
-            [disabled]="!otpVerified"
             (click)="nextStep()">
       Continue →
     </button>
+    <!-- [disabled]="!otpVerified" -->
   </div>
 
 </div>
@@ -424,7 +495,7 @@
   </div>
 
   <div class="d-flex justify-content-between mt-4">
-    <button class="btn btn-outline-secondary">
+    <button class="btn btn-outline-secondary" (click)="saveAndPayLater()">
       Save & Pay Later
     </button>
     <button class="btn btn-success btn-lg">
@@ -432,5 +503,3 @@
     </button>
   </div>
 </div>
-
-

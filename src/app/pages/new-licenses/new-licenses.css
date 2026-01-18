@@ -241,3 +241,9 @@ table {
   }
 }
 
+/* For required :validation asterisk */
+.required::after {
+  content: ' *';
+  color: red;
+  font-weight: bold;
+}

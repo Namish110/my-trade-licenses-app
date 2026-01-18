@@ -1,12 +1,13 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { AssemblyConstituency, MLCConstituency, TradeLicenseApplicationDetails, TradeMajor, TradeMinor, TradeSub, TradeType, Ward, ZoneClassification, Zones } from '../../core/models/new-trade-licenses.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class NewLicensesService {
 
-  private baseUrl = 'https://localhost:5001/api'; // 👈 change to your backend
+  private baseUrl = 'https://localhost:7181/api'; // 👈 change to your backend
 
   constructor(private http: HttpClient) {}
 
@@ -21,4 +22,49 @@ export class NewLicensesService {
   put<T>(url: string, body: any) {
     return this.http.put<T>(`${this.baseUrl}${url}`, body);
   }
+
+  getTradeMajors() {
+    return this.get<TradeMajor[]>('/master/trade-major');
+  }
+
+  getTradeMinorsByMajor(majorId: number) {
+    return this.get<TradeMinor[]>(`/master/trade-minor/by-major/${majorId}`);
+  }
+
+  getTradeSubsByMinor(minorId: number) {
+    return this.get<TradeSub[]>(`/master/trade-sub/by-minor/${minorId}`);
+  }
+
+  getTradeTypes(){
+    return this.get<TradeType[]>('/trade-type');
+  }
+
+  getMLAConstituency(){
+    return this.get<MLCConstituency[]>('/master-moh');
+  }
+
+  getWardsByMLAConstituency(mlaId: number) {
+    return this.get<Ward[]>(`/bbmp-wards/by-constituency/${mlaId}`);
+  }
+
+  getZones(){
+    return this.get<Zones[]>('/bbmp-zones');
+  }
+
+  getZoneClassification(){
+    return this.get<ZoneClassification[]>('/trade-zonal-classification');
+  }
+
+  sendotp(mobileNumber: string) {
+    return this.post('/sms/send-otp', { mobileNumber });
+  }
+
+  saveDraftLicence(payload: any) {
+    return this.post<any>('licence-application/draft', payload);
+  }
+
+  submitTradeLicence(payload: any) {
+    return this.post<any>('trade-licence', payload);
+  }
+
 }

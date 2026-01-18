@@ -4,9 +4,9 @@ import { Injectable } from '@angular/core';
 @Injectable({
   providedIn: 'root'
 })
-export class CreateAccountService {
+export class DashboardLayoutService {
 
-  private baseUrl = 'https://localhost:7181/api'; // 👈 change to your backend
+  private baseUrl = 'https://localhost:7178/api'; // 👈 change to your backend
 
   constructor(private http: HttpClient) {}
 
@@ -20,13 +20,5 @@ export class CreateAccountService {
 
   put<T>(url: string, body: any) {
     return this.http.put<T>(`${this.baseUrl}${url}`, body);
-  }
-
-  sendOtp(phone: string) {
-    return this.post<{ success: boolean }>('/sms/otp/send', { phone });
-  }
-
-  verifyOtp(phone: string, otp: string) {
-    return this.post<{ success: boolean }>('/sms/otp/verify', { phone, otp });
   }
 }

@@ -356,5 +356,12 @@ input {
   }
 }
 
+.otp-verified {
+  margin-top: 6px;
+  color: #198754; /* green */
+  font-weight: 600;
+  font-size: 14px;
+}
+
 
 

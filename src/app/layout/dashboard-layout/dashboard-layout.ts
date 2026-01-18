@@ -1,11 +1,9 @@
 import { Component } from '@angular/core';
-import { PortalAdmin } from '../../pages/portal-admin/portal-admin';
 import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { BusinessOwner } from '../../pages/business-owner/business-owner';
-import { ApprovingOfficer } from '../../pages/approving-officer/approving-officer';
 import { AuthService } from '../../core/services/auth.service';
+import { TokenService } from '../../core/services/token.service';
 
 @Component({
   selector: 'app-dashboard-layout',
@@ -18,62 +16,62 @@ export class DashboardLayout {
   sidebarOpen = false;
   isWorkflowMenuOpen = false;
   isSidebarCollapsed = false;
-  constructor(private router: Router, private authService: AuthService) {}
+
+  constructor(private router: Router, private authService: AuthService, private tokenService: TokenService) {}
   role = ''; // Admin | Trader | Approver | SeniorApprover
 
   
 
   ngOnInit() {
-    //this.role = this.authService.getUserRole(); // from JWT
-    this.role = 'Admin'; // hardcoded for testing
+    this.role = this.tokenService.getRole();
   }
 
-  isAdmin() {
-    return this.role === 'Admin';
-  }
+  // isAdmin() {
+  //   return this.role === 'admin';
+  // }
 
-  isTrader() {
-    return this.role === 'Trader';
-  }
+  // isTrader() {
+  //   return this.role === 'Trader';
+  // }
 
-  isApprover() {
-    return this.role === 'Approver';
-  }
+  // isApprover() {
+  //   return this.role === 'approver';
+  // }
 
-  isSeniorApprover() {
-    return this.role === 'SeniorApprover';
-  }
+  // isSeniorApprover() {
+  //   return this.role === 'seniorapprover';
+  // }
 
-  licenses = [
-    {
-      id: 'TL-2024-001234',
-      tradeName: 'Sharma Electronics',
-      type: 'Retail - Electronics',
-      status: 'active',
-      validUntil: '31 Mar 2025',
-      address: '123, MG Road, Bengaluru - 560001',
-    },
-    {
-      id: 'TL-2024-001235',
-      tradeName: 'Sharma Food Corner',
-      type: 'Restaurant',
-      status: 'renewal_due',
-      validUntil: '15 Jan 2024',
-      address: '45, Brigade Road, Bengaluru - 560025',
-    },
-  ];
+  // licenses = [
+  //   {
+  //     id: 'TL-2024-001234',
+  //     tradeName: 'Sharma Electronics',
+  //     type: 'Retail - Electronics',
+  //     status: 'active',
+  //     validUntil: '31 Mar 2025',
+  //     address: '123, MG Road, Bengaluru - 560001',
+  //   },
+  //   {
+  //     id: 'TL-2024-001235',
+  //     tradeName: 'Sharma Food Corner',
+  //     type: 'Restaurant',
+  //     status: 'renewal_due',
+  //     validUntil: '15 Jan 2024',
+  //     address: '45, Brigade Road, Bengaluru - 560025',
+  //   },
+  // ];
 
-  applications = [
-    {
-      id: 'APP-2024-005678',
-      tradeName: 'Sharma Textiles',
-      type: 'Retail - Clothing',
-      status: 'under_review',
-      submittedOn: '05 Dec 2024',
-      currentStep: 'Inspection Scheduled',
-      progress: 60,
-    },
-  ];
+  // applications = [
+  //   {
+  //     id: 'APP-2024-005678',
+  //     tradeName: 'Sharma Textiles',
+  //     type: 'Retail - Clothing',
+  //     status: 'under_review',
+  //     submittedOn: '05 Dec 2024',
+  //     currentStep: 'Inspection Scheduled',
+  //     progress: 60,
+  //   },
+  // ];
 
   notifications = [
     { message: 'License renewal due in 30 days for Sharma Food Corner', type: 'warning' },

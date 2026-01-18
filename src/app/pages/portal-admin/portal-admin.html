@@ -9,7 +9,7 @@
   </div>
 
   <!-- STATS ROW -->
-  <div class="row g-3 mb-4 equal-height-row">
+  <!-- <div class="row g-3 mb-4 equal-height-row">
     <div class="col-lg-3 col-md-6">
       <div class="stat-card">
         <div class="stat-icon bg-primary">
@@ -54,6 +54,55 @@
         <div>
           <span>System Health</span>
           <h4 class="text-success">Stable</h4>
+        </div>
+      </div>
+    </div>
+  </div> -->
+  <div class="row g-3 mb-4 equal-height-row">
+    <div class="col-lg-3 col-md-6">
+      <div class="stat-card">
+        <div class="stat-icon bg-primary">
+          <i class="bi bi-people"></i>
+        </div>
+        <div>
+          <span>Applied</span>
+          <h4>{{ statusMap['APPLIED'] }}</h4>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-3 col-md-6">
+      <div class="stat-card">
+        <div class="stat-icon bg-success">
+          <i class="bi bi-diagram-3"></i>
+        </div>
+        <div>
+          <span>Approved</span>
+          <h4>{{ statusMap['APPROVED'] }}</h4>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-3 col-md-6">
+      <div class="stat-card">
+        <div class="stat-icon bg-warning">
+          <i class="bi bi-clock-history"></i>
+        </div>
+        <div>
+          <span>Inspected</span>
+          <h4>{{ statusMap['INSPECTED'] }}</h4>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-3 col-md-6">
+      <div class="stat-card">
+        <div class="stat-icon bg-info">
+          <i class="bi bi-activity"></i>
+        </div>
+        <div>
+          <span>Rejected</span>
+          <h4 class="text-success">{{ statusMap['REJECTED'] }}</h4>
         </div>
       </div>
     </div>
