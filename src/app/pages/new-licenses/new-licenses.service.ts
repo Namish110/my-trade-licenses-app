@@ -67,4 +67,9 @@ export class NewLicensesService {
     return this.post<any>('trade-licence', payload);
   }
 
+  getRoadWidth(lat: number, lng: number) {
+    return this.http.get<any>(
+      `/api/road-width?lat=${lat}&lng=${lng}`
+    );
+  }
 }

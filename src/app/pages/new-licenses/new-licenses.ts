@@ -31,10 +31,6 @@ export class NewLicenses {
   currentStep = 0; // 0 = Declaration
   agree = false;
 
-  //For map
-  private L: any;
-  map: any;
-  marker: any;
   infoAboutIssueRelated: any = 'For any issue related to online payments mail us to "bbmptl@gmail.com" with all transaction detail like transaction id, date of transaction, old license number.';
   infoAboutRules1: any = 'I/We do hereby affirm and state that the information to be furnished by me/us in the trade license new or renewal application are true and correct to the best of my/our knowledge and belief.';
   infoAboutRules2: any = 'I/We further declare that I/We am/are aware that the trade license application is specifically for the Trade for which it is to be issued and does not regularize unauthorized constructions, or violations of building by laws and regulations and that I/We may be prosecuted for such infringments even through I/We have obtained a trade license under the act.';
@@ -425,12 +421,21 @@ export class NewLicenses {
       alert('Invalid OTP');
     }
   }
-
+//#region  Map Logic starts here
   /* =========================
      MAP + LOCATION SEARCH
   ========================= */
   latitude: number | null = null;
   longitude: number | null = null;
+  //For Road width
+  roadWidth: number | null = null;
+  roadWidthSource = '';
+  roadWidthStatus = '';
+
+  //For map
+  private L: any;
+  map: any;
+  marker: any;
 
   searchText = '';
   searchResults: any[] = [];
@@ -476,8 +481,39 @@ export class NewLicenses {
     if (this.marker) {
       this.marker.setLatLng([lat, lng]);
     } else {
-      this.marker = this.L.marker([lat, lng]).addTo(this.map);
+      this.marker = this.L.marker([lat, lng], {
+        draggable: true
+      }).addTo(this.map);
+
+      this.marker.on('dragend', (event: any) => {
+        const pos = event.target.getLatLng();
+        this.latitude = pos.lat;
+        this.longitude = pos.lng;
+
+        if (this.latitude !== null && this.longitude !== null) {
+          this.fetchRoadWidth(this.latitude, this.longitude);
+        }
+      });
     }
+    // if (this.latitude !== null && this.longitude !== null) {
+    //   this.fetchRoadWidth(this.latitude, this.longitude);
+    // }
+  }
+
+
+  //RoadWidth
+  fetchRoadWidth(lat: number, lng: number) {
+    this.newLicensesService.getRoadWidth(lat, lng).subscribe({
+      next: res => {
+        this.roadWidth = res.roadWidth;
+        this.roadWidthSource = res.source;
+        this.roadWidthStatus = res.complianceStatus;
+      },
+      error: () => {
+        this.roadWidth = null;
+        this.roadWidthStatus = 'Unable to fetch road width';
+      }
+    });
   }
 
 
@@ -507,6 +543,7 @@ export class NewLicenses {
     this.map.setView([lat, lon], 16);
     this.setMarker(lat, lon);
   }
+//#endregion
 
   //PageLoadMethod
   ngOnInit(): void {

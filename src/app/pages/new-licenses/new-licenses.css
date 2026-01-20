@@ -45,6 +45,7 @@ input[readonly] {
 ===================================================== */
 .card {
   border-radius: 14px;
+  overflow: visible !important;
 }
 
 .card-header {
@@ -55,6 +56,7 @@ input[readonly] {
 
 .card-body {
   padding: 25px;
+  overflow: visible !important;
 }
 
 .row.g-3 > div {
@@ -223,10 +225,6 @@ table {
     font-size: 15px;
   }
 
-  .card-body {
-    padding: 16px;
-  }
-
   table {
     font-size: 13px;
   }
@@ -246,4 +244,30 @@ table {
   content: ' *';
   color: red;
   font-weight: bold;
+}
+
+/* SEARCH DROPDOWN */
+.location-suggestions {
+  position: absolute;
+  top: 78px;
+  left: 0;
+  right: 0;
+  z-index: 2000;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+/* MAP */
+#map {
+  height: 420px;
+  width: 100%;
+  border-radius: 8px;
+}
+
+/* MOBILE STACK */
+@media (max-width: 768px) {
+  #map {
+    height: 300px;
+    margin-top: 15px;
+  }
 }

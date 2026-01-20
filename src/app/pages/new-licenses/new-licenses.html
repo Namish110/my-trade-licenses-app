@@ -321,17 +321,17 @@
      <!-- ======================================================
      STEP 4 – LOCATION
 ======================================================= -->
-<div *ngIf="currentStep === 4">
+<!-- <div *ngIf="currentStep === 4">
 
   <h5 class="section-title">Road Width Check (Location)</h5>
 
-  <!-- SEARCH -->
+  
   <input class="form-control mb-1"
          placeholder="Search location (HSR Layout, Bengaluru)"
          [(ngModel)]="searchText"
          (input)="searchLocation()">
 
-  <!-- SUGGESTIONS -->
+  
   <ul class="list-group position-absolute w-100 shadow"
       *ngIf="searchResults.length">
     <li class="list-group-item list-group-item-action"
@@ -357,7 +357,83 @@
     <button class="btn btn-primary" (click)="nextStep()">Continue →</button>
   </div>
 
-</div>
+</div> -->
+  <div *ngIf="currentStep === 4">
+
+    <h5 class="section-title">Road Width Check (Location)</h5>
+
+    <div class="row g-3">
+
+      <!-- LEFT PANEL – 30% -->
+      <div class="col-lg-5 col-md-6 position-relative">
+
+        <!-- SEARCH -->
+        <label class="required">Search Location</label>
+        <input class="form-control mb-2"
+              placeholder="Search location (HSR Layout, Bengaluru)"
+              [(ngModel)]="searchText"
+              (input)="searchLocation()">
+
+        <!-- SUGGESTIONS -->
+        <ul class="list-group location-suggestions"
+            *ngIf="searchResults.length">
+          <li class="list-group-item list-group-item-action"
+              *ngFor="let r of searchResults"
+              (click)="selectLocation(r)">
+            {{ r.display_name }}
+          </li>
+        </ul>
+
+        <!-- LOCATION DETAILS -->
+        <div class="row mt-4 g-3">
+          <div class="col-12">
+            <input class="form-control"
+                  placeholder="Latitude"
+                  [value]="latitude"
+                  readonly>
+          </div>
+          <div class="col-12">
+            <input class="form-control"
+                  placeholder="Longitude"
+                  [value]="longitude"
+                  readonly>
+          </div>
+          <div class="col-12">
+            <small class="text-muted">
+              Road width is calculated based on selected location
+            </small>
+            <input class="form-control"
+                  placeholder="Road Width (meters)"
+                  [value]="roadWidth"
+                  readonly>
+          </div>
+          <div *ngIf="roadWidthStatus" class="mt-2">
+            <span class="badge"
+                  [class.bg-success]="roadWidthStatus === 'COMPLIANT'"
+                  [class.bg-danger]="roadWidthStatus !== 'COMPLIANT'">
+              {{ roadWidthStatus }}
+            </span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT PANEL – 70% -->
+      <div class="col-lg-7 col-md-6">
+        <small class="text-muted d-block mb-2">
+          📍 Search a place or click anywhere on the map to select a location
+        </small>
+        <div id="map"></div>
+      </div>
+
+    </div>
+
+    <div class="d-flex justify-content-between mt-4">
+      <button class="btn btn-outline-secondary" (click)="prevStep()">← Back</button>
+      <button class="btn btn-primary" (click)="nextStep()">Continue →</button>
+    </div>
+
+  </div>
 
 <!-- ======================================================
      STEP 5 – DOCUMENTS & POWER DETAILS

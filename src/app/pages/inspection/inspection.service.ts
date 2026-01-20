@@ -25,8 +25,7 @@ export class InspectionService {
   }
 
   getTradeLicensesApplication(licensesId: number) {
-    return this.http.get<{
-      data: TradeLicenceApplicationModel[];}>(`${this.baseUrl}/licence-application/${licensesId}`
+    return this.http.get<TradeLicenceApplicationModel>(`${this.baseUrl}/licence-application/${licensesId}`
     );
   }
 }
