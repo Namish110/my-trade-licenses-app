@@ -2,41 +2,36 @@
 
   <!-- LEFT PANEL -->
   <div class="left-panel">
-        <a routerLink="/" class="back-link">← Back to Home</a>
+    <a routerLink="/" class="back-link">← Back to Home</a>
 
-        <!-- Visual watermark -->
-        <div class="watermark">
-            <i class="bi bi-buildings"></i>
+    <div class="watermark">
+      <i class="bi bi-buildings"></i>
+    </div>
+
+    <div class="left-content-box">
+      <div class="brand">
+        <div class="brand-icon">
+          <i class="bi bi-building"></i>
         </div>
-
-        <div class="left-content-box">
-
-            <div class="brand">
-            <div class="brand-icon">
-                <i class="bi bi-building"></i>
-            </div>
-            <div>
-                <h1>GBA Trade License</h1>
-                <span>Greater Bengaluru Authority</span>
-            </div>
-            </div>
-
-            <h2 class="hero-title">
-            Digital Trade Licensing Portal
-            </h2>
-
-            <p class="hero-desc">
-            A unified platform for applying, renewing, tracking, and managing
-            trade licenses securely under the Greater Bengaluru Authority.
-            </p>
-
-            <div class="hero-points">
-            <div>✔ 24/7 Online Applications</div>
-            <div>✔ Real-time Status Tracking</div>
-            <div>✔ Instant Downloads & Receipts</div>
-            </div>
-
+        <div>
+          <h1>GBA Trade License</h1>
+          <span>Greater Bengaluru Authority</span>
         </div>
+      </div>
+
+      <h2 class="hero-title">Digital Trade Licensing Portal</h2>
+
+      <p class="hero-desc">
+        A unified platform for applying, renewing, tracking, and managing
+        trade licenses securely under the Greater Bengaluru Authority.
+      </p>
+
+      <div class="hero-points">
+        <div>✔ 24/7 Online Applications</div>
+        <div>✔ Real-time Status Tracking</div>
+        <div>✔ Instant Downloads & Receipts</div>
+      </div>
+    </div>
   </div>
 
   <!-- RIGHT PANEL -->
@@ -46,24 +41,90 @@
       <p class="subtitle">Enter your credentials to access your account</p>
 
       <form (ngSubmit)="onSubmit()">
-        <label>Email Address</label>
-        <input type="email" [(ngModel)]="email" name="email" required />
 
-        <label>Password</label>
-        <div class="password-field">
-          <input
-            [type]="showPassword ? 'text' : 'password'"
-            [(ngModel)]="password"
-            name="password"
-            required
-          />
-          <button type="button" (click)="togglePassword()">👁️</button>
+        <!-- LOGIN SWITCH -->
+        <div class="login-switch">
+          <label class="login-switch-label">
+            <input
+              type="checkbox"
+              [(ngModel)]="isUserLogin"
+              name="isUserLogin"
+            />
+            <span>Login as User (OTP)</span>
+          </label>
         </div>
 
-        <a class="forgot" routerLink="/forgot-password">Forgot Password?</a>
+        <!-- USER LOGIN -->
+        <ng-container *ngIf="isUserLogin">
+          <label>Mobile Number</label>
+          <input
+            type="text"
+            maxlength="10"
+            [(ngModel)]="mobileNumber"
+            name="mobileNumber"
+            placeholder="Enter mobile number"
+            required
+          />
+
+          <div class="otp-field">
+            <!-- <button type="button" class="btn-outline" (click)="onClicksendOTP()">
+              Send OTP
+            </button> -->
+            <button
+              type="button"
+              class="btn btn-primary"
+              (click)="onClicksendOTP()"
+                [disabled]="isOtpLoading()">
+              {{ isOtpLoading()
+                  ? 'Resend OTP in ' + otpCooldown() + 's'
+                  : 'Send OTP'
+              }}
+            </button>
+
+            <div class="otp-wrapper">
+              <input
+                type="text"
+                maxlength="6"
+                name="otp"
+                class="otp-underscore-input"
+                (input)="onOtpInput($event)"
+                [(ngModel)]="otp"
+                [disabled]="isVerifyingOtp"
+              />
+            </div>
+          </div>
+        </ng-container>
+
+        <!-- ADMIN LOGIN -->
+        <ng-container *ngIf="!isUserLogin">
+          <label>Email Address</label>
+          <input
+            type="email"
+            [(ngModel)]="email"
+            name="email"
+            placeholder="Enter email"
+            required
+          />
+
+          <label>Password</label>
+          <div class="password-field">
+            <input
+              [type]="showPassword ? 'text' : 'password'"
+              [(ngModel)]="password"
+              name="password"
+              placeholder="Enter password"
+              required
+            />
+            <button type="button" (click)="togglePassword()">👁️</button>
+          </div>
+
+          <a class="forgot" routerLink="/forgot-password">
+            Forgot Password?
+          </a>
+        </ng-container>
 
         <button class="btn-primary" type="submit">
-          Sign In →
+          {{ isUserLogin ? 'Verify & Login →' : 'Sign In →' }}
         </button>
 
         <p class="switch">

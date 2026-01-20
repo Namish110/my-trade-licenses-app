@@ -20,3 +20,16 @@
   padding: 10px;
   color: #555;
 }
+
+.clickable-row {
+  cursor: pointer;
+}
+
+.clickable-row:hover {
+  background-color: #f5f7fa;
+}
+
+.clickable-row.selected {
+  background-color: #e8f0fe;
+}
+

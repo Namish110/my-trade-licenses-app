@@ -26,8 +26,8 @@
       </button>
 
       <div class="user-info">
-        <div class="name">Rajesh Sharma</div>
-        <small class="email">rajesh@email.com</small>
+        <div class="name">{{ userFullName }}</div>
+        <small class="email">{{ userEmailID }}</small>
       </div>
     </div>
   </header>
@@ -148,7 +148,7 @@
       </nav>
   
 
-      <nav class="menu" *ngIf="role === 'Trader'">
+      <nav class="menu" *ngIf="role === 'TRADE_OWNER'">
 
         <a class="menu-item"
           routerLink="/trader"

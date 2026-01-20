@@ -7,6 +7,7 @@ import { NewLicensesService } from './new-licenses.service';
 import { TradeMajor, TradeMinor, TradeSub, TradeType, Ward, TradeLicenseApplication, TradeLicenseApplicationDetails, AssemblyConstituency, Zones, ZoneClassification, MLCConstituency } from '../../core/models/new-trade-licenses.model';
 import { initializeApplicationDetails, initializeTradeApplication } from '../../helpers/trade-license.factory';
 import { Router } from '@angular/router';
+import { TokenService } from '../../core/services/token.service';
 
 
 /* =========================
@@ -111,7 +112,9 @@ export class NewLicenses {
   selectedZone: Zones | null = null;
   selectedZoneClassification: ZoneClassification | null = null;
 
-  constructor(@Inject(PLATFORM_ID) private platformId: Object, private newLicensesService: NewLicensesService, private router: Router) {}
+  constructor(@Inject(PLATFORM_ID) private platformId: Object, private newLicensesService: NewLicensesService, 
+  private router: Router,
+  private tokenservice : TokenService) {}
 
   startApplication() {
     this.currentStep = 1;
@@ -668,7 +671,7 @@ export class NewLicenses {
 
           tradeLicenceID: res.tradeLicenceID, // from API-1
 
-          loginID: this.tradeLicenseApplications.loginID,
+          loginID: this.tokenservice.getUserId(),
           entryOriginLoginID: this.tradeLicenseApplications.entryOriginLoginID,
           inspectingOfficerID: this.tradeLicenseApplications.inspectingOfficerID,
 

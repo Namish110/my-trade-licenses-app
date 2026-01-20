@@ -6,7 +6,7 @@ import { TradeLicenceApplicationModel } from '../../core/models/trade-licenses-d
 @Injectable({
   providedIn: 'root'
 })
-export class ApprovingOfficerService {
+export class InspectionService {
 
   private baseUrl = 'https://localhost:7181/api'; // 👈 change to your backend
 
@@ -24,17 +24,9 @@ export class ApprovingOfficerService {
     return this.http.put<T>(`${this.baseUrl}${url}`, body);
   }
 
-  getTradeTypes(){
-    return this.get<TradeType[]>('/trade-type');
-  }
-
-  getPagedApplications(pageNumber: number, pageSize: number) {
+  getTradeLicensesApplication(licensesId: number) {
     return this.http.get<{
-      data: TradeLicenceApplicationModel[];
-      totalRecords: number;
-      totalPages: number;
-    }>(
-      `${this.baseUrl}/licence-application/paged?pageNumber=${pageNumber}&pageSize=${pageSize}`
+      data: TradeLicenceApplicationModel[];}>(`${this.baseUrl}/licence-application/${licensesId}`
     );
   }
 }

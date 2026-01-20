@@ -16,16 +16,23 @@ export class DashboardLayout {
   sidebarOpen = false;
   isWorkflowMenuOpen = false;
   isSidebarCollapsed = false;
-
+  userFullName : string = '';
+  userEmailID : string = '';
   constructor(private router: Router, private authService: AuthService, private tokenService: TokenService) {}
   role = ''; // Admin | Trader | Approver | SeniorApprover
 
   
 
-  ngOnInit() {
-    this.role = this.tokenService.getRole();
+  ngOnInit() { 
+    this.role = this.tokenService.getEffectiveRole();
+    this.getUserDetails();
   }
 
+
+  getUserDetails(){
+    this.userEmailID = this.tokenService.getUserEmail();
+    this.userFullName = this.tokenService.getUserFullName();
+  }
   // isAdmin() {
   //   return this.role === 'admin';
   // }

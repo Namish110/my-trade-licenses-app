@@ -1,0 +1,45 @@
+export interface TradeLicenceApplicationModel {
+  licenceApplicationID: number;
+  applicationNumber: string;
+  finanicalYearID: number;
+  tradeTypeID: number;
+  bescomRRNumber: string;
+  TINNumber: string;
+  VATNumber: string;
+  applicationSubmitDate: string;   // ISO string
+  applicationEntryDate: string;
+  acknowledgementNumber: string;
+  acknowledgementDate: string | null;
+  receiptNumber: string;
+  receiptDate: string;
+  receiptSecurityCode: string | null;
+  licenceFromDate: string;
+  licenceToDate: string;
+  licenceApplicationStatusID: number;
+  licenceApplicationStatusName: string;
+  currentStatus: number;
+  currentStatusName: string;
+  tradeLicenceID: number;
+  mohID: number;
+  loginID: number;
+  entryOriginLoginID: number;
+  isActive: 'Y' | 'N';
+  InspectingOfficerID: number | null;
+  licenseType: string | null;
+  ApplicantRepersenting: string | null;
+  jathaStatus: string | null;
+  TransactionType: string;
+  docsSubmitted: string | null;
+  DeemedApproval: string | null;
+  FileNumber: string | null;
+  ChangesDate: string;
+  ChangesRemarks: string | null;
+  ChangesMade: number;
+  CancelledCertFlag: number;
+  CHORemarks: string | null;
+  OTP: string | null;
+  ChallanNo: number;
+  NoOfYearsApplied: number;
+  Refundflag: string | null;
+  billdesk_refund_remarks: string | null;
+}

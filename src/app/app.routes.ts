@@ -19,6 +19,7 @@ import { ControlSheet } from './shared/components/reports/control-sheet/control-
 import { NotRenewedLicenses } from './shared/components/reports/not-renewed-licenses/not-renewed-licenses';
 import { RevenueCollection } from './shared/components/reports/revenue-collection/revenue-collection';
 import { WardWiseLicenses } from './shared/components/reports/ward-wise-licenses/ward-wise-licenses';
+import { Inspection } from './pages/inspection/inspection';
 
 export const routes: Routes = [
   { path: '', component: Home },
@@ -84,7 +85,8 @@ export const routes: Routes = [
       // DEFAULT PAGE inside dashboard
       { path: '', component: SeniorapprovingDashboard },
       { path: 'senior-approving-officer', component: SeniorApprovingOfficer },
-      { path: 'reports', component: ReportsDashboard }
+      { path: 'reports', component: ReportsDashboard },
+      { path: 'inspection/:applicationNo', component: Inspection, runGuardsAndResolvers: 'always' }
 
       // OTHER PAGES
     ]
@@ -97,7 +99,8 @@ export const routes: Routes = [
       // DEFAULT PAGE inside dashboard
       { path: '', component: ApprovingDashboard },
       { path: 'approving-officer', component: ApprovingOfficer },
-      { path: 'reports', component: ReportsDashboard }
+      { path: 'reports', component: ReportsDashboard },
+      { path: 'inspection/:applicationNo', component: Inspection, runGuardsAndResolvers: 'always' }
 
       // OTHER PAGES
     ]

@@ -1,0 +1,66 @@
+<div class="inspection-container">
+
+  <!-- Header -->
+  <div class="inspection-header">
+    <h4>Inspection</h4>
+    <span class="application-no">
+      Application No: <strong>{{ applicationNo }}</strong>
+    </span>
+  </div>
+
+  <!-- Application Summary -->
+  <div class="card section-card">
+    <div class="card-header">Application Summary</div>
+    <div class="card-body summary-grid">
+      <div><label>BESCOMRR Number</label><p>{{ tradeLicensesApllication.bescomRRNumber }}</p></div>
+      <div><label>Trade Type</label><p>{{ tradeLicensesApllication.tradeTypeID }}</p></div>
+      <div><label>MOH Name</label><p>{{ tradeLicensesApllication.mohID }}</p></div>
+      <div><label>Status</label><p>{{ tradeLicensesApllication.licenceApplicationStatusID }}</p></div>
+    </div>
+  </div>
+
+  <!-- Checklist -->
+  <div class="card section-card">
+    <div class="card-header">Inspection Checklist</div>
+    <div class="card-body">
+      <div
+        class="form-check checklist-item"
+        *ngFor="let item of inspectionChecklist"
+      >
+        <input
+          class="form-check-input"
+          type="checkbox"
+          [(ngModel)]="item.checked"
+        />
+        <label class="form-check-label">
+          {{ item.label }}
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <!-- Remarks -->
+  <div class="card section-card">
+    <div class="card-header">Inspection Remarks</div>
+    <div class="card-body">
+      <textarea
+        class="form-control"
+        rows="4"
+        [(ngModel)]="remarks"
+        placeholder="Enter inspection remarks..."
+      ></textarea>
+    </div>
+  </div>
+
+  <!-- Actions -->
+  <div class="inspection-actions">
+    <button class="btn btn-secondary" (click)="cancel()">Cancel</button>
+    <button class="btn btn-outline-primary" (click)="saveDraft()">
+      Save Draft
+    </button>
+    <button class="btn btn-success" (click)="submitInspection()">
+      Submit Inspection
+    </button>
+  </div>
+
+</div>

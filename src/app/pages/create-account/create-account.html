@@ -58,19 +58,28 @@
           <h4>Personal Details</h4>
 
           <div class="form-grid">
-            <div>
+
+            <div class="form-control">
+              <input type="text" [(ngModel)]="registerModel.fullName" name="fullName"/>
               <label>Full Name</label>
-              <input type="text" placeholder="Enter full name" required />
             </div>
 
-            <div>
+            <div class="form-control">
+              <input type="email" [(ngModel)]="registerModel.email" name="email"/>
               <label>Email Address</label>
-              <input type="email" placeholder="Enter email address" required />
             </div>
 
-            <div>
+            <div class="form-control full-width">
+              <input type="tel"
+                inputmode="numeric"
+                pattern="[0-9]*"
+                maxlength="10"
+                name="mobileNumber"
+                required
+                [(ngModel)]="registerModel.mobileNumber"
+                (input)="onPhoneInput()" 
+              />
               <label>Mobile Number</label>
-              <input type="tel" placeholder="Enter mobile number" required />
             </div>
           </div>
         </div>
@@ -81,25 +90,40 @@
 
           <!-- OTP ACTION ROW -->
           <div class="otp-field">
-            <button type="button" class="btn-outline" (click)="sendOTP()">
+            <!-- <button type="button" class="btn-outline" (click)="onClicksendOTP()">
               Send OTP
+            </button> -->
+            <button
+              type="button"
+              class="btn btn-primary"
+              (click)="onClicksendOTP()"
+                [disabled]="isOtpLoading()">
+              {{ isOtpLoading()
+                  ? 'Resend OTP in ' + otpCooldown() + 's'
+                  : 'Send OTP'
+              }}
             </button>
 
-            <input
-              *ngIf="otpSent"
-              placeholder="Enter OTP"
-              type="text"
-            />
+            <div class="otp-wrapper">
+              <input
+                type="text"
+                maxlength="6"
+                name="otp"
+                class="otp-underscore-input"
+                (input)="onOtpInput($event)"
+                [(ngModel)]="otp"
+                [disabled]="isVerifyingOtp"
+              />
+            </div>
           </div>
 
           <!-- VERIFIED STATUS -->
-          <div *ngIf="otpVerified" class="otp-verified">
-            ✔ OTP Verified
+          <div *ngIf="isVerifyingOtp" class="otp-verified">
           </div>
         </div>
 
         <!-- ===== PRIMARY ACTION ===== -->
-        <button class="btn-primary btn-lg" type="submit" [disabled]="!otpVerified">
+        <button class="btn-primary btn-lg" type="submit">
           Create Account →
         </button>
 

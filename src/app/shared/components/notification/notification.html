@@ -1,0 +1,24 @@
+<div class="toast-container position-fixed top-0 end-0 p-3"
+     style="z-index: 1056">
+
+  <div *ngIf="notification as n"
+       class="toast show align-items-center text-white"
+       [ngClass]="{
+         'bg-success': n.type === 'success',
+         'bg-danger': n.type === 'error',
+         'bg-warning text-dark': n.type === 'warning',
+         'bg-info': n.type === 'info'
+       }">
+
+    <div class="d-flex">
+      <div class="toast-body">
+        {{ n.message }}
+      </div>
+      <button type="button"
+              class="btn-close btn-close-white me-2 m-auto"
+              (click)="notification = null">
+      </button>
+    </div>
+
+  </div>
+</div>

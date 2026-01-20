@@ -1,10 +1,16 @@
-import { Injectable } from '@angular/core';
+import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 
 @Injectable({
   providedIn: 'root'
 })
 export class TokenService {
+  
+  constructor(@Inject(PLATFORM_ID) private platformId: Object) {}
 
+  private isBrowser(): boolean {
+    return isPlatformBrowser(this.platformId);
+  }
   private TOKEN_KEY = 'access_token';
 
   setToken(token: string) {
@@ -37,5 +43,45 @@ export class TokenService {
   getRole(): string {
     const decoded: any = this.getDecodedToken();
     return decoded?.unique_name ?? '';
+  }
+
+  getUserRole(): string {
+    const decoded = this.getDecodedToken();
+    return decoded?.designation ?? '';
+  }
+
+  getEffectiveRole(): string {
+    const systemRole = this.getRole();
+    const tradeRole = this.getUserRole();
+
+    // Priority: System roles first
+    if (systemRole) {
+      return systemRole; // admin, approver, senior-approver
+    }
+
+    // Otherwise Trade role
+    if (tradeRole) {
+      return tradeRole; // TRADE_OWNER
+    }
+
+    return '';
+  }
+  //string FullName,
+  //string MobileNumber,
+  //string? EmailID
+  getUserFullName(): string {
+    const decoded = this.getDecodedToken();
+    return decoded?.unique_name ?? '';
+  }
+
+  getUserEmail(): string {
+    const decoded = this.getDecodedToken();
+    // Email is NOT present in token
+    return '';
+  }
+
+  getUserMobile(): string {
+    const decoded = this.getDecodedToken();
+    return decoded?.mobile ?? '';
   }
 }
