@@ -1,78 +1,183 @@
+<!-- ================= PAGE HEADER ================= -->
 <div class="page-header">
   <div>
     <h2>Manage Users & Roles</h2>
-    <p>Create users, assign roles, and manage approver hierarchy</p>
+    <p>Create users, assign roles, and manage access</p>
   </div>
 
-  <button class="btn-primary">
+  <button class="btn-primary" (click)="addNewUser()">
     <i class="bi bi-plus-lg"></i>
     Add New User
   </button>
 </div>
 
-<!-- FILTER BAR -->
-<div class="filter-bar">
-  <input type="text" placeholder="Search by name / email / user ID" />
+<!-- ================= SEARCH BAR (LIVE SEARCH) ================= -->
+<div class="card search-card">
+  <input
+    type="text"
+    class="search-input"
+    placeholder="🔍 Search by Login / Mobile / Designation"
+    [(ngModel)]="searchText"
+    (input)="onSearchChange()" />
 
-  <select>
-    <option value="">All Roles</option>
-    <option value="approver">Approver</option>
-    <option value="senior-approver">Senior Approver</option>
-  </select>
-
-  <select>
-    <option value="">All Status</option>
-    <option value="active">Active</option>
-    <option value="inactive">Inactive</option>
-  </select>
+  <button
+    class="btn-link clear-btn"
+    *ngIf="searchText"
+    (click)="clearSearch()">
+    Clear
+  </button>
 </div>
 
-<!-- USERS TABLE -->
-<div class="card">
+<!-- ================= ADD / EDIT FORM ================= -->
+<div class="card form-card" *ngIf="selectedUser">
+  <h3 class="form-title">
+    {{ isEditMode ? 'Update User' : 'Add User' }}
+  </h3>
+
+  <div class="form-grid">
+
+    <!-- LOGIN -->
+    <div class="form-group">
+      <label>Login</label>
+      <input
+        type="text"
+        [(ngModel)]="selectedUser.login"
+        placeholder="Enter login"
+        [disabled]="isEditMode" />
+    </div>
+
+    <!-- PASSWORD -->
+    <div class="form-group">
+      <label>Password</label>
+      <input
+        type="password"
+        [(ngModel)]="selectedUser.password"
+        placeholder="Enter password"
+        [disabled]="isEditMode" />
+    </div>
+
+    <!-- MOBILE -->
+    <div class="form-group">
+      <label>Mobile No</label>
+      <input
+        type="text"
+        [(ngModel)]="selectedUser.MobileNo"
+        placeholder="Enter mobile number" />
+    </div>
+
+    <!-- OFFICE -->
+    <div class="form-group">
+      <label>Office</label>
+      <select [(ngModel)]="selectedUser.officeDetailsID">
+        <option value="0">Select Office</option>
+        <option
+          *ngFor="let office of officeList"
+          [value]="office.officeID">
+          {{ office.officeName }}
+        </option>
+      </select>
+    </div>
+
+    <!-- DESIGNATION -->
+    <div class="form-group">
+      <label>Designation</label>
+      <select [(ngModel)]="selectedUser.userDesignationID">
+        <option value="0">Select Designation</option>
+        <option
+          *ngFor="let d of designationList"
+          [value]="d.userDesignationId">
+          {{ d.userDesignationName }}
+        </option>
+      </select>
+    </div>
+
+    <!-- SAKALA DO CODE -->
+    <div class="form-group">
+      <label>Sakala DO Code</label>
+      <input
+        type="text"
+        [(ngModel)]="selectedUser.sakalaDO_Code"
+        placeholder="Enter Sakala DO Code" />
+    </div>
+
+  </div>
+
+  <!-- FORM ACTIONS -->
+  <div class="form-actions">
+    <button class="btn-primary" (click)="saveUser()">
+      {{ isEditMode ? 'Update User' : 'Save User' }}
+    </button>
+
+    <button class="btn-secondary" (click)="selectedUser = null">
+      Cancel
+    </button>
+  </div>
+</div>
+
+<!-- ================= USERS TABLE ================= -->
+<div class="card table-card">
   <table class="data-table">
     <thead>
       <tr>
-        <th>User ID</th>
-        <th>Name</th>
-        <th>Role</th>
-        <th>Email</th>
+        <th>Login</th>
         <th>Mobile</th>
-        <th>Jurisdiction</th>
-        <th>Status</th>
-        <th>Actions</th>
+        <th>Office</th>
+        <th>Designation</th>
+        <th class="center">Actions</th>
       </tr>
     </thead>
 
     <tbody>
-      <tr>
-        <td>GBA-APR-1023</td>
-        <td>Ramesh Kumar</td>
-        <td>Approver</td>
-        <td>ramesh@gba.gov.in</td>
-        <td>9876543210</td>
-        <td>Ward 42</td>
-        <td><span class="badge active">Active</span></td>
-        <td class="actions">
-          <button class="icon-btn"><i class="bi bi-pencil"></i></button>
-          <button class="icon-btn"><i class="bi bi-arrow-repeat"></i></button>
-          <button class="icon-btn danger"><i class="bi bi-x-circle"></i></button>
+      <tr *ngFor="let u of users">
+        <td>{{ u.login }}</td>
+        <td>{{ u.MobileNo }}</td>
+        <td>{{ getOfficeName(u.officeDetailsID) }}</td>
+        <td>{{ getDesignationName(u.userDesignationID) }}</td>
+
+        <td class="center actions">
+          <button
+            class="icon-btn edit"
+            title="Edit"
+            (click)="editUser(u)">
+            <i class="bi bi-pencil"></i>
+          </button>
+
+          <button
+            class="icon-btn delete"
+            title="Delete"
+            (click)="deleteUser(u.loginID)">
+            <i class="bi bi-trash"></i>
+          </button>
         </td>
       </tr>
 
-      <tr>
-        <td>GBA-SAPR-2011</td>
-        <td>Suresh Rao</td>
-        <td>Senior Approver</td>
-        <td>suresh@gba.gov.in</td>
-        <td>9123456780</td>
-        <td>Zone East</td>
-        <td><span class="badge inactive">Inactive</span></td>
-        <td class="actions">
-          <button class="icon-btn"><i class="bi bi-pencil"></i></button>
-          <button class="icon-btn"><i class="bi bi-arrow-repeat"></i></button>
+      <!-- NO DATA -->
+      <tr *ngIf="users.length === 0">
+        <td colspan="5" class="no-data">
+          No users found
         </td>
       </tr>
     </tbody>
   </table>
 </div>
 
+<!-- ================= PAGINATION ================= -->
+<div class="pagination" *ngIf="totalRecords > pageSize">
+  <button
+    class="btn-secondary"
+    (click)="prevPage()"
+    [disabled]="pageNumber === 1">
+    Prev
+  </button>
+
+  <span class="page-info">
+    Page {{ pageNumber }} of {{ totalPages }}
+  </span>
+
+  <button
+    class="btn-secondary"
+    (click)="nextPage()"
+    [disabled]="pageNumber >= totalPages">
+    Next
+  </button>
+</div>
