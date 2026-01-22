@@ -1,13 +1,16 @@
-import { Component, AfterViewInit, Inject, PLATFORM_ID, Input } from '@angular/core';
+import { Component, AfterViewInit, Inject, PLATFORM_ID, Input, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { isPlatformBrowser } from '@angular/common';
 import { NewLicensesService } from './new-licenses.service';
-import { TradeMajor, TradeMinor, TradeSub, TradeType, Ward, TradeLicenseApplication, TradeLicenseApplicationDetails, AssemblyConstituency, Zones, ZoneClassification, MLCConstituency } from '../../core/models/new-trade-licenses.model';
+import { TradeMajor, TradeMinor, TradeSub, TradeType, Ward, TradeLicenseApplication, TradeLicenseApplicationDetails, AssemblyConstituency, Zones, ZoneClassification, MLCConstituency, TradeLicensesFee, LicenseDocuments, RoadWidthDetails } from '../../core/models/new-trade-licenses.model';
 import { initializeApplicationDetails, initializeTradeApplication } from '../../helpers/trade-license.factory';
 import { Router } from '@angular/router';
 import { TokenService } from '../../core/services/token.service';
+import { NotificationService } from '../../shared/components/notification/notification.service';
+import { forkJoin, lastValueFrom } from 'rxjs';
+import { LoaderService } from '../../shared/components/loader/loader.service';
 
 
 /* =========================
@@ -98,6 +101,7 @@ export class NewLicenses {
     challanNo: '',
     noOfYearsApplied: 0
   }
+  tradeLicensesFee : TradeLicensesFee | null = null;
 
   selectedMajor: TradeMajor | null = null;
   selectedMinor: TradeMinor | null = null;
@@ -110,7 +114,10 @@ export class NewLicenses {
 
   constructor(@Inject(PLATFORM_ID) private platformId: Object, private newLicensesService: NewLicensesService, 
   private router: Router,
-  private tokenservice : TokenService) {}
+  private tokenservice : TokenService,
+  private notificationservice: NotificationService,
+  private loaderservice: LoaderService,
+  private cdr: ChangeDetectorRef) {}
 
   startApplication() {
     this.currentStep = 1;
@@ -121,52 +128,52 @@ export class NewLicenses {
     // 1. Applicant Representation (radio)
     const repSelected = document.querySelector('input[name="rep"]:checked');
     if (!repSelected) {
-      alert('Please select Applicant Representation');
+      this.notificationservice.show('Please select applicant representation', 'warning');
       return;
     }
     // 2. Trade Type
     if (!this.selectedTradeType) {
-      alert('Please select Trade Type');
+      this.notificationservice.show('Please select Trade Type','warning');
       return;
     }
 
     // 3. Trade Name
     const tradeName = (document.querySelector('#tradeName') as HTMLInputElement)?.value;
     if (!tradeName) {
-      alert('Please enter Trade Name');
+      this.notificationservice.show('Please enter Trade Name', 'warning');
       return;
     }
 
     // 4. Application Name
     const applicationName = (document.querySelector('#applicationName') as HTMLInputElement)?.value;
     if (!applicationName) {
-      alert('Please enter Application Name');
+      this.notificationservice.show('Please enter Application Name', 'warning');
       return;
     }
 
     // 5. Mobile Number
     const mobile = this.tradeLicenseApplicationDetails.mobileNumber;
     if (!mobile || mobile.length !== 10) {
-      alert('Please enter valid 10-digit Mobile Number');
+      this.notificationservice.show('Please enter valid 10-digit Mobile Number', 'warning');
       return;
     }
 
     // 6. MLA Constituency
     if (!this.selectedMLAConstituency) {
-      alert('Please select MLA Constituency');
+      this.notificationservice.show('Please select MLA Constituency', 'warning');
       return;
     }
 
     // 7. Ward
     if (!this.selectedWard) {
-      alert('Please select Ward');
+      this.notificationservice.show('Please select Ward', 'warning');
       return;
     }
 
     // 8. BESCOM RR No
     const bescom = (document.querySelector('#bescom') as HTMLInputElement)?.value;
     if (!bescom) {
-      alert('Please enter BESCOM RR Number');
+      this.notificationservice.show('Please enter BESCOM RR Number', 'warning');
       return;
     }
 
@@ -177,12 +184,12 @@ export class NewLicenses {
     const pincode = (document.querySelector('#pincode') as HTMLInputElement)?.value;
 
     if (!doorNo || !street || !area || !pincode) {
-      alert('Please fill complete Address Information');
+      this.notificationservice.show('Please fill complete Address Information', 'warning');
       return;
     }
 
     if (!/^\d{6}$/.test(pincode)) {
-      alert('Please enter valid 6-digit Pincode');
+      this.notificationservice.show('Please enter valid 6-digit Pincode', 'warning');
       return;
     }
   }
@@ -193,25 +200,25 @@ export class NewLicenses {
 
     // 1. Major Trade
     if (!this.selectedMajor) {
-      alert('Please select Major Trade');
+      this.notificationservice.show('Please select Major Trade', 'warning');
       return;
     }
 
     // 2. Minor Trade
     if (!this.selectedMinor) {
-      alert('Please select Minor Trade');
+      this.notificationservice.show('Please select Minor Trade', 'warning');
       return;
     }
 
     // 3. Sub Trade
     if (!this.selectedSub) {
-      alert('Please select Sub Trade');
+      this.notificationservice.show('Please select Sub Trade', 'warning');
       return;
     }
 
     // 4. Trade Grid (at least one trade must be added)
     if (!this.tradeGrid || this.tradeGrid.length === 0) {
-      alert('Please add at least one Trade using Add button');
+      this.notificationservice.show('Please add at least one Trade using Add button', 'warning');
       return;
     }
   }
@@ -223,22 +230,43 @@ export class NewLicenses {
 
       // 1. Jurisdiction Zone
       if (!this.selectedZone) {
-        alert('Please select Jurisdiction of Health Officer (Zone)');
+        this.notificationservice.show('Please select Jurisdiction of Health Officer (Zone)', 'warning');
         return;
       }
 
       // 2. Zone Classification
       if (!this.selectedZoneClassification) {
-        alert('Please select Zone Classification');
+        this.notificationservice.show('Please select Zone Classification', 'warning');
         return;
       }
 
       // 3. License Fee check
       if (!this.licenseFee || this.licenseFee <= 0) {
-        alert('License Fee is not calculated. Please check trade details.');
+        this.notificationservice.show('License Fee is not calculated. Please check trade details.', 'warning');
         return;
       }
     }
+
+    /* ==========================
+        STEP 4 VALIDATION
+      =========================== */
+      if (this.currentStep === 4) {
+        if (this.roadWidthConfirmed === null) {
+          this.notificationservice.show(
+            'Please confirm the Road Width (Yes or No)',
+            'warning'
+          );
+          return;
+        }
+
+        if (this.roadWidthConfirmed === false) {
+          this.notificationservice.show(
+            'Road Width confirmation failed. Please re-check the location.',
+            'warning'
+          );
+          return;
+        }
+      }
 
     /* =========================
       STEP 5 VALIDATION
@@ -246,20 +274,20 @@ export class NewLicenses {
     if (this.currentStep === 5) {
 
       // 1. Owner Consent
-      if (!this.documents?.ownerConsent) {
-        alert('Please upload Owner Consent / Lease Agreement document');
+      if (!this.documents?.['ownerConsent']) {
+        this.notificationservice.show('Please upload Owner Consent / Lease Agreement document', 'warning');
         return;
       }
 
       // 2. Electricity Bill
-      if (!this.documents?.electricityBill) {
-        alert('Please upload Electricity Bill document');
+      if (!this.documents?.['electricityBill']) {
+        this.notificationservice.show('Please upload Electricity Bill document', 'warning');
         return;
       }
 
       // 3. Neighbour Consent
-      if (!this.documents?.neighbour) {
-        alert('Please upload Neighbour Consent document');
+      if (!this.documents?.['neighbour']) {
+        this.notificationservice.show('Please upload Neighbour Consent document', 'warning');
         return;
       }
 
@@ -268,13 +296,13 @@ export class NewLicenses {
         (this.powerHP && this.powerHP < 0) ||
         (this.generatorHP && this.generatorHP < 0)
       ) {
-        alert('Power / Generator HP cannot be negative');
+        this.notificationservice.show('Power / Generator HP cannot be negative', 'warning');
         return;
       }
 
       // Optional sanity check
       if (this.powerFee < 0) {
-        alert('Power fee calculation error');
+        this.notificationservice.show('Power fee calculation error', 'warning');
         return;
       }
     }
@@ -295,8 +323,15 @@ export class NewLicenses {
   prevStep() {
     if (this.currentStep > 1) {
       this.currentStep--;
+
+      if (this.currentStep === 4) {
+        setTimeout(() => {
+          this.initMap();
+        }, 300);
+      }
     }
   }
+
 
   /* =========================
      APPLICANT
@@ -333,20 +368,39 @@ export class NewLicenses {
   /* =========================
      TRADE GRID
   ========================= */
+  compareById(o1: any, o2: any): boolean {
+    return o1 && o2 ? o1.tradeSubID === o2.tradeSubID : o1 === o2;
+  }
+
   addTrade() {
     if (!this.selectedMajor || !this.selectedMinor || !this.selectedSub) {
-      alert('Please select Major, Minor and Sub Trade');
+      this.notificationservice.show(
+        'Please select Major, Minor and Sub Trade',
+        'warning'
+      );
       return;
     }
 
-    this.tradeGrid.push({
-      major: this.selectedMajor.tradeMajorName,
-      minor: this.selectedMinor.tradeMinorName,
-      sub: this.selectedSub.tradeSubName,
-      rate: 500, // Fixed rate for demo purposes
-    });
+    this.newLicensesService
+      .getLicensesFee(this.selectedSub.tradeSubID)
+      .subscribe({
+        next: (res) => {
+          this.tradeGrid.push({
+            major: this.selectedMajor!.tradeMajorName,
+            minor: this.selectedMinor!.tradeMinorName,
+            sub: this.selectedSub!.tradeSubName,
+            rate: res.tradeLicenceFee ?? 0
+          });
 
-    this.calculateFee();
+          this.calculateFee();
+        },
+        error: () => {
+          this.notificationservice.show(
+            'The amount could not be added. Please try again.',
+            'warning'
+          );
+        }
+      });
   }
 
   removeTrade(index: number) {
@@ -369,25 +423,35 @@ export class NewLicenses {
   /* =========================
      DOCUMENT UPLOAD
   ========================= */
-  documents: any = {};
+  documents: {
+    [key: string]: {
+      documentId: number;
+      file: File;
+    }
+  } = {};
 
-  onFileChange(event: any, key: string) {
+  onFileChange(event: any, key: string, documentId: number) {
     const file = event.target.files[0];
     if (!file) return;
 
     if (file.type !== 'application/pdf') {
-      alert('Only PDF files allowed');
+      this.notificationservice.show('Only PDF files allowed', 'warning');
       return;
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      alert('File size must be less than 5MB');
+      this.notificationservice.show('File size must be less than 5MB', 'warning');
       return;
     }
 
 
-    this.documents[key] = file;
+    this.documents[key] = {
+      documentId: documentId,
+      file: file
+    };
   }
+
+  
 
   /* =========================
      OTP LOGIC (MOCK)
@@ -398,28 +462,50 @@ export class NewLicenses {
 
   sendOtp() {
     if (!this.tradeLicenseApplicationDetails.mobileNumber || this.tradeLicenseApplicationDetails.mobileNumber.length !== 10) {
-      alert('Please enter a valid 10-digit mobile number');
+      this.notificationservice.show('Please enter a valid 10-digit mobile number', 'warning');
       return;
     }
 
-    this.newLicensesService.sendotp(this.tradeLicenseApplicationDetails.mobileNumber).subscribe({
+    this.newLicensesService.sendOtp(this.tradeLicenseApplicationDetails.mobileNumber).subscribe({
       next: () => {
         this.otpSent = true;
-        alert('OTP sent successfully');
+        this.notificationservice.show('OTP sent successfully', 'success');
       },
       error: () => {
-        alert('Failed to send OTP');
+        this.notificationservice.show('Failed to send OTP', 'error');
       }
     });
   }
 
-  verifyOtp() {
-    if (this.otp === '1234') {
-      this.otpVerified = true;
-      alert('OTP Verified');
-    } else {
-      alert('Invalid OTP');
-    }
+  verifyOtp(){
+    this.verifyOtpAutomatically();
+  }
+
+  verifyOtpAutomatically() {
+    this.newLicensesService
+    .verifyOtp(this.tradeLicenseApplicationDetails.mobileNumber, this.otp)
+    .subscribe({
+      next: (res) => {
+        if (res.isValid) {
+          this.otpVerified = true; 
+          this.notificationservice.show(
+            'OTP is Verified.',
+            'success'
+          );
+        } else {
+          this.otpVerified = false;
+          this.notificationservice.show(
+            'Invalid OTP',
+            'error'
+          );
+          this.otp = '';
+        }
+      },
+      error: () => {
+        this.otpVerified = false;
+        alert('OTP verification failed');
+      }
+    });
   }
 //#region  Map Logic starts here
   /* =========================
@@ -428,9 +514,11 @@ export class NewLicenses {
   latitude: number | null = null;
   longitude: number | null = null;
   //For Road width
-  roadWidth: number | null = null;
+  
   roadWidthSource = '';
   roadWidthStatus = '';
+  roadWidthDetails: RoadWidthDetails | null = null;
+  
 
   //For map
   private L: any;
@@ -440,10 +528,22 @@ export class NewLicenses {
   searchText = '';
   searchResults: any[] = [];
 
+  // Road width confirmation
+  roadWidthConfirmed: boolean | null = null;
+  manualRoadWidth: number | null = null;
+  roadWidthReason = '';
+
   //ngAfterViewInit(): void {}
 
   initMap() {
-    if (!this.L || this.map) return;
+    if (!this.L) return;
+
+    // 🔥 Always destroy old map
+    if (this.map) {
+      this.map.remove();
+      this.map = null;
+      this.marker = null;
+    }
 
     this.map = this.L.map('map', {
       center: [12.9716, 77.5946],
@@ -457,7 +557,13 @@ export class NewLicenses {
     this.map.on('click', (e: any) => {
       this.setMarker(e.latlng.lat, e.latlng.lng);
     });
+
+    
+    setTimeout(() => {
+      this.map.invalidateSize();
+    }, 200);
   }
+
 
   async ngAfterViewInit() {
     if (isPlatformBrowser(this.platformId)) {
@@ -472,11 +578,15 @@ export class NewLicenses {
         shadowUrl: 'marker-shadow.png'
       });
     }
+    if (this.currentStep === 4) {
+      this.initMap();
+    }
   }
 
+
   setMarker(lat: number, lng: number) {
-    this.latitude = lat;
-    this.longitude = lng;
+    this.latitude = this.roundTo4Decimals(lat);
+    this.longitude = this.roundTo4Decimals(lng);
 
     if (this.marker) {
       this.marker.setLatLng([lat, lng]);
@@ -490,31 +600,48 @@ export class NewLicenses {
         this.latitude = pos.lat;
         this.longitude = pos.lng;
 
-        if (this.latitude !== null && this.longitude !== null) {
-          this.fetchRoadWidth(this.latitude, this.longitude);
-        }
+        this.fetchRoadWidth(pos.lat, pos.lng);
       });
     }
-    // if (this.latitude !== null && this.longitude !== null) {
-    //   this.fetchRoadWidth(this.latitude, this.longitude);
-    // }
+
+    this.fetchRoadWidth(this.latitude, this.longitude);
   }
 
+  private roundTo4Decimals(value: number): number {
+    return Math.round(value * 10000) / 10000;
+  }
 
-  //RoadWidth
   fetchRoadWidth(lat: number, lng: number) {
-    this.newLicensesService.getRoadWidth(lat, lng).subscribe({
-      next: res => {
-        this.roadWidth = res.roadWidth;
-        this.roadWidthSource = res.source;
-        this.roadWidthStatus = res.complianceStatus;
+    this.loaderservice.show();
+
+    const payload = {
+      licenceApplicationID: this.tokenservice.getTraderUserId(),
+      latitude: lat,
+      longitude: lng
+    };
+
+    this.newLicensesService.getRoadWidth(payload).subscribe({
+      next: (res: RoadWidthDetails[]) => {
+        console.log('API Response:', res);
+
+        if (Array.isArray(res) && res.length > 0) {
+          this.roadWidthDetails = res[0]; 
+        } else {
+          this.roadWidthDetails = null;
+        }
+
+        this.loaderservice.hide();
       },
-      error: () => {
-        this.roadWidth = null;
+      error: (err) => {
+        this.loaderservice.hide();
+        console.error('Road Width API Error:', err);
         this.roadWidthStatus = 'Unable to fetch road width';
       }
     });
   }
+
+
+
 
 
   /* =========================
@@ -542,6 +669,7 @@ export class NewLicenses {
 
     this.map.setView([lat, lon], 16);
     this.setMarker(lat, lon);
+    this.fetchRoadWidth(this.roundTo4Decimals(lat), this.roundTo4Decimals(lon))
   }
 //#endregion
 
@@ -658,6 +786,7 @@ export class NewLicenses {
 
 
   saveAndPayLater() {
+    this.loaderservice.show();
     const tradeLicencePayload = {
     applicantName: this.tradeLicenseApplicationDetails.applicantName,
     doorNumber: this.tradeLicenseApplicationDetails.doorNumber,
@@ -708,7 +837,7 @@ export class NewLicenses {
 
           tradeLicenceID: res.tradeLicenceID, // from API-1
 
-          loginID: this.tokenservice.getUserId(),
+          loginID: this.tokenservice.getTraderUserId(),
           entryOriginLoginID: this.tradeLicenseApplications.entryOriginLoginID,
           inspectingOfficerID: this.tradeLicenseApplications.inspectingOfficerID,
 
@@ -725,22 +854,161 @@ export class NewLicenses {
         this.newLicensesService
           .post('/licence-application/draft', licenceApplicationDraftPayload)
           .subscribe({
-            next: (draftRes: any) => {
+            next: async(draftRes: any) => {
               this.tradeLicenseApplications.licenceApplicationID =
                 draftRes.licenceApplicationID;
-
-              alert('Draft saved successfully. You can continue later.');
+              await this.saveLocationDetails(this.tradeLicenseApplications.licenceApplicationID);
+              await this.saveOrUpdateDocuments(this.tradeLicenseApplications.licenceApplicationID);
+              this.loaderservice.hide();
+              this.notificationservice.show('Draft saved successfully. You can continue later.', 'success');
+              this.router.navigate(['/trader']);
             },
             error: err => {
-              console.error('Licence Application Draft failed', err);
-              alert('Trade licence saved but application draft failed.');
+              this.loaderservice.hide();
+              console.log(err);
+              this.notificationservice.show('Trade licence saved but application draft failed.', 'error');
             }
           });
       },
       error: err => {
-        console.error('Trade Licence Draft failed', err);
-        alert('Failed to save trade licence draft.');
+        this.loaderservice.hide();
+        this.notificationservice.show('Failed to save trade licence draft.', 'error');
       }
+    });
+  }
+
+
+  private buildExistingDocsMap(docs: LicenseDocuments[]): { [documentId: number]: LicenseDocuments } {
+    const map: { [documentId: number]: LicenseDocuments } = {};
+    docs.forEach(d => map[d.DocumentID] = d);
+    return map;
+  }
+  saveOrUpdateDocuments(licenceAppId: number): Promise<void> {
+    return new Promise((resolve, reject) => {
+
+      if (!licenceAppId) {
+        this.notificationservice.show('Invalid Licence Application ID');
+        resolve(); // resolve to avoid blocking caller
+        return;
+      }
+
+      this.newLicensesService
+        .getDocumentsByLicensesApplicationId(licenceAppId)
+        .subscribe({
+          next: (existingDocs) => {
+
+            const existingDocsMap = this.buildExistingDocsMap(existingDocs);
+            const keys = Object.keys(this.documents);
+
+            if (!keys.length) {
+              resolve(); // nothing to upload
+              return;
+            }
+
+            let completed = 0;
+            const total = keys.length;
+
+            keys.forEach(key => {
+
+              const doc = this.documents[key];
+              const existing = existingDocsMap[doc.documentId];
+
+              const formData = new FormData();
+              formData.append('File', doc.file);
+              formData.append('LicenceApplicationID', licenceAppId.toString());
+              formData.append('DocumentID', doc.documentId.toString());
+
+              const loginId = this.tokenservice.getUserId();
+              if (!loginId) {
+                this.notificationservice.show('Invalid user session');
+                reject('Invalid user session');
+                return;
+              }
+              formData.append('LoginID', loginId.toString());
+
+              if (existing) {
+                formData.append(
+                  'ApplicationDocumentID',
+                  existing.ApplicationDocumentID.toString()
+                );
+              }
+
+              this.newLicensesService
+                .saveOrUpdateDocument(formData)
+                .subscribe({
+                  next: () => {
+                    completed++;
+                    console.log(
+                      `${existing ? 'Updated' : 'Inserted'} document`,
+                      doc.documentId
+                    );
+
+                    if (completed === total) {
+                      resolve(); // 🔥 all uploads finished
+                    }
+                  },
+                  error: (err) => {
+                    console.error('Upload failed', err);
+                    reject(err);
+                  }
+                });
+            });
+
+          },
+          error: (err) => {
+            console.error('Failed to fetch existing documents', err);
+            reject(err);
+          }
+        });
+    });
+  }
+  saveLocationDetails(licenceAppId: number): Promise<void> {
+    return new Promise((resolve, reject) => {
+      if (!this.latitude || !this.longitude || !this.roadWidthDetails) {
+        this.notificationservice.show(
+          'Location details are incomplete. Please select a location.',
+          'warning'
+        );
+        return;
+      }
+
+      if (this.roadWidthConfirmed !== true) {
+        this.notificationservice.show(
+          'Please confirm the road width before continuing.',
+          'warning'
+        );
+        return;
+      }
+
+      if(!licenceAppId){
+        this.notificationservice.show('Invalid Licence Application ID');
+        resolve(); // resolve to avoid blocking caller
+        return;
+      }
+
+      const payload = {
+        licenceApplicationID: licenceAppId,
+        latitude: this.latitude,
+        longitude: this.longitude,
+        roadID: this.roadWidthDetails.roadType ?? '',
+        roadWidthMtrs: this.roadWidthDetails.road_Width_mtrs ?? 0,
+        roadCategoryCode: this.roadWidthDetails.roadCategoryCode ?? '',
+        roadCategory: this.roadWidthDetails.roadCategory ?? '',
+        loginID: this.tokenservice.getTraderUserId()
+      };
+
+      this.newLicensesService.saveLocationDetails(payload).subscribe({
+        next: () => {
+          resolve();
+        },
+        error: (err) => {
+          console.error('Location save failed:', err);
+          this.notificationservice.show(
+            'Failed to save location details. Please try again.',
+            'error'
+          );
+        }
+      });
     });
   }
 }

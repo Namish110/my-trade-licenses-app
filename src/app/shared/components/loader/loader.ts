@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
+import { LoaderService } from './loader.service';
 
 @Component({
   selector: 'app-loader',
@@ -9,6 +10,6 @@ import { RouterModule } from '@angular/router';
   templateUrl: './loader.html',
   styleUrl: './loader.css',
 })
-export class Loader {
-   @Input() show = false;
+export class LoaderComponent {
+  constructor(public loaderService: LoaderService) {}
 }

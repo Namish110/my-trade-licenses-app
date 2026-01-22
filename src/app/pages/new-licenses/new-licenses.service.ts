@@ -1,6 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { AssemblyConstituency, MLCConstituency, TradeLicenseApplicationDetails, TradeMajor, TradeMinor, TradeSub, TradeType, Ward, ZoneClassification, Zones } from '../../core/models/new-trade-licenses.model';
+import { AssemblyConstituency, LicenseDocuments, MLCConstituency, RoadWidthDetails, TradeLicenseApplicationDetails, TradeLicensesFee, TradeMajor, TradeMinor, TradeSub, TradeType, Ward, ZoneClassification, Zones } from '../../core/models/new-trade-licenses.model';
+import { platform } from 'os';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -55,8 +57,29 @@ export class NewLicensesService {
     return this.get<ZoneClassification[]>('/trade-zonal-classification');
   }
 
-  sendotp(mobileNumber: string) {
-    return this.post('/sms/send-otp', { mobileNumber });
+  sendOtp(phone: string) {
+    return this.http.post<any>(
+      `${this.baseUrl}/sms/otp/send`,
+      {
+        mobileNo: phone
+      },
+      {
+        headers: { 'Content-Type': 'application/json' }
+      }
+    );
+  }
+
+  verifyOtp(phone: string, otp: string) {
+    return this.http.post<any>(
+      `${this.baseUrl}/sms/otp/verify`,
+      {
+        mobileNo: phone,
+        otp: otp
+      },
+      {
+        headers: { 'Content-Type': 'application/json' }
+      }
+    );
   }
 
   saveDraftLicence(payload: any) {
@@ -67,9 +90,25 @@ export class NewLicensesService {
     return this.post<any>('trade-licence', payload);
   }
 
-  getRoadWidth(lat: number, lng: number) {
-    return this.http.get<any>(
-      `/api/road-width?lat=${lat}&lng=${lng}`
+  getRoadWidth(payload: any) {
+    return this.http.post<RoadWidthDetails[]>(`${this.baseUrl}/geolocation/fetch-road`, payload);
+  }
+
+  getLicensesFee(tradeSubId: number) {
+    return this.get<TradeLicensesFee>(`/trade-licence-fees/by-trade-sub/${tradeSubId}`);
+  }
+
+  saveOrUpdateDocument(formData: FormData): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/licence-documents/save-update`,formData);
+  }
+
+  getDocumentsByLicensesApplicationId(licenceApplicationID: number): Observable<LicenseDocuments[]> {
+    return this.http.get<LicenseDocuments[]>(
+      `${this.baseUrl}/licence-documents/by-application/${licenceApplicationID}`
     );
+  }
+
+  saveLocationDetails(payload: any){
+    return this.http.post<any>(`${this.baseUrl}/geolocation/confirm-save`, payload);
   }
 }

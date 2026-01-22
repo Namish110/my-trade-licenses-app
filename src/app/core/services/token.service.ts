@@ -84,4 +84,26 @@ export class TokenService {
     const decoded = this.getDecodedToken();
     return decoded?.mobile ?? '';
   }
+
+  getTraderUserId(): number | null {
+    const decoded = this.getDecodedToken();
+    return decoded?.loginID ? Number(decoded.loginID) : null;
+  }
+
+  getEffectiveUserId(): number | null {
+    const decoded: any = this.getDecodedToken();
+    if (!decoded) return null;
+
+    // Priority: System users (Admin, Approver, SeniorApprover)
+    if (decoded.sub) {
+      return Number(decoded.sub);
+    }
+
+    // Trade users (Trader / Trade Owner)
+    if (decoded.loginID) {
+      return Number(decoded.loginID);
+    }
+
+    return null;
+  }
 }

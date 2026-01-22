@@ -57,19 +57,18 @@ export class Login {
       };
       
     this.auth.userlogin(payload).subscribe({
-      next: () => {
-          // Extract UserId from JWT
-          const role = this.tokenService.getEffectiveRole();
-          console.log(role);
-          if(role == 'TRADE_OWNER'){
-            this.router.navigate(['/trader']);
-          }
-        },
-        error: (err) => {
-          console.log(err);
-          this.notificationService.show('Invalid credentials', 'warning');
+    next: () => {
+        // Extract UserId from JWT
+        const role = this.tokenService.getUserRole();
+        if(role == 'TRADE_OWNER'){
+          this.router.navigate(['/trader']);
         }
-      });
+      },
+      error: (err) => {
+        console.log(err);
+        this.notificationService.show('Invalid credentials', 'warning');
+      }
+    });
   }else{
       const payload = {
         usernameOrPhone: this.email,
@@ -80,15 +79,16 @@ export class Login {
         next: () => {
             // Extract UserId from JWT
             const userId = this.tokenService.getUserId(); // number
-            const role = this.tokenService.getEffectiveRole(); // string
-            if(role === 'admin'){
+            const role = this.tokenService.getUserRole(); // string
+            console.log(role);
+            if(role === 'Admin'){
               //write a logic to redirect based on role
               this.router.navigate(['/admin']);  //approver,trader,admin, senior-approver
             }else if(role === 'trader'){
               this.router.navigate(['/trader']);
-            }else if(role === 'approver'){
+            }else if(role === 'Approver'){
               this.router.navigate(['/approver']);
-            }else if(role === 'seniorapprover'){
+            }else if(role === 'SeniorApprover'){
               this.router.navigate(['/senior-approver']);
             }else{
               this.notificationService.show('Invalid credentials', 'warning');

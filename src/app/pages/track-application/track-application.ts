@@ -2,13 +2,13 @@ import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { Loader } from '../../shared/components/loader/loader';
+
 
 
 type SearchResult = 'found' | 'not_found' | null;
 @Component({
   selector: 'app-track-application',
-  imports: [CommonModule, FormsModule, RouterModule, Loader],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './track-application.html',
   styleUrls: ['./track-application.css'],
 })

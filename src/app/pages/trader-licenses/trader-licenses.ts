@@ -2,6 +2,10 @@ import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
+import { TokenService } from '../../core/services/token.service';
+import { TradeLicensesService } from './trader-licenses.service';
+import { NotificationService } from '../../shared/components/notification/notification.service';
+import { TradeLicenseApplication } from '../../core/models/new-trade-licenses.model';
 
 @Component({
   selector: 'app-trader-licenses',
@@ -11,7 +15,54 @@ import { Router, RouterModule } from '@angular/router';
 })
 export class TraderLicenses {
 
-  constructor(private router: Router) {}
+  constructor(private router: Router,
+    private tokenservice: TokenService,
+    private tradelicensesservice: TradeLicensesService,
+    private notificationservice: NotificationService
+  ) {}
+
+  ngOnInit(){
+    this.loadAppliedLicensesApplicationByLoginId();
+  }
+
+  //load all applied applications by loginID
+  pageNumber = 1;
+  pageSize = 10;
+  totalRecords = 0;
+  pendingPaymentApplication: TradeLicenseApplication[] = [];
+  showAll = false;
+
+
+  loadAppliedLicensesApplicationByLoginId() {
+    const loginId = this.tokenservice.getUserId();
+
+    if (!loginId) {
+      this.notificationservice.show(
+        'Previous applied applications cannot be loaded!',
+        'warning'
+      );
+      return;
+    }
+
+    this.tradelicensesservice
+      .getAppliedLicensesApplications(loginId, this.pageNumber, this.pageSize)
+      .subscribe({
+        next: (res) => {
+          this.pendingPaymentApplication = res.data;
+          this.totalRecords = res.totalRecords;
+
+          console.log('Applications:', res.data);
+          console.log('Total Records:', res.totalRecords);
+        },
+        error: (err) => {
+          this.notificationservice.show(
+            'Problem with loading application details',
+            'warning'
+          );
+          console.error(err);
+        }
+      });
+  }
 
   licenses = [
     {

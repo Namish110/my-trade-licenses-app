@@ -1,7 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { TradeType } from '../../core/models/new-trade-licenses.model';
-import { TradeLicenceApplicationModel } from '../../core/models/trade-licenses-details.model';
+import { TradeLicenseApplication, TradeType } from '../../core/models/new-trade-licenses.model';
 
 @Injectable({
   providedIn: 'root'
@@ -25,7 +24,7 @@ export class InspectionService {
   }
 
   getTradeLicensesApplication(licensesId: number) {
-    return this.http.get<TradeLicenceApplicationModel>(`${this.baseUrl}/licence-application/${licensesId}`
+    return this.http.get<TradeLicenseApplication>(`${this.baseUrl}/licence-application/${licensesId}`
     );
   }
 }

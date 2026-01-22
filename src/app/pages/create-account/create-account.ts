@@ -21,7 +21,7 @@ import { TokenService } from '../../core/services/token.service';
 export class CreateAccount {
    registerModel = {
     fullName: '',
-    email: '',
+    emailID: '',
     mobileNumber: '',
   };
   
@@ -62,7 +62,7 @@ export class CreateAccount {
       this.notificationService.show('Please enter full name', 'warning');
       return;
     }
-    if (!this.registerModel.email) {
+    if (!this.registerModel.emailID) {
       this.notificationService.show('Please enter email', 'warning');
       return;
     }
@@ -201,7 +201,7 @@ export class CreateAccount {
     this.auth.userlogin(payload).subscribe({
       next: () => {
         // login successful if we reach here
-        const role = this.tokenService.getEffectiveRole();
+        const role = this.tokenService.getUserRole();
         if(role == 'TRADE_OWNER'){
           this.router.navigate(['/trader']);
         }

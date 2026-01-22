@@ -43,3 +43,11 @@ export interface TradeLicenceApplicationModel {
   Refundflag: string | null;
   billdesk_refund_remarks: string | null;
 }
+
+export interface PaginatedResponse<T> {
+  data: T[];
+  totalRecords: number;
+  pageNumber: number;
+  pageSize: number;
+}
+
