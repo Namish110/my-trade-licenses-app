@@ -81,14 +81,14 @@
                 (click)="onInspectionClick(app.licenceApplicationID)"
               >
                 <td>{{ app.applicationNumber }}</td>
-                <td>{{ app.bescomRRNumber || '-' }}</td>
+                <td>{{ app?.bescomRRNumber }}</td>
                 <td>{{ app.applicationSubmitDate | date:'dd-MMM-yyyy' }}</td>
                 <td>
                   <span class="badge bg-info text-dark">
                     {{ app.licenceApplicationStatusName }}
                   </span>
                 </td>
-                <td>{{ app.ChallanNo || '-' }}</td>
+                <td>{{ app.ChallanNo }}</td>
               </tr>
             </ng-container>
 

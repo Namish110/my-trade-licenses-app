@@ -1,4 +1,3 @@
-<div class="loader-backdrop" *ngIf="show">
+<div class="loader-backdrop" *ngIf="loaderService.loading$ | async">
   <div class="spinner"></div>
 </div>
-

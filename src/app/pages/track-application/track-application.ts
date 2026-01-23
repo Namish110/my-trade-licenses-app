@@ -2,18 +2,33 @@ import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { Loader } from '../../shared/components/loader/loader';
+import { TokenService } from '../../core/services/token.service';
+
 
 
 type SearchResult = 'found' | 'not_found' | null;
 @Component({
   selector: 'app-track-application',
-  imports: [CommonModule, FormsModule, RouterModule, Loader],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './track-application.html',
   styleUrls: ['./track-application.css'],
 })
 
 export class TrackApplication {
+
+  isUser = false;
+
+  constructor(
+    private tokenservice: TokenService
+  ){}
+
+  ngOnInit(){
+    const role = this.tokenservice.getUserRole();
+    console.log(role);
+    if(role == 'TRADE_OWNER'){
+      this.isUser = true;
+    }
+  }
 
   applicationId: string = '';
   searchResult: SearchResult = null;

@@ -52,3 +52,31 @@
   gap: 10px;
   margin-top: 30px;
 }
+.inspection-map {
+  width: 100%;
+  border: 1px solid #e0e0e0;
+  height: 350px;
+  border-radius: 8px;
+}
+.document-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  background-color: #fafafa;
+}
+
+.doc-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+}
+
+.doc-info i {
+  font-size: 18px;
+}
+
+

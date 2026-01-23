@@ -24,7 +24,7 @@ export class DashboardLayout {
   
 
   ngOnInit() { 
-    this.role = this.tokenService.getEffectiveRole();
+    this.role = this.tokenService.getUserRole();
     this.getUserDetails();
   }
 

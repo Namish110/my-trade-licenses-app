@@ -12,12 +12,159 @@
   <div class="card section-card">
     <div class="card-header">Application Summary</div>
     <div class="card-body summary-grid">
-      <div><label>BESCOMRR Number</label><p>{{ tradeLicensesApllication.bescomRRNumber }}</p></div>
-      <div><label>Trade Type</label><p>{{ tradeLicensesApllication.tradeTypeID }}</p></div>
-      <div><label>MOH Name</label><p>{{ tradeLicensesApllication.mohID }}</p></div>
-      <div><label>Status</label><p>{{ tradeLicensesApllication.licenceApplicationStatusID }}</p></div>
+      <div><label>Trader Name</label><p>{{ tradeLicenceApplicationDetails?.tradeName }}</p></div>
+      <div><label>Trade Type</label><p>{{ licenceApplicationDetails?.tradeTypeID }}</p></div>
+      <div><label>Ward</label><p>Ward 32</p></div>
+      <div><label>Status</label><p>Inspection Pending</p></div>
     </div>
   </div>
+
+  <!-- Map Details -->
+  <div class="card section-card">
+    <div class="card-header">Map Details</div>
+    <div class="card-body">
+      <div class="row g-3">
+
+        <!-- LEFT PANEL -->
+        <div class="col-lg-5 col-md-6">
+
+          <!-- LOCATION DETAILS CARD -->
+          <div class="card shadow-sm">
+            <div class="card-body p-3">
+
+              <div class="mb-2">
+                <input
+                  class="form-control"
+                  placeholder="Latitude"
+                  readonly
+                />
+              </div>
+
+              <div class="mb-2">
+                <input
+                  class="form-control"
+                  placeholder="Longitude"
+                  readonly
+                />
+              </div>
+
+              <div class="mb-2">
+                <input
+                  class="form-control"
+                  placeholder="Road Type"
+                  readonly
+                />
+              </div>
+
+              <div class="mb-2">
+                <input
+                  class="form-control"
+                  placeholder="Road Width (meters)"
+                  readonly
+                />
+              </div>
+
+              <div class="mb-2">
+                <input
+                  class="form-control"
+                  placeholder="Road Category"
+                  readonly
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT PANEL (MAP) -->
+        <div class="col-lg-7 col-md-6">
+
+          <small class="text-muted d-block mb-2">
+            📍 Location auto-filled from application
+          </small>
+
+          <div id="map" class="inspection-map"></div>
+
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Documents Details -->
+  <div class="card section-card">
+    <div class="card-header">Documents Details</div>
+
+    <div class="card-body">
+      <div class="row g-3">
+
+        <!-- Document 1 -->
+        <div class="col-md-6">
+          <div class="document-card">
+            <div class="doc-info">
+              <i class="bi bi-file-earmark-pdf-fill text-danger"></i>
+              <span>Trade License Application</span>
+            </div>
+            <button
+              class="btn btn-outline-primary btn-sm"
+              (click)="downloadDocument('APPLICATION')"
+            >
+              Download
+            </button>
+          </div>
+        </div>
+
+        <!-- Document 2 -->
+        <div class="col-md-6">
+          <div class="document-card">
+            <div class="doc-info">
+              <i class="bi bi-file-earmark-pdf-fill text-danger"></i>
+              <span>Identity Proof</span>
+            </div>
+            <button
+              class="btn btn-outline-primary btn-sm"
+              (click)="downloadDocument('ID_PROOF')"
+            >
+              Download
+            </button>
+          </div>
+        </div>
+
+        <!-- Document 3 -->
+        <div class="col-md-6">
+          <div class="document-card">
+            <div class="doc-info">
+              <i class="bi bi-file-earmark-pdf-fill text-danger"></i>
+              <span>Address Proof</span>
+            </div>
+            <button
+              class="btn btn-outline-primary btn-sm"
+              (click)="downloadDocument('ADDRESS_PROOF')"
+            >
+              Download
+            </button>
+          </div>
+        </div>
+
+        <!-- Document 4 -->
+        <div class="col-md-6">
+          <div class="document-card">
+            <div class="doc-info">
+              <i class="bi bi-file-earmark-pdf-fill text-danger"></i>
+              <span>Fire Safety Certificate</span>
+            </div>
+            <button
+              class="btn btn-outline-primary btn-sm"
+              (click)="downloadDocument('FIRE_NOC')"
+            >
+              Download
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
 
   <!-- Checklist -->
   <div class="card section-card">
