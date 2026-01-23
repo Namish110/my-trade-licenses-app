@@ -1,7 +1,7 @@
 <main class="content">
 
       <!-- Welcome -->
-      <h2 class="welcome-title">Welcome back, Rajesh!</h2>
+      <h2 class="welcome-title">Welcome back, {{ userName }}!</h2>
       <p class="welcome-subtitle">
         Here's an overview of your trade licenses and applications
       </p>
@@ -68,6 +68,62 @@
             <i class="bi bi-download"></i>
             Certificate
           </button>
+        </div>
+      </div>
+
+      <div class="section-header">
+        <h5>Payment Pending Applications</h5>
+        <a
+          class="view-all"
+          *ngIf="pendingPaymentApplication.length > 1"
+          (click)="showAll = !showAll"
+          style="cursor: pointer"
+        >
+          {{ showAll ? 'View Less' : 'View All' }}
+        </a>
+      </div>
+
+      <!-- LICENSE CARD -->
+      <div
+        class="license-card"
+        *ngFor="
+          let app of pendingPaymentApplication
+            | slice: 0 : (showAll ? pendingPaymentApplication.length : 1)">
+        <div class="license-left">
+          <h6>
+            {{ app.bescomRRNumber }}
+            <span class="status review">{{ app.currentStatus }}</span>
+          </h6>
+
+          <p class="muted">
+            {{ app.bescomRRNumber }} - {{ app.bescomRRNumber }}
+          </p>
+
+          <p class="muted">
+            <i class="bi bi-calendar"></i>
+            Submitted: {{ app.licenceFromDate | date: 'dd MMM yyyy' }}
+            &nbsp;&nbsp;
+            <i class="bi bi-clock"></i>
+            {{ app.bescomRRNumber }}
+          </p>
+          <!-- ACTION LINK -->
+          <div class="license-actions">
+            <a (click)="openApplication(app.licenceApplicationID)">View</a>
+            <span>|</span>
+            <a (click)="makePayment(app.licenceApplicationID)">Pay Now</a>
+          </div>
+
+        </div>
+
+        <div class="license-right">
+          <small class="muted">Progress</small>
+          <div class="progress thin">
+            <div
+              class="progress-bar"
+              [style.width.%]="60"
+            ></div>
+          </div>
+          <small>{{ 60 }}%</small>
         </div>
       </div>
 

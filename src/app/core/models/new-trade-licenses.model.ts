@@ -142,3 +142,32 @@ export interface ZoneClassification{
   zonalClassificationNativeName: string;
   isActive: boolean;
 }
+
+export interface TradeLicensesFee{
+  tradeFeeID: number;
+  tradeSubID: number;
+  tradeLicenceFee: number;
+  tradeApproveAuth: string;
+  isActive: boolean;
+  blockPeriodID: number;
+  remarks:string; 
+}
+
+export interface LicenseDocuments{
+  ApplicationDocumentID: number;
+  LicenceApplicationID: number;
+  DocumentID: number;
+  documentName: string;
+  FileName: string;
+  FilePath: string;
+  FileExtension: string;
+  FileSizeKB: number;
+  EntryDate: string;
+}
+
+export interface RoadWidthDetails{
+  roadType: string;
+  road_Width_mtrs: string;
+  roadCategory: string;
+  roadCategoryCode: string;
+}

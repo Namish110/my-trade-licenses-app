@@ -1,4 +1,4 @@
-export interface TradeLicenceApplicationModel {
+export interface LicenceApplicationModel {
   licenceApplicationID: number;
   applicationNumber: string;
   finanicalYearID: number;
@@ -42,4 +42,42 @@ export interface TradeLicenceApplicationModel {
   NoOfYearsApplied: number;
   Refundflag: string | null;
   billdesk_refund_remarks: string | null;
+  Source:string;
 }
+
+export interface TradeLicensesApplicationDetails {
+  tradeLicenceID: number,
+  applicantName: string;
+  doorNumber: string;
+  address1: string;
+  address2: string;
+  address3: string;
+  pincode: number;
+  landLineNumber: string;
+  mobileNumber: string;
+  emailID: string;
+  tradeName: string;
+  zonalClassificationID: number;
+  mohID: number;
+  wardID: number;
+  PropertyID: number;
+  PIDNumber: string;
+  khathaNumber: string;
+  surveyNumber: string;
+  street: string;
+  GISNumber: string;
+  licenceNumber: string;
+  licenceCommencementDate: string; // ISO string from API
+  licenceStatusID: number;
+  oldapplicationNumber: string | null;
+  newlicenceNumber: string | null;
+  Source: string;
+}
+
+export interface PaginatedResponse<T> {
+  data: T[];
+  totalRecords: number;
+  pageNumber: number;
+  pageSize: number;
+}
+

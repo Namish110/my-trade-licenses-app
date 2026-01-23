@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { TradeType } from '../../core/models/new-trade-licenses.model';
-import { TradeLicenceApplicationModel } from '../../core/models/trade-licenses-details.model';
+import { LicenceApplicationModel } from '../../core/models/trade-licenses-details.model';
 
 @Injectable({
   providedIn: 'root'
@@ -30,7 +30,7 @@ export class ApprovingOfficerService {
 
   getPagedApplications(pageNumber: number, pageSize: number) {
     return this.http.get<{
-      data: TradeLicenceApplicationModel[];
+      data: LicenceApplicationModel[];
       totalRecords: number;
       totalPages: number;
     }>(

@@ -2,6 +2,11 @@ import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
+import { TokenService } from '../../core/services/token.service';
+import { TradeLicensesService } from './trader-licenses.service';
+import { NotificationService } from '../../shared/components/notification/notification.service';
+import { TradeLicenseApplication } from '../../core/models/new-trade-licenses.model';
+import { LoaderService } from '../../shared/components/loader/loader.service';
 
 @Component({
   selector: 'app-trader-licenses',
@@ -11,7 +16,66 @@ import { Router, RouterModule } from '@angular/router';
 })
 export class TraderLicenses {
 
-  constructor(private router: Router) {}
+  userName = '';
+
+  constructor(private router: Router,
+    private tokenservice: TokenService,
+    private tradelicensesservice: TradeLicensesService,
+    private notificationservice: NotificationService,
+    private loaderservice: LoaderService) {}
+
+  ngOnInit(){
+    this.loadAppliedLicensesApplicationByLoginId();
+    this.userName = this.tokenservice.getUserFullName();
+  }
+
+  //load all applied applications by loginID
+  pageNumber = 1;
+  pageSize = 10;
+  totalRecords = 0;
+  pendingPaymentApplication: TradeLicenseApplication[] = [];
+  showAll = false;
+
+
+  loadAppliedLicensesApplicationByLoginId() {
+    this.loaderservice.show();
+    const loginId = this.tokenservice.getUserId();
+
+    if (!loginId) {
+      this.notificationservice.show(
+        'Previous applied applications cannot be loaded!',
+        'warning'
+      );
+      return;
+    }
+
+    this.tradelicensesservice
+      .getAppliedLicensesApplications(loginId, this.pageNumber, this.pageSize)
+      .subscribe({
+        next: (res) => {
+          this.pendingPaymentApplication = res.data;
+          this.totalRecords = res.totalRecords;
+          this.loaderservice.hide();
+          console.log('Applications:', res.data);
+          console.log('Total Records:', res.totalRecords);
+        },
+        error: (err) => {
+          this.loaderservice.hide();
+          this.notificationservice.show(
+            'Problem with loading application details',
+            'warning'
+          );
+          console.error(err);
+        }
+      });
+  }
+
+  openApplication(licenseId: number) {
+    this.router.navigate(['/trade-license/details', licenseId]);
+  }
+  makePayment(licenseId: number) {
+    this.router.navigate(['/trade-license/payment', licenseId]);
+  }
 
   licenses = [
     {

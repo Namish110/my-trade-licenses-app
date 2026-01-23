@@ -206,3 +206,17 @@
   margin-right: 6px;
 }
 
+.action-link {
+  font-size: 13px;
+  color: #0d6efd;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.license-actions a {
+  font-size: 13px;
+  color: #0d6efd;
+  cursor: pointer;
+}
+
+

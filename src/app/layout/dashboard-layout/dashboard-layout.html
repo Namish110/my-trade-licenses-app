@@ -16,7 +16,6 @@
         <div class="title">GBA Trade License</div>
         <small class="subtitle">Trader Portal</small>
       </div>
-
     </div>
 
     <div class="topbar-right">
@@ -38,7 +37,7 @@
     <!-- SIDEBAR -->
     <aside class="sidebar" [class.collapsed]="isSidebarCollapsed">
 
-      <nav class="menu" *ngIf="role === 'admin'">
+      <nav class="menu" *ngIf="role === 'Admin'">
         <a class="menu-item" routerLink="/admin" routerLinkActive="active">
           <i class="bi bi-speedometer2"></i>
           <span>Dashboard</span>
@@ -102,10 +101,10 @@
           Payments
         </a> -->
 
-        <a class="menu-item" routerLink="/admin/monitoring" routerLinkActive="active">
+        <!-- <a class="menu-item" routerLink="/admin/monitoring" routerLinkActive="active">
           <i class="bi bi-activity"></i>
           <span>System Monitoring</span>
-        </a>
+        </a> -->
 
         <a class="menu-item" routerLink="/admin/reports" routerLinkActive="active">
           <i class="bi bi-file-earmark-text"></i>
@@ -113,7 +112,7 @@
         </a>
       </nav>
 
-      <nav class="menu" *ngIf="role === 'seniorapprover'">
+      <nav class="menu" *ngIf="role === 'SeniorApprover'">
         <a class="menu-item" routerLink="/senior-approver" routerLinkActive="active">
           <i class="bi bi-speedometer2"></i>
           <span>Dashboard</span>
@@ -130,7 +129,7 @@
         </a>
       </nav>
 
-      <nav class="menu" *ngIf="role === 'approver'">
+      <nav class="menu" *ngIf="role === 'Approver'">
         <a class="menu-item" routerLink="/approver" routerLinkActive="active">
           <i class="bi bi-speedometer2"></i>
           <span>Dashboard</span>
@@ -165,12 +164,12 @@
           New Application
         </a>
 
-        <a class="menu-item"
+        <!-- <a class="menu-item"
           routerLink="/trader/trader-licenses"
           routerLinkActive="active">
           <i class="bi bi-check-circle"></i>
           My Licenses
-        </a>
+        </a> -->
 
         <a class="menu-item"
           routerLink="/trader/renew-license"
