@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { TradeLicenseApplication, TradeType } from '../../core/models/new-trade-licenses.model';
+import { TradeType } from '../../core/models/new-trade-licenses.model';
+import { LicenceApplicationModel, TradeLicensesApplicationDetails } from '../../core/models/trade-licenses-details.model';
 
 @Injectable({
   providedIn: 'root'
@@ -23,8 +24,22 @@ export class InspectionService {
     return this.http.put<T>(`${this.baseUrl}${url}`, body);
   }
 
-  getTradeLicensesApplication(licensesId: number) {
-    return this.http.get<TradeLicenseApplication>(`${this.baseUrl}/licence-application/${licensesId}`
+  getlicenceApplicationDetails(licenceApplicationID: number) {
+    return this.http.get<LicenceApplicationModel>(`${this.baseUrl}/licence-application/${licenceApplicationID}`
     );
   }
+
+  gettradelicenceApplicationDetails(tradelicenceApplicationID: number) {
+    return this.http.get<TradeLicensesApplicationDetails>(`${this.baseUrl}/trade-licence/${tradelicenceApplicationID}`
+    );
+  }
+
+  getgeolocationByLicensesAppId(licenceApplicationID: number){
+    return this.http.get<any>(`${this.baseUrl}/geolocation/get/${licenceApplicationID}`);
+  }
+
+  getTradeTypeById(tradeTypeId: number){
+    //return this.http.put<any>(`${this.baseUrl}/trade-type/${tradeTypeId}`);
+  }
+  //Documents for inspection
 }

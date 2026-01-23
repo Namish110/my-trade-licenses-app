@@ -82,7 +82,6 @@ export class Login {
             const role = this.tokenService.getUserRole(); // string
             console.log(role);
             if(role === 'Admin'){
-              //write a logic to redirect based on role
               this.router.navigate(['/admin']);  //approver,trader,admin, senior-approver
             }else if(role === 'trader'){
               this.router.navigate(['/trader']);

@@ -507,6 +507,7 @@ export class NewLicenses {
       }
     });
   }
+
 //#region  Map Logic starts here
   /* =========================
      MAP + LOCATION SEARCH
@@ -585,8 +586,8 @@ export class NewLicenses {
 
 
   setMarker(lat: number, lng: number) {
-    this.latitude = this.roundTo4Decimals(lat);
-    this.longitude = this.roundTo4Decimals(lng);
+    this.latitude = lat;
+    this.longitude = lng;
 
     if (this.marker) {
       this.marker.setLatLng([lat, lng]);
@@ -600,18 +601,18 @@ export class NewLicenses {
         this.latitude = pos.lat;
         this.longitude = pos.lng;
 
-        this.fetchRoadWidth(pos.lat, pos.lng);
+        this.fetchRoadWidth(pos.lng, pos.lat);
       });
     }
 
-    this.fetchRoadWidth(this.latitude, this.longitude);
+    this.fetchRoadWidth(this.longitude, this.latitude);
   }
 
-  private roundTo4Decimals(value: number): number {
-    return Math.round(value * 10000) / 10000;
-  }
+  // private roundTo4Decimals(value: number): number {
+  //   return Math.round(value * 10000) / 10000;
+  // }
 
-  fetchRoadWidth(lat: number, lng: number) {
+  fetchRoadWidth(lng: number, lat: number) {
     this.loaderservice.show();
 
     const payload = {
@@ -669,7 +670,7 @@ export class NewLicenses {
 
     this.map.setView([lat, lon], 16);
     this.setMarker(lat, lon);
-    this.fetchRoadWidth(this.roundTo4Decimals(lat), this.roundTo4Decimals(lon))
+    this.fetchRoadWidth(lon, lat)
   }
 //#endregion
 
@@ -784,7 +785,7 @@ export class NewLicenses {
 
   //#endregion
 
-
+  //#region  SaveAndPayLate
   saveAndPayLater() {
     this.loaderservice.show();
     const tradeLicencePayload = {
@@ -861,7 +862,6 @@ export class NewLicenses {
               await this.saveOrUpdateDocuments(this.tradeLicenseApplications.licenceApplicationID);
               this.loaderservice.hide();
               this.notificationservice.show('Draft saved successfully. You can continue later.', 'success');
-              this.router.navigate(['/trader']);
             },
             error: err => {
               this.loaderservice.hide();
@@ -877,6 +877,89 @@ export class NewLicenses {
     });
   }
 
+  saveDraft(): Promise<number> {
+    return new Promise((resolve, reject) => {
+
+      const tradeLicencePayload = {
+        applicantName: this.tradeLicenseApplicationDetails.applicantName,
+        doorNumber: this.tradeLicenseApplicationDetails.doorNumber,
+        address1: this.tradeLicenseApplicationDetails.address1,
+        address2: this.tradeLicenseApplicationDetails.address2,
+        address3: this.tradeLicenseApplicationDetails.address3,
+        pincode: this.tradeLicenseApplicationDetails.pincode,
+        landLineNumber: this.tradeLicenseApplicationDetails.landLineNumber,
+        mobileNumber: this.tradeLicenseApplicationDetails.mobileNumber,
+        emailID: this.tradeLicenseApplicationDetails.emailID,
+        tradeName: this.tradeLicenseApplicationDetails.tradeName,
+
+        zonalClassificationID: this.selectedZoneClassification ? this.selectedZoneClassification.zonalClassificationID : 0,
+        mohID: this.selectedMLAConstituency ? this.selectedMLAConstituency.mohID : 0,
+        wardID: this.selectedWard ? this.selectedWard.wardID : 0,
+
+        propertyID: this.tradeLicenseApplicationDetails.propertyID,
+        pidNumber: this.tradeLicenseApplicationDetails.pidNumber,
+        khathaNumber: this.tradeLicenseApplicationDetails.khathaNumber,
+        surveyNumber: this.tradeLicenseApplicationDetails.surveyNumber,
+        street: this.tradeLicenseApplicationDetails.street,
+        gisNumber: this.tradeLicenseApplicationDetails.gisNumber,
+
+        licenceNumber: this.tradeLicenseApplicationDetails.licenceNumber,
+        licenceCommencementDate: this.tradeLicenseApplicationDetails.licenceCommencementDate,
+        licenceStatusID: 1, // Active
+
+        oldapplicationNumber: this.tradeLicenseApplicationDetails.oldapplicationNumber,
+        newlicenceNumber: this.tradeLicenseApplicationDetails.newlicenceNumber
+      };
+
+      this.newLicensesService.post('/trade-licence', tradeLicencePayload)
+        .subscribe({
+          next: (res: any) => {
+
+            const licenceApplicationDraftPayload = {
+              finanicalYearID: this.tradeLicenseApplications.finanicalYearID,
+              tradeTypeID: this.selectedTradeType ? this.selectedTradeType.tradeTypeID : 0,
+
+              bescomRRNumber: this.tradeLicenseApplications.bescomRRNumber,
+              tinNumber: this.tradeLicenseApplications.tinNumber,
+              vatNumber: this.tradeLicenseApplications.vatNumber,
+
+              licenceFromDate: this.tradeLicenseApplications.licenceFromDate,
+              licenceToDate: this.tradeLicenseApplications.licenceToDate,
+
+              tradeLicenceID: res.tradeLicenceID, // from API-1
+
+              loginID: this.tokenservice.getTraderUserId(),
+              entryOriginLoginID: this.tradeLicenseApplications.entryOriginLoginID,
+              inspectingOfficerID: this.tradeLicenseApplications.inspectingOfficerID,
+
+              licenseType: this.tradeLicenseApplications.licenseType,
+              applicantRepersenting: this.tradeLicenseApplications.applicantRepersenting,
+              jathaStatus: this.tradeLicenseApplications.jathaStatus,
+              mohID: this.selectedMLAConstituency ? this.selectedMLAConstituency.mohID : 0,
+              docsSubmitted: this.tradeLicenseApplications.docsSubmitted,
+              challanNo: this.tradeLicenseApplications.challanNo,
+              noOfYearsApplied: this.tradeLicenseApplications.noOfYearsApplied
+            };
+
+            this.newLicensesService
+              .post('/licence-application/draft', licenceApplicationDraftPayload)
+              .subscribe({
+                next: async (draftRes: any) => {
+                  this.tradeLicenseApplications.licenceApplicationID =
+                    draftRes.licenceApplicationID;
+
+                  await this.saveLocationDetails(draftRes.licenceApplicationID);
+                  await this.saveOrUpdateDocuments(draftRes.licenceApplicationID);
+
+                  resolve(draftRes.licenceApplicationID);
+                },
+                error: reject
+              });
+          },
+          error: reject
+        });
+    });
+  }
 
   private buildExistingDocsMap(docs: LicenseDocuments[]): { [documentId: number]: LicenseDocuments } {
     const map: { [documentId: number]: LicenseDocuments } = {};
@@ -1011,4 +1094,79 @@ export class NewLicenses {
       });
     });
   }
+
+  onClickSaveAndPayLater() {
+    this.loaderservice.show();
+    this.saveDraft()
+    .then(() => {
+      this.loaderservice.hide();
+        this.notificationservice.show(
+          'Draft saved successfully. You can continue later.',
+          'success'
+        );
+        this.router.navigate(['/trader']);
+      })
+      .catch(() => {
+        this.loaderservice.hide();
+        this.notificationservice.show('Save failed', 'error');
+    });
+  }
+
+  //#endregion
+
+  //#region ProccedForPayment
+  proceedForPayment() {
+    this.loaderservice.show();
+    this.saveDraft().then(() => {
+      this.loaderservice.hide();
+      this.initiatePayment();
+    })
+    .catch(() => {
+      this.loaderservice.hide();
+      this.notificationservice.show(
+        'Unable to save before payment',
+        'error'
+      );
+    });
+  }
+
+
+  initiatePayment() {
+    const payload = {
+      licenceApplicationId: this.tradeLicenseApplications.licenceApplicationID,
+      corporationId: 1,
+      amount: this.licenseFee,
+      applicantName: this.tokenservice.getUserFullName(),
+      email: this.tokenservice.getUserEmail(),
+      phone: this.tradeLicenseApplicationDetails.mobileNumber
+    };
+    console.log(payload);
+    this.newLicensesService.paymentIntiate(payload).subscribe({
+      next: res => this.redirectToPayment(res.html),
+      error: err => console.error('Payment initiation failed', err)
+    });
+  }
+
+
+  redirectToPayment(html: string) {
+    // 1. Create a temporary container
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = html;
+
+    // 2. Extract the form
+    const form = tempDiv.querySelector('form') as HTMLFormElement;
+
+    if (!form) {
+      console.error('Payment form not found in response');
+      return;
+    }
+
+    // 3. Append form to body
+    document.body.appendChild(form);
+
+    // 4. Manually submit the form
+    form.submit();
+  }
+
+  //#endregion
 }

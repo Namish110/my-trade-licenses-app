@@ -6,6 +6,7 @@ import { TokenService } from '../../core/services/token.service';
 import { TradeLicensesService } from './trader-licenses.service';
 import { NotificationService } from '../../shared/components/notification/notification.service';
 import { TradeLicenseApplication } from '../../core/models/new-trade-licenses.model';
+import { LoaderService } from '../../shared/components/loader/loader.service';
 
 @Component({
   selector: 'app-trader-licenses',
@@ -15,14 +16,17 @@ import { TradeLicenseApplication } from '../../core/models/new-trade-licenses.mo
 })
 export class TraderLicenses {
 
+  userName = '';
+
   constructor(private router: Router,
     private tokenservice: TokenService,
     private tradelicensesservice: TradeLicensesService,
-    private notificationservice: NotificationService
-  ) {}
+    private notificationservice: NotificationService,
+    private loaderservice: LoaderService) {}
 
   ngOnInit(){
     this.loadAppliedLicensesApplicationByLoginId();
+    this.userName = this.tokenservice.getUserFullName();
   }
 
   //load all applied applications by loginID
@@ -34,6 +38,7 @@ export class TraderLicenses {
 
 
   loadAppliedLicensesApplicationByLoginId() {
+    this.loaderservice.show();
     const loginId = this.tokenservice.getUserId();
 
     if (!loginId) {
@@ -50,11 +55,12 @@ export class TraderLicenses {
         next: (res) => {
           this.pendingPaymentApplication = res.data;
           this.totalRecords = res.totalRecords;
-
+          this.loaderservice.hide();
           console.log('Applications:', res.data);
           console.log('Total Records:', res.totalRecords);
         },
         error: (err) => {
+          this.loaderservice.hide();
           this.notificationservice.show(
             'Problem with loading application details',
             'warning'
@@ -62,6 +68,13 @@ export class TraderLicenses {
           console.error(err);
         }
       });
+  }
+
+  openApplication(licenseId: number) {
+    this.router.navigate(['/trade-license/details', licenseId]);
+  }
+  makePayment(licenseId: number) {
+    this.router.navigate(['/trade-license/payment', licenseId]);
   }
 
   licenses = [

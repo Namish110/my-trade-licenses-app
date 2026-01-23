@@ -429,48 +429,63 @@
               <div class="card mt-3 shadow-sm">
                 <div class="card-body p-3">
 
-                  <div class="mb-2">
-                    <input class="form-control" placeholder="Latitude" [value]="latitude" readonly>
-                  </div>
-
-                  <div class="mb-2">
-                    <input class="form-control" placeholder="Longitude" [value]="longitude" readonly>
-                  </div>
-
-                  <div class="mb-2">
+                  <!-- Latitude -->
+                  <div class="mb-3">
+                    <label class="form-label fw-semibold text-secondary">
+                      Latitude
+                    </label>
                     <input
-                      class="form-control"
-                      placeholder="Road Type"
+                      class="form-control form-control-sm"
+                      [value]="latitude"
+                      readonly>
+                  </div>
+
+                  <!-- Longitude -->
+                  <div class="mb-3">
+                    <label class="form-label fw-semibold text-secondary">
+                      Longitude
+                    </label>
+                    <input
+                      class="form-control form-control-sm"
+                      [value]="longitude"
+                      readonly>
+                  </div>
+
+                  <!-- Road Type -->
+                  <div class="mb-3">
+                    <label class="form-label fw-semibold text-secondary">
+                      Road Type
+                    </label>
+                    <input
+                      class="form-control form-control-sm"
                       [ngModel]="roadWidthDetails?.roadType"
                       readonly>
                   </div>
 
-                  <div class="mb-2">
+                  <!-- Road Width -->
+                  <div class="mb-3">
+                    <label class="form-label fw-semibold text-secondary">
+                      Road Width (in meters)
+                    </label>
                     <input
-                      class="form-control"
-                      placeholder="Road Width (meters)"
+                      class="form-control form-control-sm"
                       [ngModel]="roadWidthDetails?.road_Width_mtrs"
                       readonly>
                   </div>
 
-                  <div class="mb-2">
+                  <!-- Road Category -->
+                  <div class="mb-3">
+                    <label class="form-label fw-semibold text-secondary">
+                      Road Category
+                    </label>
                     <input
-                      class="form-control"
-                      placeholder="Road Category"
+                      class="form-control form-control-sm"
                       [ngModel]="roadWidthDetails?.roadCategory"
                       readonly>
                   </div>
 
-                  <div *ngIf="roadWidthStatus" class="mt-2">
-                    <span
-                      class="badge px-3 py-2"
-                      [class.bg-success]="roadWidthStatus === 'COMPLIANT'"
-                      [class.bg-danger]="roadWidthStatus !== 'COMPLIANT'">
-                      {{ roadWidthStatus }}
-                    </span>
-                  </div>
-
                 </div>
+
               </div>
 
               <!-- CONFIRMATION SECTION -->
@@ -607,7 +622,7 @@
           <label>Enter OTP</label>
           <input class="form-control mb-2"
                 [(ngModel)]="otp"
-                placeholder="Enter OTP (1234)">
+                placeholder="Enter OTP">
           <button class="btn btn-success" (click)="verifyOtp()">Verify OTP</button>
         </div>
 
@@ -665,10 +680,10 @@
         </div>
 
         <div class="d-flex justify-content-between mt-4">
-          <button class="btn btn-outline-secondary" (click)="saveAndPayLater()">
+          <button class="btn btn-outline-secondary" (click)="onClickSaveAndPayLater()">
             Save & Pay Later
           </button>
-          <button class="btn btn-success btn-lg">
+          <button class="btn btn-success btn-lg" (click)="proceedForPayment()">
             Proceed for Payment →
           </button>
         </div>

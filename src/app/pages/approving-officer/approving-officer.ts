@@ -5,7 +5,7 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ApprovingOfficerService } from './approving-officer.service';
-import { TradeLicenceApplicationModel } from '../../core/models/trade-licenses-details.model';
+import { LicenceApplicationModel } from '../../core/models/trade-licenses-details.model';
 
 
 declare var bootstrap: any;
@@ -21,7 +21,7 @@ export class ApprovingOfficer {
   selectedApplication: number | null = null;
   tradeTypes : TradeType[] = [];
 
-  tradeLicensesApplicationDetails : TradeLicenceApplicationModel[] =[]; 
+  tradeLicensesApplicationDetails : LicenceApplicationModel[] =[]; 
   pageNumber = 1;
   pageSize = 10;
   totalRecords = 0;

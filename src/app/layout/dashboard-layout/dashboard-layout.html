@@ -37,7 +37,7 @@
     <!-- SIDEBAR -->
     <aside class="sidebar" [class.collapsed]="isSidebarCollapsed">
 
-      <nav class="menu" *ngIf="role === 'admin'">
+      <nav class="menu" *ngIf="role === 'Admin'">
         <a class="menu-item" routerLink="/admin" routerLinkActive="active">
           <i class="bi bi-speedometer2"></i>
           <span>Dashboard</span>
@@ -112,7 +112,7 @@
         </a>
       </nav>
 
-      <nav class="menu" *ngIf="role === 'seniorapprover'">
+      <nav class="menu" *ngIf="role === 'SeniorApprover'">
         <a class="menu-item" routerLink="/senior-approver" routerLinkActive="active">
           <i class="bi bi-speedometer2"></i>
           <span>Dashboard</span>
@@ -129,7 +129,7 @@
         </a>
       </nav>
 
-      <nav class="menu" *ngIf="role === 'approver'">
+      <nav class="menu" *ngIf="role === 'Approver'">
         <a class="menu-item" routerLink="/approver" routerLinkActive="active">
           <i class="bi bi-speedometer2"></i>
           <span>Dashboard</span>

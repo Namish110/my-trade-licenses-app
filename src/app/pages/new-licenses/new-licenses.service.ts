@@ -111,4 +111,8 @@ export class NewLicensesService {
   saveLocationDetails(payload: any){
     return this.http.post<any>(`${this.baseUrl}/geolocation/confirm-save`, payload);
   }
+
+  paymentIntiate(payload: any){
+    return this.http.post<any>(`${this.baseUrl}/payment/initiate`, payload);
+  }
 }
