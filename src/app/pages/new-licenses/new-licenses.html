@@ -367,6 +367,8 @@
 
     <!-- LEFT PANEL -->
     <div class="col-lg-5 col-md-6">
+<!-- CURRENT LOCATION BUTTON -->
+
 
       <!-- SEARCH (GOOGLE AUTOCOMPLETE) -->
       <label class="required">Search Location</label>
@@ -413,6 +415,11 @@
 
         </div>
       </div>
+<!-- ROAD WIDTH API STATUS MESSAGE -->
+<div *ngIf="roadWidthStatus"
+     class="alert alert-info mt-2">
+  {{ roadWidthStatus }}
+</div>
 
       <!-- CONFIRMATION -->
       <div class="card mt-3 border-start border-4 border-primary"
@@ -486,7 +493,11 @@
 
   <div class="d-flex justify-content-between mt-4">
     <button class="btn btn-outline-secondary" (click)="prevStep()">← Back</button>
-    <button class="btn btn-primary" (click)="nextStep()">Continue →</button>
+  <button class="btn btn-primary"
+        [disabled]="roadWidthConfirmed !== true"
+        (click)="nextStep()">
+  Continue →
+</button>
   </div>
 
 </div>
