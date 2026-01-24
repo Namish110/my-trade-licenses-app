@@ -65,7 +65,7 @@ selectedRectangle!: google.maps.Rectangle;
   infoAboutRules3: any = 'I/We further understand that the Trade license may be suspended or cancelled in the event it is found that the business is being run in the premises that violating existing rules and zonal regulation as per the Comprehensive Development Plan 2015 issued by Bangalore Development Authority.';
   infoAboutRules4: any = 'I/We further undertake to have no objection in the authorities revoking the trade license in case there is any discrepancies,disputes,defects or false information in any documentation that is submitted by me/us as stated in the application form.';
   infoAboutRules5: any = 'I/We undertake that I/We will not employ/engage child labour for the purpose of carrying the trade.';
-  infoAboutRules6: any = 'I/We declare that incase of any objections/Complaints raised by immediate neighbors,I/We shall furnish all the documents and take corrective action as per the KMC act.';
+  infoAboutRules6: any = 'I/We declare that incase of any objections/Complaints raised by immediate neighbors,I/We shall furnish all the documents and take corrective action as per the BBMP act.';
 
   //Creating a trade major list 
   tradeMajors : TradeMajor[] = [];
@@ -187,6 +187,14 @@ mapZoom = 15;
       return;
     }
 
+    //Email
+    const email = this.tradeLicenseApplicationDetails.emailID.trim();
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email || !emailRegex.test(email)) {
+      this.notificationservice.show('Please enter a valid Email address', 'warning');
+      return;
+    }
+
     // 5. Mobile Number
     const mobile = this.tradeLicenseApplicationDetails.mobileNumber;
     if (!mobile || mobile.length !== 10) {
@@ -288,29 +296,29 @@ mapZoom = 15;
       =========================== */
      if (this.currentStep === 4) {
 
-  if (this.roadWidthConfirmed === null) {
-    this.notificationservice.show(
-      'Please confirm the Road Width',
-      'warning'
-    );
-    return;
-  }
+      if (this.roadWidthConfirmed === null) {
+        this.notificationservice.show(
+          'Please confirm the Road Width',
+          'warning'
+        );
+        return;
+      }
 
-  if (this.roadWidthConfirmed === false) {
-    if (!this.manualRoadWidth || this.manualRoadWidth <= 0) {
-      this.notificationservice.show(
-        'Please enter valid Road Width manually',
-        'warning'
-      );
-      return;
-    }
+      if (this.roadWidthConfirmed === false) {
+        if (!this.manualRoadWidth || this.manualRoadWidth <= 0) {
+          this.notificationservice.show(
+            'Please enter valid Road Width manually',
+            'warning'
+          );
+          return;
+        }
 
-    // 🔥 Override API value
-    if (this.roadWidthDetails) {
-      this.roadWidthDetails.road_Width_mtrs = this.manualRoadWidth.toString();
+        // 🔥 Override API value
+        if (this.roadWidthDetails) {
+          this.roadWidthDetails.road_Width_mtrs = this.manualRoadWidth.toString();
+        }
+      }
     }
-  }
-}
 
 
     /* =========================
@@ -896,7 +904,7 @@ onMapClick(event: google.maps.MapMouseEvent): void {
   //#endregion
 
   //#region  SaveAndPayLate
-  saveAndPayLater() {
+  /*saveAndPayLater() {
     this.loaderservice.show();
     const tradeLicencePayload = {
     applicantName: this.tradeLicenseApplicationDetails.applicantName,
@@ -985,7 +993,7 @@ onMapClick(event: google.maps.MapMouseEvent): void {
         this.notificationservice.show('Failed to save trade licence draft.', 'error');
       }
     });
-  }
+  }*/
 
   saveDraft(): Promise<number> {
     return new Promise((resolve, reject) => {
@@ -1142,7 +1150,14 @@ onMapClick(event: google.maps.MapMouseEvent): void {
                   },
                   error: (err) => {
                     console.error('Upload failed', err);
-                    reject(err);
+
+                    // ❌ reject(err);
+                    // ✅ allow flow to continue
+                    completed++;
+
+                    if (completed === total) {
+                      resolve(); // continue even if some uploads failed
+                    }
                   }
                 });
             });
@@ -1247,7 +1262,7 @@ onMapClick(event: google.maps.MapMouseEvent): void {
       corporationId: 1,
       amount: this.licenseFee,
       applicantName: this.tokenservice.getUserFullName(),
-      email: this.tokenservice.getUserEmail(),
+      email: this.tradeLicenseApplicationDetails.emailID.trim() || 'testing@gmail.com',
       phone: this.tradeLicenseApplicationDetails.mobileNumber
     };
     console.log(payload);

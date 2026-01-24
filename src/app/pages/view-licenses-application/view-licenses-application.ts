@@ -10,5 +10,5 @@ import { RouterModule } from '@angular/router';
   styleUrl: './view-licenses-application.css',
 })
 export class ViewLicensesApplication {
-
+  
 }
