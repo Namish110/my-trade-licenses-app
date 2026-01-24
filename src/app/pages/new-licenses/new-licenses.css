@@ -81,6 +81,24 @@ input[readonly] {
 table {
   font-size: 14px;
 }
+/* ✅ GOOGLE PLACES AUTOCOMPLETE FIX */
+.pac-container {
+  z-index: 2147483647 !important; /* max possible */
+  background-color: #fff !important;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  border-radius: 6px;
+  font-family: inherit;
+}
+
+/* Prevent clipping */
+.card,
+.card-body,
+.row,
+.col-lg-5,
+.col-md-6 {
+  overflow: visible !important;
+}
+
 
 .table {
   border-radius: 8px;
@@ -197,12 +215,7 @@ table {
 /* =====================================================
    MAP (LEAFLET)
 ===================================================== */
-#map {
-  height: 350px;
-  width: 100%;
-  border-radius: 8px;
-  border: 1px solid #ddd;
-}
+
 
 /* =====================================================
    LOCATION SEARCH INPUT
@@ -247,22 +260,9 @@ table {
 }
 
 /* SEARCH DROPDOWN */
-.location-suggestions {
-  position: absolute;
-  top: 78px;
-  left: 0;
-  right: 0;
-  z-index: 2000;
-  max-height: 220px;
-  overflow-y: auto;
-}
 
-/* MAP */
-#map {
-  height: 600px;
-  width: 100%;
-  border-radius: 8px;
-}
+
+
 
 /* MOBILE STACK */
 @media (max-width: 768px) {

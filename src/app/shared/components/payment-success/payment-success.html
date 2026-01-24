@@ -1,0 +1,18 @@
+<div class="payment-container success">
+  <h2>✅ Payment Successful</h2>
+
+  <p class="success-text">
+    Your Trade License payment has been completed successfully.
+  </p>
+
+  <div class="details-card">
+    <p><strong>Application No:</strong> {{ applicationNo }}</p>
+    <p><strong>Transaction ID:</strong> {{ txnId }}</p>
+    <p><strong>Amount Paid:</strong> ₹{{ amount }}</p>
+    <p><strong>Payment Date:</strong> {{ paymentDate | date:'medium' }}</p>
+  </div>
+
+  <button class="btn btn-primary" (click)="goToApplication()">
+    View Applications
+  </button>
+</div>

@@ -1,8 +1,21 @@
-import { Component, AfterViewInit, Inject, PLATFORM_ID, Input, ChangeDetectorRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import {
+  Component,
+  AfterViewInit,
+  Inject,
+  PLATFORM_ID,
+  ViewChild,
+  ElementRef,
+  ChangeDetectorRef,
+} from '@angular/core';
+import { GoogleMapsModule } from '@angular/google-maps';
+import { GoogleMap } from '@angular/google-maps';
+
+
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { isPlatformBrowser } from '@angular/common';
+
+
 import { NewLicensesService } from './new-licenses.service';
 import { TradeMajor, TradeMinor, TradeSub, TradeType, Ward, TradeLicenseApplication, TradeLicenseApplicationDetails, AssemblyConstituency, Zones, ZoneClassification, MLCConstituency, TradeLicensesFee, LicenseDocuments, RoadWidthDetails } from '../../core/models/new-trade-licenses.model';
 import { initializeApplicationDetails, initializeTradeApplication } from '../../helpers/trade-license.factory';
@@ -22,17 +35,29 @@ interface TradeGridItem {
   sub: string;
   rate: number;
 }
+declare const google: any;
 
 @Component({
   selector: 'app-new-licenses',
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, GoogleMapsModule   ],
   templateUrl: './new-licenses.html',
   styleUrl: './new-licenses.css',
+  
+  
 })
 export class NewLicenses {
   //Stepper Logic
   currentStep = 0; // 0 = Declaration
   agree = false;
+ 
+
+@ViewChild('searchInput') searchInput!: ElementRef<HTMLInputElement>;
+@ViewChild(GoogleMap) googleMap!: GoogleMap;
+
+map!: google.maps.Map;
+drawingManager!: google.maps.drawing.DrawingManager;
+selectedRectangle!: google.maps.Rectangle;
+
 
   infoAboutIssueRelated: any = 'For any issue related to online payments mail us to "bbmptl@gmail.com" with all transaction detail like transaction id, date of transaction, old license number.';
   infoAboutRules1: any = 'I/We do hereby affirm and state that the information to be furnished by me/us in the trade license new or renewal application are true and correct to the best of my/our knowledge and belief.';
@@ -40,7 +65,7 @@ export class NewLicenses {
   infoAboutRules3: any = 'I/We further understand that the Trade license may be suspended or cancelled in the event it is found that the business is being run in the premises that violating existing rules and zonal regulation as per the Comprehensive Development Plan 2015 issued by Bangalore Development Authority.';
   infoAboutRules4: any = 'I/We further undertake to have no objection in the authorities revoking the trade license in case there is any discrepancies,disputes,defects or false information in any documentation that is submitted by me/us as stated in the application form.';
   infoAboutRules5: any = 'I/We undertake that I/We will not employ/engage child labour for the purpose of carrying the trade.';
-  infoAboutRules6: any = 'I/We declare that incase of any objections/Complaints raised by immediate neighbors,I/We shall furnish all the documents and take corrective action as per the BBPM act.';
+  infoAboutRules6: any = 'I/We declare that incase of any objections/Complaints raised by immediate neighbors,I/We shall furnish all the documents and take corrective action as per the BBMP act.';
 
   //Creating a trade major list 
   tradeMajors : TradeMajor[] = [];
@@ -119,6 +144,17 @@ export class NewLicenses {
   private loaderservice: LoaderService,
   private cdr: ChangeDetectorRef) {}
 
+
+  // ================= GOOGLE MAP STATE =================
+
+marker!: google.maps.Marker;
+
+mapCenter: google.maps.LatLngLiteral = {
+  lat: 12.9716,
+  lng: 77.5946
+};
+mapZoom = 15;
+
   startApplication() {
     this.currentStep = 1;
   }
@@ -150,13 +186,6 @@ export class NewLicenses {
       this.notificationservice.show('Please enter Application Name', 'warning');
       return;
     }
-
-    const email = this.tradeLicenseApplicationDetails.emailID;
-    if (!email || !this.isValidEmail(email)) {
-      this.notificationservice.show('Please enter valid Email', 'warning');
-      return;
-    }
-    
 
     // 5. Mobile Number
     const mobile = this.tradeLicenseApplicationDetails.mobileNumber;
@@ -257,23 +286,32 @@ export class NewLicenses {
     /* ==========================
         STEP 4 VALIDATION
       =========================== */
-      if (this.currentStep === 4) {
-        if (this.roadWidthConfirmed === null) {
+     if (this.currentStep === 4) {
+
+      if (this.roadWidthConfirmed === null) {
+        this.notificationservice.show(
+          'Please confirm the Road Width',
+          'warning'
+        );
+        return;
+      }
+
+      if (this.roadWidthConfirmed === false) {
+        if (!this.manualRoadWidth || this.manualRoadWidth <= 0) {
           this.notificationservice.show(
-            'Please confirm the Road Width (Yes or No)',
+            'Please enter valid Road Width manually',
             'warning'
           );
           return;
         }
 
-        if (this.roadWidthConfirmed === false) {
-          this.notificationservice.show(
-            'Road Width confirmation failed. Please re-check the location.',
-            'warning'
-          );
-          return;
+        // 🔥 Override API value
+        if (this.roadWidthDetails) {
+          this.roadWidthDetails.road_Width_mtrs = this.manualRoadWidth.toString();
         }
       }
+    }
+
 
     /* =========================
       STEP 5 VALIDATION
@@ -320,8 +358,7 @@ export class NewLicenses {
       // Map init only when location step loads
       if (this.currentStep === 4) {
         setTimeout(() => {
-          this.initMap();
-          this.map.invalidateSize();
+         this.initAutocomplete(); 
         }, 300);
       }
     }
@@ -338,7 +375,7 @@ export class NewLicenses {
 
       if (this.currentStep === 4) {
         setTimeout(() => {
-          this.initMap();
+          this.initAutocomplete();
         }, 300);
       }
     }
@@ -533,10 +570,7 @@ export class NewLicenses {
   roadWidthDetails: RoadWidthDetails | null = null;
   
 
-  //For map
-  private L: any;
-  map: any;
-  marker: any;
+
 
   searchText = '';
   searchResults: any[] = [];
@@ -547,78 +581,168 @@ export class NewLicenses {
   roadWidthReason = '';
 
   //ngAfterViewInit(): void {}
+ngAfterViewInit(): void {
+  setTimeout(() => {
+    if (!this.googleMap?.googleMap) return;
 
-  initMap() {
-    if (!this.L) return;
+    this.map = this.googleMap.googleMap;
+    this.initDrawingTool();   // ✅ rectangle works now
+  }, 500);
+}
 
-    // 🔥 Always destroy old map
-    if (this.map) {
-      this.map.remove();
-      this.map = null;
-      this.marker = null;
-    }
 
-    this.map = this.L.map('map', {
-      center: [12.9716, 77.5946],
-      zoom: 11
-    });
 
-    this.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap contributors'
-    }).addTo(this.map);
+private initAutocomplete(): void {
+  if (!this.searchInput?.nativeElement) return;
 
-    this.map.on('click', (e: any) => {
-      this.setMarker(e.latlng.lat, e.latlng.lng);
-    });
-
-    
-    setTimeout(() => {
-      this.map.invalidateSize();
-    }, 200);
+  if (!google?.maps?.places) {
+    console.error('Google Places library not loaded');
+    return;
   }
 
-
-  async ngAfterViewInit() {
-    if (isPlatformBrowser(this.platformId)) {
-      const leaflet = await import('leaflet');
-      this.L = leaflet;
-
-      delete (this.L.Icon.Default.prototype as any)._getIconUrl;
-
-      this.L.Icon.Default.mergeOptions({
-        iconRetinaUrl: 'marker-icon-2x.png',
-        iconUrl: 'marker-icon.png',
-        shadowUrl: 'marker-shadow.png'
-      });
+  const autocomplete = new google.maps.places.Autocomplete(
+    this.searchInput.nativeElement,
+    {
+      componentRestrictions: { country: 'in' },
+      fields: ['geometry', 'formatted_address']
     }
-    if (this.currentStep === 4) {
-      this.initMap();
-    }
-  }
+  );
+
+  autocomplete.addListener('place_changed', () => {
+    const place = autocomplete.getPlace();
+    if (!place.geometry || !place.geometry.location) return;
+
+    this.setLocation(
+      place.geometry.location.lat(),
+      place.geometry.location.lng()
+    );
+  });
+}
 
 
-  setMarker(lat: number, lng: number) {
-    this.latitude = lat;
-    this.longitude = lng;
 
-    if (this.marker) {
-      this.marker.setLatLng([lat, lng]);
-    } else {
-      this.marker = this.L.marker([lat, lng], {
+
+
+setLocation(lat: number, lng: number): void {
+  this.latitude = lat;
+  this.longitude = lng;
+
+  // ✅ THIS IS THE KEY FIX
+  this.mapCenter = { lat, lng };
+
+  // Marker logic
+  if (this.map) {
+    if (!this.marker) {
+      this.marker = new google.maps.Marker({
+        position: { lat, lng },
+        map: this.map,
         draggable: true
-      }).addTo(this.map);
-
-      this.marker.on('dragend', (event: any) => {
-        const pos = event.target.getLatLng();
-        this.latitude = pos.lat;
-        this.longitude = pos.lng;
-
-        this.fetchRoadWidth(pos.lng, pos.lat);
       });
-    }
 
-    this.fetchRoadWidth(this.longitude, this.latitude);
+      this.marker.addListener('dragend', (e: google.maps.MapMouseEvent) => {
+        if (e.latLng) {
+          this.setLocation(e.latLng.lat(), e.latLng.lng());
+        }
+      });
+    } else {
+      this.marker.setPosition({ lat, lng });
+    }
   }
+
+  // ✅ KEEP YOUR EXISTING ROAD WIDTH API CALL
+  this.fetchRoadWidth(lng, lat);
+}
+
+
+onMapReady(): void {
+  if (!this.googleMap) return;
+
+  this.map = this.googleMap.googleMap!;
+  this.initDrawingTool();
+}
+
+initDrawingTool(): void {
+  if (!this.map) return;
+
+  // Remove old drawing manager if exists
+  if (this.drawingManager) {
+    this.drawingManager.setMap(null);
+  }
+
+  this.drawingManager = new google.maps.drawing.DrawingManager({
+    drawingMode: google.maps.drawing.OverlayType.RECTANGLE, // 🔥 FORCE
+    drawingControl: true,
+    drawingControlOptions: {
+      position: google.maps.ControlPosition.TOP_CENTER,
+      drawingModes: [google.maps.drawing.OverlayType.RECTANGLE]
+    },
+    rectangleOptions: {
+      fillColor: '#1976d2',
+      fillOpacity: 0.25,
+      strokeColor: '#1976d2',
+      strokeWeight: 2,
+      editable: true,
+      draggable: true
+    }
+  });
+
+  this.drawingManager.setMap(this.map);
+
+  google.maps.event.addListener(
+    this.drawingManager,
+    'overlaycomplete',
+    (event: google.maps.drawing.OverlayCompleteEvent) => {
+
+      if (event.type !== google.maps.drawing.OverlayType.RECTANGLE) return;
+
+      if (this.selectedRectangle) {
+        this.selectedRectangle.setMap(null);
+      }
+
+      this.selectedRectangle = event.overlay as google.maps.Rectangle;
+
+      const bounds = this.selectedRectangle.getBounds();
+      if (!bounds) return;
+
+      const ne = bounds.getNorthEast();
+      const sw = bounds.getSouthWest();
+
+      this.fetchRoadWidthByBox(ne, sw);
+
+      // Stop drawing after one selection
+      this.drawingManager.setDrawingMode(null);
+    }
+  );
+}
+
+fetchRoadWidthByBox(
+  ne: google.maps.LatLng,
+  sw: google.maps.LatLng
+) {
+  const payload = {
+    licenceApplicationID: this.tokenservice.getTraderUserId(),
+    northLat: ne.lat(),
+    northLng: ne.lng(),
+    southLat: sw.lat(),
+    southLng: sw.lng()
+  };
+
+  this.newLicensesService.getRoadWidth(payload).subscribe({
+    next: (res: RoadWidthDetails[]) => {
+      this.roadWidthDetails = res?.[0] ?? null;
+    },
+    error: () => {
+      this.roadWidthDetails = null;
+    }
+  });
+}
+
+
+onMapClick(event: google.maps.MapMouseEvent): void {
+  if (!event.latLng) return;
+  this.setLocation(event.latLng.lat(), event.latLng.lng());
+}
+
 
   // private roundTo4Decimals(value: number): number {
   //   return Math.round(value * 10000) / 10000;
@@ -660,30 +784,9 @@ export class NewLicenses {
   /* =========================
      LOCATION SEARCH (NOMINATIM)
   ========================= */
-  searchLocation() {
-    if (this.searchText.length < 3) {
-      this.searchResults = [];
-      return;
-    }
 
-    fetch(
-      `https://nominatim.openstreetmap.org/search?format=json&q=${this.searchText}&countrycodes=in&limit=5`
-    )
-      .then(res => res.json())
-      .then(data => this.searchResults = data);
-  }
 
-  selectLocation(place: any) {
-    const lat = parseFloat(place.lat);
-    const lon = parseFloat(place.lon);
 
-    this.searchText = place.display_name;
-    this.searchResults = [];
-
-    this.map.setView([lat, lon], 16);
-    this.setMarker(lat, lon);
-    this.fetchRoadWidth(lon, lat)
-  }
 //#endregion
 
   //PageLoadMethod
@@ -798,7 +901,7 @@ export class NewLicenses {
   //#endregion
 
   //#region  SaveAndPayLate
-  saveAndPayLater() {
+  /*saveAndPayLater() {
     this.loaderservice.show();
     const tradeLicencePayload = {
     applicantName: this.tradeLicenseApplicationDetails.applicantName,
@@ -887,7 +990,7 @@ export class NewLicenses {
         this.notificationservice.show('Failed to save trade licence draft.', 'error');
       }
     });
-  }
+  }*/
 
   saveDraft(): Promise<number> {
     return new Promise((resolve, reject) => {
@@ -1044,7 +1147,14 @@ export class NewLicenses {
                   },
                   error: (err) => {
                     console.error('Upload failed', err);
-                    reject(err);
+
+                    // ❌ reject(err);
+                    // ✅ allow flow to continue
+                    completed++;
+
+                    if (completed === total) {
+                      resolve(); // continue even if some uploads failed
+                    }
                   }
                 });
             });
@@ -1149,7 +1259,7 @@ export class NewLicenses {
       corporationId: 1,
       amount: this.licenseFee,
       applicantName: this.tokenservice.getUserFullName(),
-      email: this.tradeLicenseApplicationDetails.emailID,
+      email: this.tokenservice.getUserEmail(),
       phone: this.tradeLicenseApplicationDetails.mobileNumber
     };
     console.log(payload);

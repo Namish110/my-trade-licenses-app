@@ -1,0 +1,20 @@
+<div class="payment-container failed">
+  <h2>❌ Payment Failed</h2>
+
+  <p class="error-text">
+    Unfortunately, your payment could not be completed.
+  </p>
+
+  <div class="details-card">
+    <p><strong>Transaction ID:</strong> {{ txnId || 'N/A' }}</p>
+    <p><strong>Reason:</strong> {{ errorMsg }}</p>
+  </div>
+
+  <button class="btn btn-warning" (click)="retryPayment()">
+    Retry Payment
+  </button>
+
+  <button class="btn btn-secondary" (click)="goBack()">
+    Go Back
+  </button>
+</div>
