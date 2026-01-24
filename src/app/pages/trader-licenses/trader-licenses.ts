@@ -7,6 +7,7 @@ import { TradeLicensesService } from './trader-licenses.service';
 import { NotificationService } from '../../shared/components/notification/notification.service';
 import { TradeLicenseApplication } from '../../core/models/new-trade-licenses.model';
 import { LoaderService } from '../../shared/components/loader/loader.service';
+import { AppliedLicensesResponse, LicenceApplicationDetails } from '../../core/models/trade-licenses-details.model';
 
 @Component({
   selector: 'app-trader-licenses',
@@ -30,10 +31,11 @@ export class TraderLicenses {
   }
 
   //load all applied applications by loginID
-  pageNumber = 1;
-  pageSize = 10;
-  totalRecords = 0;
+  // pageNumber = 1;
+  // pageSize = 10;
+  // totalRecords = 0;
   pendingPaymentApplication: TradeLicenseApplication[] = [];
+  allLicensesApplications : LicenceApplicationDetails[] = [];
   showAll = false;
 
 
@@ -50,14 +52,12 @@ export class TraderLicenses {
     }
 
     this.tradelicensesservice
-      .getAppliedLicensesApplications(loginId, this.pageNumber, this.pageSize)
+      .getAppliedLicensesApplications(loginId)
       .subscribe({
-        next: (res) => {
-          this.pendingPaymentApplication = res.data;
-          this.totalRecords = res.totalRecords;
+        next: (res: AppliedLicensesResponse) => {
+          console.log(res);
+          this.allLicensesApplications = res.applications;
           this.loaderservice.hide();
-          console.log('Applications:', res.data);
-          console.log('Total Records:', res.totalRecords);
         },
         error: (err) => {
           this.loaderservice.hide();
@@ -70,9 +70,27 @@ export class TraderLicenses {
       });
   }
 
-  openApplication(licenseId: number) {
-    this.router.navigate(['/trade-license/details', licenseId]);
+  getProgress(status: string): number {
+    switch (status) {
+      case 'ENTERED':
+        return 25;
+      case 'VERIFIED':
+        return 50;
+      case 'APPROVED':
+        return 100;
+      default:
+        return 10;
+    }
   }
+
+  openApplication(licenceApplicationID: number): void {
+    console.log('working');
+    this.router.navigate([
+      'trader/view-licenses-application',
+      licenceApplicationID
+    ]);
+  }
+
   makePayment(licenseId: number) {
     this.router.navigate(['/trade-license/payment', licenseId]);
   }
