@@ -40,7 +40,7 @@ export class NewLicenses {
   infoAboutRules3: any = 'I/We further understand that the Trade license may be suspended or cancelled in the event it is found that the business is being run in the premises that violating existing rules and zonal regulation as per the Comprehensive Development Plan 2015 issued by Bangalore Development Authority.';
   infoAboutRules4: any = 'I/We further undertake to have no objection in the authorities revoking the trade license in case there is any discrepancies,disputes,defects or false information in any documentation that is submitted by me/us as stated in the application form.';
   infoAboutRules5: any = 'I/We undertake that I/We will not employ/engage child labour for the purpose of carrying the trade.';
-  infoAboutRules6: any = 'I/We declare that incase of any objections/Complaints raised by immediate neighbors,I/We shall furnish all the documents and take corrective action as per the KMC act.';
+  infoAboutRules6: any = 'I/We declare that incase of any objections/Complaints raised by immediate neighbors,I/We shall furnish all the documents and take corrective action as per the BBPM act.';
 
   //Creating a trade major list 
   tradeMajors : TradeMajor[] = [];
@@ -150,6 +150,13 @@ export class NewLicenses {
       this.notificationservice.show('Please enter Application Name', 'warning');
       return;
     }
+
+    const email = this.tradeLicenseApplicationDetails.emailID;
+    if (!email || !this.isValidEmail(email)) {
+      this.notificationservice.show('Please enter valid Email', 'warning');
+      return;
+    }
+    
 
     // 5. Mobile Number
     const mobile = this.tradeLicenseApplicationDetails.mobileNumber;
@@ -318,6 +325,11 @@ export class NewLicenses {
         }, 300);
       }
     }
+  }
+
+  isValidEmail(email: string): boolean {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
   }
 
   prevStep() {
@@ -1137,7 +1149,7 @@ export class NewLicenses {
       corporationId: 1,
       amount: this.licenseFee,
       applicantName: this.tokenservice.getUserFullName(),
-      email: this.tokenservice.getUserEmail(),
+      email: this.tradeLicenseApplicationDetails.emailID,
       phone: this.tradeLicenseApplicationDetails.mobileNumber
     };
     console.log(payload);
