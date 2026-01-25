@@ -373,10 +373,12 @@
       <!-- SEARCH (GOOGLE AUTOCOMPLETE) -->
       <label class="required">Search Location</label>
       <input
-        #searchInput
-        class="form-control mb-3"
-        placeholder="Search location (HSR Layout, Bengaluru)"
-        type="text">
+      #searchInput
+      class="form-control mb-3"
+      placeholder="Search location (HSR Layout, Bengaluru)"
+      type="text"
+      [(ngModel)]="searchText">
+
 
       <!-- LOCATION DETAILS -->
       <div class="card shadow-sm">

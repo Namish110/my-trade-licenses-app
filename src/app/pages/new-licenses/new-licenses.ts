@@ -704,16 +704,21 @@ private fillAddressFromLatLng(lat: number, lng: number): void {
       status: google.maps.GeocoderStatus
     ) => {
 
-      if (status === google.maps.GeocoderStatus.OK && results && results.length > 0) {
-
-        // ✅ Autofill search textbox
+      if (
+        status === google.maps.GeocoderStatus.OK &&
+        results &&
+        results.length > 0
+      ) {
+        // 🔥 Force Angular UI update
         this.searchInput.nativeElement.value =
           results[0].formatted_address;
 
+        this.cdr.detectChanges(); // ✅ THIS FIXES IT
       }
     }
   );
 }
+
 
 
 
@@ -762,7 +767,6 @@ onMapReady(): void {
 
 initDrawingTool(): void {
   if (!this.map) return;
-
   // Remove old drawing manager if exists
   if (this.drawingManager) {
     this.drawingManager.setMap(null);
