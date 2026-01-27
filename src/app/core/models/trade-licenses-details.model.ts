@@ -81,3 +81,40 @@ export interface PaginatedResponse<T> {
   pageSize: number;
 }
 
+export interface GeoLocation {
+  latitude: number;
+  longitude: number;
+  roadWidthMtrs: number;
+  roadCategory: string;
+}
+
+export interface LicenceApplicationDetails {
+  licenceApplicationID: number;
+  applicationNumber: string | null;
+  applicationSubmitDate: string; // ISO date string
+  licenceFromDate: string;       // ISO date string
+  licenceToDate: string;         // ISO date string
+  applicationStatus: string;
+  currentStatus: string;
+  tradeLicenceID: number;
+  applicantName: string;
+  tradeName: string;
+  documents : Documents;
+  geoLocation: GeoLocation;
+}
+
+export interface Documents{
+  documentID: number;
+  documentName: string;
+  fileName: string;
+  filePath: string;
+}
+
+export interface AppliedLicensesResponse {
+  userId: number;
+  fullName: string;
+  mobileNumber: string;
+  emailId: string;
+  applications: LicenceApplicationDetails[];
+}
+

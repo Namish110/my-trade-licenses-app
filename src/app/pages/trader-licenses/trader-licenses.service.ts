@@ -1,7 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { TradeLicenseApplication } from '../../core/models/new-trade-licenses.model';
-import { PaginatedResponse } from '../../core/models/trade-licenses-details.model';
+import { AppliedLicensesResponse, LicenceApplicationDetails } from '../../core/models/trade-licenses-details.model';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -24,9 +25,9 @@ export class TradeLicensesService {
     return this.http.put<T>(`${this.baseUrl}${url}`, body);
   }
 
-  getAppliedLicensesApplications(loginId: number, pageNumber: number, pageSize: number) {
-    return this.get<PaginatedResponse<TradeLicenseApplication>>(
-      `/licence-application/by-temp-login/${loginId}?pageNumber=${pageNumber}&pageSize=${pageSize}`
+  getAppliedLicensesApplications(loginId: number): Observable<AppliedLicensesResponse> {
+    return this.get<AppliedLicensesResponse>(
+      `/trade-licence/user/${loginId}/applications`
     );
   }
 }

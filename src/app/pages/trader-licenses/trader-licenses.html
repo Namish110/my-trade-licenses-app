@@ -1,5 +1,4 @@
 <main class="content">
-
       <!-- Welcome -->
       <h2 class="welcome-title">Welcome back, {{ userName }}!</h2>
       <p class="welcome-subtitle">
@@ -75,7 +74,7 @@
         <h5>Payment Pending Applications</h5>
         <a
           class="view-all"
-          *ngIf="pendingPaymentApplication.length > 1"
+          *ngIf="allLicensesApplications.length > 1"
           (click)="showAll = !showAll"
           style="cursor: pointer"
         >
@@ -87,73 +86,48 @@
       <div
         class="license-card"
         *ngFor="
-          let app of pendingPaymentApplication
-            | slice: 0 : (showAll ? pendingPaymentApplication.length : 1)">
+          let app of allLicensesApplications
+            | slice: 0 : (showAll ? allLicensesApplications.length : 1)
+        "
+      >
         <div class="license-left">
           <h6>
-            {{ app.bescomRRNumber }}
-            <span class="status review">{{ app.currentStatus }}</span>
+            {{ app.tradeName }}
+            <span class="status review">{{ app.applicationStatus }}</span>
           </h6>
 
           <p class="muted">
-            {{ app.bescomRRNumber }} - {{ app.bescomRRNumber }}
+            Licenses Application Id : {{ app.licenceApplicationID }} - Trade Licenses Id : {{ app.tradeLicenceID }}
           </p>
 
           <p class="muted">
             <i class="bi bi-calendar"></i>
-            Submitted: {{ app.licenceFromDate | date: 'dd MMM yyyy' }}
+            Submitted:
+            {{ app.applicationSubmitDate | date: 'dd MMM yyyy' }}
             &nbsp;&nbsp;
             <i class="bi bi-clock"></i>
-            {{ app.bescomRRNumber }}
+            Working
           </p>
-          <!-- ACTION LINK -->
+
+          <!-- ACTION LINKS -->
           <div class="license-actions">
             <a (click)="openApplication(app.licenceApplicationID)">View</a>
             <span>|</span>
             <a (click)="makePayment(app.licenceApplicationID)">Pay Now</a>
           </div>
-
         </div>
 
         <div class="license-right">
           <small class="muted">Progress</small>
+
           <div class="progress thin">
             <div
               class="progress-bar"
-              [style.width.%]="60"
+              [style.width.%]="getProgress(app.applicationStatus)"
             ></div>
           </div>
-          <small>{{ 60 }}%</small>
+
+          <small>{{ getProgress(app.applicationStatus) }}%</small>
         </div>
       </div>
-
-      <!-- Pending Applications -->
-      <div class="section-header">
-        <h5>Pending Applications</h5>
-        <a class="view-all">View All</a>
-      </div>
-
-      <div class="license-card">
-        <div class="license-left">
-          <h6>
-            Sharma Textiles
-            <span class="status review">Under Review</span>
-          </h6>
-          <p class="muted">Retail - Clothing</p>
-          <p class="muted">
-            <i class="bi bi-calendar"></i> Submitted: 05 Dec 2024
-            &nbsp;&nbsp;
-            <i class="bi bi-clock"></i> Inspection Scheduled
-          </p>
-        </div>
-
-        <div class="license-right">
-          <small class="muted">Progress</small>
-          <div class="progress thin">
-            <div class="progress-bar" style="width:60%"></div>
-          </div>
-          <small>60%</small>
-        </div>
-      </div>
-
     </main>

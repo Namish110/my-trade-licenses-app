@@ -20,6 +20,9 @@ import { NotRenewedLicenses } from './shared/components/reports/not-renewed-lice
 import { RevenueCollection } from './shared/components/reports/revenue-collection/revenue-collection';
 import { WardWiseLicenses } from './shared/components/reports/ward-wise-licenses/ward-wise-licenses';
 import { Inspection } from './pages/inspection/inspection';
+import { ViewLicensesApplication } from './pages/view-licenses-application/view-licenses-application';
+import { PaymentSuccess } from './shared/components/payment-success/payment-success';
+import { PaymentFailed } from './shared/components/payment-failed/payment-failed';
 
 export const routes: Routes = [
   { path: '', component: Home },
@@ -74,7 +77,10 @@ export const routes: Routes = [
       { path: 'new-licenses', component: NewLicenses },
       { path: 'renew-license', component: RenewLicense },
       { path: 'renewal-status', component: RenewalStatus },
-      { path: 'track-application', component: TrackApplication }
+      { path: 'track-application', component: TrackApplication },
+      { path: 'view-licenses-application/:licensesApplicationId', component: ViewLicensesApplication },
+      { path: 'payment-success', component: PaymentSuccess },
+      { path: 'payment-failed', component: PaymentFailed }
     ]
   },
   {

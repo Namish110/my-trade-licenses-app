@@ -9,129 +9,487 @@
 <div class="card">
   <h3>Trade Categories</h3>
 
-  <div class="table-actions">
-    <button class="btn-primary">
-      <i class="bi bi-plus-lg"></i> Add Trade Category
-    </button>
-  </div>
+  <div class="field-block">
+      <div class="field-header">
+        <label>Trade Categories</label>
+        <div class="action-buttons">
+          <button class="icon-btn primary" (click)="openAddTradeCategoriesModal()" title="Add Trade Categories">
+            <i class="bi bi-plus-lg"></i>
+          </button>
+          <button
+            class="icon-btn warning"
+            (click)="openAddTradeCategoriesModal()"
+            title="Edit Trade Categories"
+          >
+            <i class="bi bi-pencil"></i>
+          </button>
+        </div>
+      </div>
 
-  <table class="data-table">
-    <thead>
-      <tr>
-        <th>Trade Code</th>
-        <th>Trade Name</th>
-        <th>Risk Type</th>
-        <th>Requires Inspection</th>
-        <th>Status</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-
-    <tbody>
-      <tr>
-        <td>TRD-001</td>
-        <td>Restaurant / Food Outlet</td>
-        <td>Medium</td>
-        <td>Yes</td>
-        <td><span class="badge active">Active</span></td>
-        <td class="actions">
-          <button class="icon-btn"><i class="bi bi-pencil"></i></button>
-          <button class="icon-btn danger"><i class="bi bi-x-circle"></i></button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+      <select
+        class="form-select"
+        [(ngModel)]="selectedMLAConstituency"
+        (change)="onMLAConstituencyChange()"
+      >
+        <option [ngValue]="null">Select MLA Constituency</option>
+        <option *ngFor="let mla of mlaConstituencies" [ngValue]="mla">
+          {{ mla.mohName }}
+        </option>
+      </select>
+    </div>
+  
 </div>
 
 <!-- JURISDICTION MASTER -->
-<div class="card">
-  <h3>Jurisdiction Master</h3>
+<div class="card master-card">
+  <div class="card-header">
+    <h3>Trade Details Master</h3>
+    <p class="sub-text">Manage MLA Constituencies and Wards</p>
+  </div>
 
-  <div class="form-grid">
-    <div class="form-row">
-      <label>Zone</label>
-      <select>
-        <option>East Zone</option>
-        <option>West Zone</option>
-        <option>North Zone</option>
-        <option>South Zone</option>
+  <!-- TWO COLUMN GRID -->
+  <div class="two-col-grid">
+
+    <!-- MLA SECTION -->
+    <div class="field-block">
+      <div class="field-header">
+        <label>MLA Constituency</label>
+        <div class="action-buttons">
+          <button class="icon-btn primary" (click)="openAddMLAModal()" title="Add MLA">
+            <i class="bi bi-plus-lg"></i>
+          </button>
+          <button
+            class="icon-btn warning"
+            [disabled]="!selectedMLAConstituency"
+            (click)="openEditMLAModal()"
+            title="Edit MLA"
+          >
+            <i class="bi bi-pencil"></i>
+          </button>
+        </div>
+      </div>
+
+      <select
+        class="form-select"
+        [(ngModel)]="selectedMLAConstituency"
+        (change)="onMLAConstituencyChange()"
+      >
+        <option [ngValue]="null">Select MLA Constituency</option>
+        <option *ngFor="let mla of mlaConstituencies" [ngValue]="mla">
+          {{ mla.mohName }}
+        </option>
       </select>
     </div>
 
-    <div class="form-row">
-      <label>Ward</label>
-      <input type="text" placeholder="Enter ward number/name" />
+    <!-- WARD SECTION -->
+    <div class="field-block">
+      <div class="field-header">
+        <label>Ward</label>
+        <div class="action-buttons">
+          <button
+            class="icon-btn primary"
+            [disabled]="!selectedMLAConstituency"
+            (click)="openAddWardModal()"
+            title="Add Ward"
+          >
+            <i class="bi bi-plus-lg"></i>
+          </button>
+          <button
+            class="icon-btn warning"
+            [disabled]="!selectedWard"
+            (click)="openEditWardModal()"
+            title="Edit Ward"
+          >
+            <i class="bi bi-pencil"></i>
+          </button>
+        </div>
+      </div>
+
+      <select class="form-select" [(ngModel)]="selectedWard">
+        <option [ngValue]="null">Select Ward</option>
+        <option *ngFor="let ward of wards" [ngValue]="ward">
+          {{ ward.wardName }}
+        </option>
+      </select>
     </div>
+
   </div>
 </div>
 
-<!-- COMPLIANCE RULES -->
-<div class="card">
-  <h3>Compliance Rules</h3>
+  <!-- Trade Classification -->
+  <div class="card master-card">
+    <div class="card-header">
+      <h3>Trade Classification</h3>
+      <p class="sub-text">Manage Major, Minor and Sub Trades</p>
+    </div>
+    <div class="card master-card">
+      <div class="two-col-grid">
 
-  <div class="form-grid">
-    <div class="form-row">
-      <label>Trade Category</label>
-      <select>
-        <option>Restaurant / Food Outlet</option>
-        <option>Manufacturing</option>
-        <option>Retail Shop</option>
+        <!-- Major Trade -->
+        <div class="field-block">
+          <div class="field-header">
+            <label>Major Trade</label>
+            <div class="action-buttons">
+              <button class="icon-btn primary" (click)="openAddMajorTradeModal()" title="Add Major Trade">
+                <i class="bi bi-plus-lg"></i>
+              </button>
+              <button class="icon-btn warning" 
+                (click)="openAddMajorTradeModal()"
+                title="Edit Major Trade">
+                <i class="bi bi-pencil"></i>
+              </button>
+            </div>
+          </div>
+
+          <select class="form-select" [(ngModel)]="selectedMajor" (change)="onMajorChange()">
+            <option [ngValue]="null">Minor Trade</option>
+            <option *ngFor="let majorTrade of tradeMajors" [ngValue]="majorTrade">
+              {{ majorTrade.tradeMajorName }}
+            </option>
+          </select>
+        </div>
+
+        <!-- MINOR TRADE -->
+        <div class="field-block">
+          <div class="field-header">
+            <label>Minor Trade</label>
+            <div class="action-buttons">
+              <button
+                class="icon-btn primary"
+                [disabled]="!selectedMajor"
+                (click)="openAddMinorTradeModal()"
+                title="Add Minor Trade"
+              >
+                <i class="bi bi-plus-lg"></i>
+              </button>
+              <button
+                class="icon-btn warning"
+                [disabled]="!tradeMajors"
+                (click)="openEditMinorTradeModal()"
+                title="Edit Minor Trade"
+              >
+                <i class="bi bi-pencil"></i>
+              </button>
+            </div>
+          </div>
+
+          <select class="form-select" [(ngModel)]="tradeMinors">
+            <option [ngValue]="null">Select Minor Trade</option>
+            <option *ngFor="let minorTrade of tradeMinors" [ngValue]="minorTrade">
+              {{ minorTrade.tradeMinorName }}
+            </option>
+          </select>
+        </div>
+
+        <!-- SUB TRADE -->
+        <div class="field-block">
+          <div class="field-header">
+            <label>Sub Trade</label>
+            <div class="action-buttons">
+              <button
+                class="icon-btn primary"
+                [disabled]="!selectedMinor"
+                (click)="openAddSubTradeModal()"
+                title="Add Sub Trade"
+              >
+                <i class="bi bi-plus-lg"></i>
+              </button>
+              <button
+                class="icon-btn warning"
+                [disabled]="!selectedSub"
+                (click)="openAddSubTradeModal()"
+                title="Edit Sub Trade"
+              >
+                <i class="bi bi-pencil"></i>
+              </button>
+            </div>
+          </div>
+
+          <select class="form-select" [(ngModel)]="tradeSubs">
+            <option [ngValue]="null">Select Minor Trade</option>
+            <option *ngFor="let subTrade of tradeSubs" [ngValue]="subTrade">
+              {{ subTrade.tradeSubName }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Price -->
+        <div class="field-block">
+          <div class="field-header">
+            <label>Price</label>
+            <div class="action-buttons">
+              <button
+                class="icon-btn primary"
+                title="Save Price"
+                (click)="saveTradePrice()"
+              >
+                <i class="bi bi-check-lg"></i>
+              </button>
+            </div>
+          </div>
+
+          <input
+            type="number"
+            class="form-control"
+            placeholder="Enter price (e.g. 500)"
+            [(ngModel)]="tradePrice"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Jurisdiction of Health Officer (Zone) -->
+  <div class="card">
+    <h3>Jurisdiction of Health Officer (Zone)</h3>
+
+    <div class="field-block">
+        <div class="field-header">
+          <label>Jurisdiction of Health Officer (Zone)</label>
+          <div class="action-buttons">
+            <button class="icon-btn primary" (click)="openAddJurisdictionOdHoModal()" title="Add Health Officer">
+              <i class="bi bi-plus-lg"></i>
+            </button>
+            <button
+              class="icon-btn warning"
+              (click)="openAddJurisdictionOdHoModal()"
+              title="Edit Health Officer"
+            >
+              <i class="bi bi-pencil"></i>
+            </button>
+          </div>
+        </div>
+
+        <select
+          class="form-select"
+          [(ngModel)]="selectedZone"
+        >
+          <option [ngValue]="null">Select</option>
+          <option *ngFor="let zone of zones" [ngValue]="zone">
+            {{ zone.zoneName }}
+          </option>
+        </select>
+      </div>
+    
+  </div>
+
+<!-- Zone Classification -->
+<div class="card master-card">
+  <div class="card-header">
+    <h3>Zone Classification</h3>
+    <p class="sub-text">Manage Zone Classification</p>
+  </div>
+
+  <!-- TWO COLUMN GRID -->
+  <div class="two-col-grid">
+
+    <!-- Zone Classification SECTION -->
+    <div class="field-block">
+      <div class="field-header">
+        <label>Zone Classification</label>
+        <div class="action-buttons">
+          <button class="icon-btn primary" (click)="openAddZoneClassificationModal()" title="Add Zone Classification">
+            <i class="bi bi-plus-lg"></i>
+          </button>
+          <button
+            class="icon-btn warning"
+            (click)="openAddZoneClassificationModal()"
+            title="Edit Health Officer"
+          >
+            <i class="bi bi-pencil"></i>
+          </button>
+        </div>
+      </div>
+
+      <select
+        class="form-select"
+        [(ngModel)]="selectedZone"
+      >
+        <option [ngValue]="null">Select Zone Classification</option>
+        <option *ngFor="let zoneClassification of zoneClassifications" [ngValue]="zoneClassification">
+          {{ zoneClassification.zonalClassificationName }}
+        </option>
       </select>
     </div>
 
-    <div class="form-row">
-      <label>Minimum Road Width (meters)</label>
-      <input type="number" placeholder="e.g. 6" />
-    </div>
+    <!-- Price -->
+        <div class="field-block">
+          <div class="field-header">
+            <label>License Fee Prescribed</label>
+            <div class="action-buttons">
+              <button
+                class="icon-btn primary"
+                title="Save Price"
+                (click)="saveLicenseFeePrescribed()"
+              >
+                <i class="bi bi-check-lg"></i>
+              </button>
+            </div>
+          </div>
 
-    <div class="form-row">
-      <label>Maximum Power Load (KW)</label>
-      <input type="number" placeholder="e.g. 10" />
-    </div>
-
-    <div class="form-row">
-      <label>Fire Safety Required</label>
-      <select>
-        <option>Yes</option>
-        <option>No</option>
-      </select>
-    </div>
+          <input
+            type="number"
+            class="form-control"
+            placeholder="Enter price (e.g. 500)"
+            [(ngModel)]="licenseFeePrescribed"
+          />
+        </div>
   </div>
 </div>
 
-<!-- FEE STRUCTURE -->
-<div class="card">
-  <h3>Fee Structure Configuration</h3>
+<!-- MLA MODAL -->
+<div class="modal-backdrop" *ngIf="showMLAModal">
+  <div class="modal-container">
+    <h3>{{ isEditMLA ? 'Edit MLA Constituency' : 'Add MLA Constituency' }}</h3>
 
-  <div class="form-grid">
-    <div class="form-row">
-      <label>Trade Category</label>
-      <select>
-        <option>Restaurant / Food Outlet</option>
-        <option>Retail Shop</option>
-      </select>
-    </div>
+    <form [formGroup]="mlaForm">
+      <div class="form-row">
+        <label>MLA Name</label>
+        <input
+          type="text"
+          formControlName="mohName"
+          class="form-control"
+        />
+      </div>
 
-    <div class="form-row">
-      <label>Base License Fee (₹)</label>
-      <input type="number" placeholder="e.g. 2500" />
-    </div>
+      <div class="modal-actions">
+        <button class="btn-secondary" type="button" (click)="showMLAModal = false">
+          Cancel
+        </button>
 
-    <div class="form-row">
-      <label>Additional Fee per KW (₹)</label>
-      <input type="number" placeholder="e.g. 200" />
-    </div>
-
-    <div class="form-row">
-      <label>Late Renewal Penalty (%)</label>
-      <input type="number" placeholder="e.g. 10" />
-    </div>
+        <button class="btn-primary" type="button" [disabled]="mlaForm.invalid">
+          {{ isEditMLA ? 'Update' : 'Save' }}
+        </button>
+      </div>
+    </form>
   </div>
 </div>
 
-<!-- ACTION BAR -->
-<div class="action-bar">
-  <button class="btn-secondary">Reset</button>
-  <button class="btn-primary">Save Changes</button>
+<!-- WARD MODAL -->
+<div class="modal-backdrop" *ngIf="showWardModal">
+  <div class="modal-container">
+    <h3>{{ isEditWard ? 'Edit Ward' : 'Add Ward' }}</h3>
+
+    <form [formGroup]="wardForm">
+      <div class="form-row">
+        <label>Ward Name</label>
+        <input
+          type="text"
+          formControlName="wardName"
+          class="form-control"
+        />
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-secondary" type="button" (click)="showWardModal = false">
+          Cancel
+        </button>
+
+        <button class="btn-primary" type="button" [disabled]="wardForm.invalid">
+          {{ isEditWard ? 'Update' : 'Save' }}
+        </button>
+      </div>
+    </form>
+  </div>
 </div>
 
+<!-- Trade Category Modal -->
+<div class="modal-backdrop" *ngIf="showTradeCategoryModal">
+  <div class="modal-container">
+    <h3>{{ isEditTradeCategory ? 'Edit Trade Category' : 'Add Trade Category' }}</h3>
+
+    <form [formGroup]="tradeCategoryForm">
+      <label>Trade Category Name</label>
+      <input class="form-control" formControlName="tradeCategoryName" />
+
+      <div class="modal-actions">
+        <button class="btn-secondary" (click)="showTradeCategoryModal=false">Cancel</button>
+        <button class="btn-primary" [disabled]="tradeCategoryForm.invalid">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Major Trade Modal -->
+<div class="modal-backdrop" *ngIf="showMajorTradeModal">
+  <div class="modal-container">
+    <h3>{{ isEditMajorTrade ? 'Edit Major Trade' : 'Add Major Trade' }}</h3>
+
+    <form [formGroup]="majorTradeForm">
+      <label>Major Trade Name</label>
+      <input class="form-control" formControlName="tradeMajorName" />
+
+      <div class="modal-actions">
+        <button class="btn-secondary" (click)="showMajorTradeModal=false">Cancel</button>
+        <button class="btn-primary" [disabled]="majorTradeForm.invalid">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Minor Trade Modal -->
+<div class="modal-backdrop" *ngIf="showMinorTradeModal">
+  <div class="modal-container">
+    <h3>{{ isEditMinorTrade ? 'Edit Minor Trade' : 'Add Minor Trade' }}</h3>
+
+    <form [formGroup]="minorTradeForm">
+      <label>Minor Trade Name</label>
+      <input class="form-control" formControlName="tradeMinorName" />
+
+      <div class="modal-actions">
+        <button class="btn-secondary" (click)="showMinorTradeModal=false">Cancel</button>
+        <button class="btn-primary" [disabled]="minorTradeForm.invalid">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+<!-- Sub Trade Modal -->
+<div class="modal-backdrop" *ngIf="showSubTradeModal">
+  <div class="modal-container">
+    <h3>{{ isEditSubTrade ? 'Edit Sub Trade' : 'Add Sub Trade' }}</h3>
+
+    <form [formGroup]="subTradeForm">
+      <label>Sub Trade Name</label>
+      <input class="form-control" formControlName="tradeSubName" />
+
+      <div class="modal-actions">
+        <button class="btn-secondary" (click)="showSubTradeModal=false">Cancel</button>
+        <button class="btn-primary" [disabled]="subTradeForm.invalid">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Zone Modal -->
+<div class="modal-backdrop" *ngIf="showZoneModal">
+  <div class="modal-container">
+    <h3>{{ isEditZone ? 'Edit Zone' : 'Add Zone' }}</h3>
+
+    <form [formGroup]="zoneForm">
+      <label>Zone Name</label>
+      <input class="form-control" formControlName="zoneName" />
+
+      <div class="modal-actions">
+        <button class="btn-secondary" (click)="showZoneModal=false">Cancel</button>
+        <button class="btn-primary" [disabled]="zoneForm.invalid">Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Zone Classification Modal -->
+<div class="modal-backdrop" *ngIf="showZoneClassificationModal">
+  <div class="modal-container">
+    <h3>{{ isEditZoneClassification ? 'Edit Zone Classification' : 'Add Zone Classification' }}</h3>
+
+    <form [formGroup]="zoneClassificationForm">
+      <label>Zone Classification Name</label>
+      <input class="form-control" formControlName="zonalClassificationName" />
+
+      <div class="modal-actions">
+        <button class="btn-secondary" (click)="showZoneClassificationModal=false">Cancel</button>
+        <button class="btn-primary" [disabled]="zoneClassificationForm.invalid">Save</button>
+      </div>
+    </form>
+  </div>
+</div>

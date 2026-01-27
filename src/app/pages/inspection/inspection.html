@@ -186,6 +186,65 @@
     </div>
   </div>
 
+  <!-- On-Site Inspection Photos -->
+  <div class="card section-card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <span>On-Site Inspection Photos</span>
+
+      <!-- Hidden Camera / File Input -->
+      <input
+        type="file"
+        #cameraInput
+        accept="image/*"
+        capture="environment"
+        multiple
+        hidden
+        (change)="onPhotosSelected($event)"
+      />
+
+      <!-- Plus Button -->
+      <button
+        class="btn btn-outline-primary btn-sm"
+        (click)="cameraInput.click()"
+      >
+        <i class="bi bi-plus-lg"></i> Add Photo
+      </button>
+    </div>
+
+    <div class="card-body">
+      <div class="row g-3" *ngIf="inspectionPhotos.length > 0; else noPhotos">
+
+        <div
+          class="col-md-3 col-sm-4 col-6"
+          *ngFor="let photo of inspectionPhotos; let i = index"
+        >
+          <div class="photo-card">
+            <img
+              [src]="photo.preview"
+              class="img-fluid rounded"
+            />
+
+            <button
+              class="btn btn-sm btn-danger remove-photo"
+              (click)="removePhoto(i)"
+              title="Remove"
+            >
+              <i class="bi bi-x-lg"></i>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <ng-template #noPhotos>
+        <p class="text-muted mb-0">
+          Tap <strong>+ Add Photo</strong> to capture inspection photos.
+        </p>
+      </ng-template>
+    </div>
+  </div>
+
+
   <!-- Remarks -->
   <div class="card section-card">
     <div class="card-header">Inspection Remarks</div>

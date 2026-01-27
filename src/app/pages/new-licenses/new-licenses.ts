@@ -65,7 +65,7 @@ selectedRectangle!: google.maps.Rectangle;
   infoAboutRules3: any = 'I/We further understand that the Trade license may be suspended or cancelled in the event it is found that the business is being run in the premises that violating existing rules and zonal regulation as per the Comprehensive Development Plan 2015 issued by Bangalore Development Authority.';
   infoAboutRules4: any = 'I/We further undertake to have no objection in the authorities revoking the trade license in case there is any discrepancies,disputes,defects or false information in any documentation that is submitted by me/us as stated in the application form.';
   infoAboutRules5: any = 'I/We undertake that I/We will not employ/engage child labour for the purpose of carrying the trade.';
-  infoAboutRules6: any = 'I/We declare that incase of any objections/Complaints raised by immediate neighbors,I/We shall furnish all the documents and take corrective action as per the KMC act.';
+  infoAboutRules6: any = 'I/We declare that incase of any objections/Complaints raised by immediate neighbors,I/We shall furnish all the documents and take corrective action as per the BBMP act.';
 
   //Creating a trade major list 
   tradeMajors : TradeMajor[] = [];
@@ -391,6 +391,12 @@ restoreDraftIfExists(draftId: number): void {
         return;
       }
 
+      // Proposed Commencement
+      if(!this.commencementDate){
+        this.notificationservice.show('Please select Proposed Conmmencement', 'warning');
+        return;
+      }
+
       // 3. License Fee check
       if (!this.licenseFee || this.licenseFee <= 0) {
         this.notificationservice.show('License Fee is not calculated. Please check trade details.', 'warning');
@@ -486,6 +492,11 @@ restoreDraftIfExists(draftId: number): void {
     }
   }
 
+  isValidEmail(email: string): boolean {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  }
+
   prevStep() {
     if (this.currentStep > 1) {
       if (this.tradeLicenseApplications.licenceApplicationID) {
@@ -525,11 +536,33 @@ restoreDraftIfExists(draftId: number): void {
   commencementDate = '';
 
   bindCommencementDate() {
-    if (this.commencementDate) {
-      this.tradeLicenseApplications.licenceToDate =
-        new Date(this.commencementDate);
+    if (!this.commencementDate) {
+      this.notificationservice.show(
+        'Proposed Commencement Date is required',
+        'warning'
+      );
+      return;
     }
+
+    const selectedDate = new Date(this.commencementDate);
+    const today = new Date();
+
+    // Remove time part
+    today.setHours(0, 0, 0, 0);
+    selectedDate.setHours(0, 0, 0, 0);
+
+    if (selectedDate < today) {
+      this.notificationservice.show(
+        'Proposed Commencement Date cannot be a past date',
+        'warning'
+      );
+      this.commencementDate = '';
+      return;
+    }
+
+    this.tradeLicenseApplications.licenceToDate = selectedDate;
   }
+
   zone = '';
 
   licenseFee = 0;
@@ -1124,7 +1157,7 @@ fetchRoadWidth(lng: number, lat: number) {
   //#endregion
 
   //#region  SaveAndPayLate
-  saveAndPayLater() {
+  /*saveAndPayLater() {
     this.loaderservice.show();
     const tradeLicencePayload = {
     applicantName: this.tradeLicenseApplicationDetails.applicantName,
@@ -1213,7 +1246,7 @@ fetchRoadWidth(lng: number, lat: number) {
         this.notificationservice.show('Failed to save trade licence draft.', 'error');
       }
     });
-  }
+  }*/
 
   saveDraft(): Promise<number> {
     return new Promise((resolve, reject) => {
@@ -1375,7 +1408,14 @@ fetchRoadWidth(lng: number, lat: number) {
                   },
                   error: (err) => {
                     console.error('Upload failed', err);
-                    reject(err);
+
+                    // ❌ reject(err);
+                    // ✅ allow flow to continue
+                    completed++;
+
+                    if (completed === total) {
+                      resolve(); // continue even if some uploads failed
+                    }
                   }
                 });
             });
