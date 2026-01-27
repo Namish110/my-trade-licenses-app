@@ -10,6 +10,11 @@ import { LicenceApplicationModel, TradeLicensesApplicationDetails } from '../../
 import { AfterViewInit, Inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 
+interface InspectionPhoto {
+  file: File;
+  preview: string;
+}
+
 @Component({
   selector: 'app-inspection',
   imports: [CommonModule, RouterModule, FormsModule],
@@ -188,5 +193,38 @@ export class Inspection {
 
   cancel() {
     this.router.navigate(['/approver/approving-officer']);
+  }
+
+  /* =========================
+     CAMERA / FILE UPLOAD
+  ========================= */
+  inspectionPhotos: InspectionPhoto[] = [];
+  onPhotosSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (!input.files) return;
+
+    Array.from(input.files).forEach(file => {
+      // Optional: size validation (e.g. 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert('Each photo must be less than 5MB');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        this.inspectionPhotos.push({
+          file,
+          preview: reader.result as string
+        });
+      };
+      reader.readAsDataURL(file);
+    });
+
+    // Reset input so same image can be selected again
+    input.value = '';
+  }
+
+  removePhoto(index: number) {
+    this.inspectionPhotos.splice(index, 1);
   }
 }

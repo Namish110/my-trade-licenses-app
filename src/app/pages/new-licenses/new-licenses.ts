@@ -276,6 +276,12 @@ mapZoom = 15;
         return;
       }
 
+      // Proposed Commencement
+      if(!this.commencementDate){
+        this.notificationservice.show('Please select Proposed Conmmencement', 'warning');
+        return;
+      }
+
       // 3. License Fee check
       if (!this.licenseFee || this.licenseFee <= 0) {
         this.notificationservice.show('License Fee is not calculated. Please check trade details.', 'warning');
@@ -401,11 +407,33 @@ mapZoom = 15;
   commencementDate = '';
 
   bindCommencementDate() {
-    if (this.commencementDate) {
-      this.tradeLicenseApplications.licenceToDate =
-        new Date(this.commencementDate);
+    if (!this.commencementDate) {
+      this.notificationservice.show(
+        'Proposed Commencement Date is required',
+        'warning'
+      );
+      return;
     }
+
+    const selectedDate = new Date(this.commencementDate);
+    const today = new Date();
+
+    // Remove time part
+    today.setHours(0, 0, 0, 0);
+    selectedDate.setHours(0, 0, 0, 0);
+
+    if (selectedDate < today) {
+      this.notificationservice.show(
+        'Proposed Commencement Date cannot be a past date',
+        'warning'
+      );
+      this.commencementDate = '';
+      return;
+    }
+
+    this.tradeLicenseApplications.licenceToDate = selectedDate;
   }
+
   zone = '';
 
   licenseFee = 0;
