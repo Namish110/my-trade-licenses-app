@@ -52,6 +52,17 @@ export class NewLicensesService {
   getZones(){
     return this.get<Zones[]>('/bbmp-zones');
   }
+getLicenceApplicationById(id: number) {
+  return this.http.get<any>(
+    `${this.baseUrl}/licence-application/${id}`
+  );
+}
+
+getDraftByLogin(loginId: number) {
+  return this.http.get<any>(
+    `${this.baseUrl}/licence-application/by-login/${loginId}`
+  );
+}
 
   getZoneClassification(){
     return this.get<ZoneClassification[]>('/trade-zonal-classification');

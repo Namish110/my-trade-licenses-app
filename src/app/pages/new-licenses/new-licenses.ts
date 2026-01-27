@@ -226,6 +226,49 @@ autoDetectCurrentLocation() {
     }
   );
 }
+restoreDraftIfExists(draftId: number): void {
+
+  this.loaderservice.show();
+
+  this.newLicensesService
+    .get(`/licence-application/${draftId}`)
+    .subscribe({
+      next: (res: any) => {
+
+        // 🔥 Restore STEP FIRST
+        this.currentStep = res.lastCompletedStep ?? 1;
+
+        // 🔥 Restore main objects
+        this.tradeLicenseApplications = res;
+        this.tradeLicenseApplicationDetails = res.tradeLicenceDetails;
+
+        // 🔥 Restore dropdown selections
+        this.selectedTradeType = this.tradeTypes
+          .find(t => t.tradeTypeID === res.tradeTypeID) ?? null;
+
+        this.selectedMLAConstituency = this.mlaConstituencies
+          .find(m => m.mohID === res.mohID) ?? null;
+
+        this.selectedWard = this.wards
+          .find(w => w.wardID === res.wardID) ?? null;
+
+        // 🔥 Restore location
+        if (res.latitude && res.longitude) {
+          this.setLocation(res.latitude, res.longitude);
+          this.roadWidthConfirmed = true;
+        }
+
+        this.loaderservice.hide();
+      },
+      error: () => {
+        this.loaderservice.hide();
+        this.notificationservice.show(
+          'Failed to restore saved draft',
+          'error'
+        );
+      }
+    });
+}
 
   startApplication() {
     this.currentStep = 1;
@@ -425,6 +468,12 @@ autoDetectCurrentLocation() {
     }
 
     if (this.currentStep < 7) {
+      if (this.tradeLicenseApplications.licenceApplicationID) {
+    this.newLicensesService.put(
+      `/licence-application/draft/${this.tradeLicenseApplications.licenceApplicationID}`,
+      { lastCompletedStep: this.currentStep }
+    ).subscribe();
+  }
       this.currentStep++;
 
       // Map init only when location step loads
@@ -439,6 +488,12 @@ autoDetectCurrentLocation() {
 
   prevStep() {
     if (this.currentStep > 1) {
+      if (this.tradeLicenseApplications.licenceApplicationID) {
+    this.newLicensesService.put(
+      `/licence-application/draft/${this.tradeLicenseApplications.licenceApplicationID}`,
+      { lastCompletedStep: this.currentStep }
+    ).subscribe();
+  }
       this.currentStep--;
 
       if (this.currentStep === 4) {
@@ -943,16 +998,31 @@ fetchRoadWidth(lng: number, lat: number) {
 //#endregion
 
   //PageLoadMethod
-  ngOnInit(): void {
-    this.loadTradeMajors();
-    this.loadTradeType();
-    this.loadMLAConstituencies();
-    this.loadZones();
-    this.loadZoneClassification();
-    this.tradeLicenseApplicationDetails = initializeApplicationDetails();
-    this.tradeLicenseApplications = initializeTradeApplication();
-    this.tradeLicenseApplications.licenceFromDate = new Date(this.applicationDate);
+ ngOnInit(): void {
+
+  // 1️⃣ Load dropdown masters (safe to load always)
+  this.loadTradeMajors();
+  this.loadTradeType();
+  this.loadMLAConstituencies();
+  this.loadZones();
+  this.loadZoneClassification();
+
+  // 2️⃣ Check if draft exists
+  const draftId = localStorage.getItem('draftLicenceApplicationId');
+
+  if (draftId) {
+    // 🔥 RESTORE ONLY (do NOT initialize fresh)
+    this.restoreDraftIfExists(+draftId);
+    return;
   }
+
+  // 3️⃣ Fresh application (ONLY if no draft)
+  this.tradeLicenseApplicationDetails = initializeApplicationDetails();
+  this.tradeLicenseApplications = initializeTradeApplication();
+  this.tradeLicenseApplications.licenceFromDate =
+    new Date(this.applicationDate);
+}
+
 
   //#region  Dropdown Methods
   //Major dropdown
@@ -1215,6 +1285,11 @@ fetchRoadWidth(lng: number, lat: number) {
                 next: async (draftRes: any) => {
                   this.tradeLicenseApplications.licenceApplicationID =
                     draftRes.licenceApplicationID;
+
+                      localStorage.setItem(
+        'draftLicenceApplicationId',
+        draftRes.licenceApplicationID.toString()
+      );
 
                   await this.saveLocationDetails(draftRes.licenceApplicationID);
                   await this.saveOrUpdateDocuments(draftRes.licenceApplicationID);
