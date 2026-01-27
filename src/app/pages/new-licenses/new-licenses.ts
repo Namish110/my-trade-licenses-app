@@ -154,6 +154,78 @@ mapCenter: google.maps.LatLngLiteral = {
   lng: 77.5946
 };
 mapZoom = 15;
+getCurrentLocation() {
+  if (!navigator.geolocation) {
+    alert('Geolocation not supported');
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      this.latitude = position.coords.latitude;
+      this.longitude = position.coords.longitude;
+
+      this.mapCenter = {
+        lat: this.latitude,
+        lng: this.longitude
+      };
+
+      this.mapZoom = 18;
+
+      // 🔥 Call your existing road-width logic
+    this.fetchRoadWidth(this.longitude, this.latitude);
+
+    },
+    (error) => {
+      alert('Location permission denied or unavailable');
+    },
+    {
+      enableHighAccuracy: true,
+      timeout: 10000
+    }
+  );
+}
+autoDetectCurrentLocation() {
+
+  if (!isPlatformBrowser(this.platformId)) return;
+
+  if (!navigator.geolocation) {
+    this.notificationservice.show(
+      'Geolocation is not supported by your browser',
+      'warning'
+    );
+    return;
+  }
+
+  this.roadWidthStatus = 'Detecting current location...';
+  this.notificationservice.show(
+    'Detecting current location...',
+    'info'
+  );
+
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+
+      // reuse existing logic
+      this.setLocation(
+        position.coords.latitude,
+        position.coords.longitude
+      );
+
+    },
+    () => {
+      this.roadWidthStatus = 'Location permission denied';
+      this.notificationservice.show(
+        'Location permission denied. Please search manually.',
+        'warning'
+      );
+    },
+    {
+      enableHighAccuracy: true,
+      timeout: 10000
+    }
+  );
+}
 
   startApplication() {
     this.currentStep = 1;
@@ -294,29 +366,29 @@ mapZoom = 15;
       =========================== */
      if (this.currentStep === 4) {
 
-      if (this.roadWidthConfirmed === null) {
-        this.notificationservice.show(
-          'Please confirm the Road Width',
-          'warning'
-        );
-        return;
-      }
+  if (this.roadWidthConfirmed === null) {
+    this.notificationservice.show(
+      'Please confirm the Road Width',
+      'warning'
+    );
+    return;
+  }
 
-      if (this.roadWidthConfirmed === false) {
-        if (!this.manualRoadWidth || this.manualRoadWidth <= 0) {
-          this.notificationservice.show(
-            'Please enter valid Road Width manually',
-            'warning'
-          );
-          return;
-        }
-
-        // 🔥 Override API value
-        if (this.roadWidthDetails) {
-          this.roadWidthDetails.road_Width_mtrs = this.manualRoadWidth.toString();
-        }
-      }
+  if (this.roadWidthConfirmed === false) {
+    if (!this.manualRoadWidth || this.manualRoadWidth <= 0) {
+      this.notificationservice.show(
+        'Please enter valid Road Width manually',
+        'warning'
+      );
+      return;
     }
+
+    // 🔥 Override API value
+    if (this.roadWidthDetails) {
+      this.roadWidthDetails.road_Width_mtrs = this.manualRoadWidth.toString();
+    }
+  }
+}
 
 
     /* =========================
@@ -365,6 +437,7 @@ mapZoom = 15;
       if (this.currentStep === 4) {
         setTimeout(() => {
          this.initAutocomplete(); 
+          this.autoDetectCurrentLocation(); 
         }, 300);
       }
     }
@@ -382,6 +455,7 @@ mapZoom = 15;
       if (this.currentStep === 4) {
         setTimeout(() => {
           this.initAutocomplete();
+           this.autoDetectCurrentLocation(); 
         }, 300);
       }
     }
@@ -592,7 +666,10 @@ mapZoom = 15;
   latitude: number | null = null;
   longitude: number | null = null;
   //For Road width
-  
+
+
+
+
   roadWidthSource = '';
   roadWidthStatus = '';
   roadWidthDetails: RoadWidthDetails | null = null;
@@ -647,15 +724,43 @@ private initAutocomplete(): void {
   });
 }
 
+private fillAddressFromLatLng(lat: number, lng: number): void {
+
+  if (!google?.maps?.Geocoder || !this.searchInput?.nativeElement) return;
+
+  const geocoder = new google.maps.Geocoder();
+
+  geocoder.geocode(
+    { location: { lat, lng } },
+    (
+      results: google.maps.GeocoderResult[] | null,
+      status: google.maps.GeocoderStatus
+    ) => {
+
+      if (
+        status === google.maps.GeocoderStatus.OK &&
+        results &&
+        results.length > 0
+      ) {
+        // 🔥 Force Angular UI update
+        this.searchInput.nativeElement.value =
+          results[0].formatted_address;
+
+        this.cdr.detectChanges(); // ✅ THIS FIXES IT
+      }
+    }
+  );
+}
+
 
 
 
 
 setLocation(lat: number, lng: number): void {
+
   this.latitude = lat;
   this.longitude = lng;
 
-  // ✅ THIS IS THE KEY FIX
   this.mapCenter = { lat, lng };
 
   // Marker logic
@@ -677,9 +782,13 @@ setLocation(lat: number, lng: number): void {
     }
   }
 
-  // ✅ KEEP YOUR EXISTING ROAD WIDTH API CALL
+  // ✅ NEW: Fill address into search box
+  this.fillAddressFromLatLng(lat, lng);
+
+  // Existing API call
   this.fetchRoadWidth(lng, lat);
 }
+
 
 
 onMapReady(): void {
@@ -691,7 +800,6 @@ onMapReady(): void {
 
 initDrawingTool(): void {
   if (!this.map) return;
-
   // Remove old drawing manager if exists
   if (this.drawingManager) {
     this.drawingManager.setMap(null);
@@ -776,34 +884,84 @@ onMapClick(event: google.maps.MapMouseEvent): void {
   //   return Math.round(value * 10000) / 10000;
   // }
 
-  fetchRoadWidth(lng: number, lat: number) {
-    this.loaderservice.show();
+fetchRoadWidth(lng: number, lat: number) {
 
-    const payload = {
-      licenceApplicationID: this.tokenservice.getTraderUserId(),
-      latitude: lat,
-      longitude: lng
-    };
+  this.roadWidthDetails = null;
+  this.roadWidthConfirmed = null;
 
-    this.newLicensesService.getRoadWidth(payload).subscribe({
-      next: (res: RoadWidthDetails[]) => {
-        console.log('API Response:', res);
+  this.loaderservice.show();
+  this.roadWidthStatus = 'Fetching road width from server...';
 
-        if (Array.isArray(res) && res.length > 0) {
-          this.roadWidthDetails = res[0]; 
-        } else {
-          this.roadWidthDetails = null;
-        }
+  const payload = {
+    licenceApplicationID: this.tokenservice.getTraderUserId(),
+    latitude: lat,
+    longitude: lng
+  };
 
-        this.loaderservice.hide();
-      },
-      error: (err) => {
-        this.loaderservice.hide();
-        console.error('Road Width API Error:', err);
-        this.roadWidthStatus = 'Unable to fetch road width';
+  this.newLicensesService.getRoadWidth(payload).subscribe({
+    next: (res: any) => {
+
+      if (res?.code === 'SUCCESS' && Array.isArray(res.data) && res.data.length > 0) {
+
+        this.roadWidthDetails = res.data[0];
+        this.roadWidthStatus = 'Road width detected automatically';
+
+        this.notificationservice.show(
+          res.message ?? 'Road width detected',
+          'success'
+        );
+
+      } else {
+
+        this.roadWidthDetails = null;
+        this.roadWidthStatus = 'No road width data found';
+
+        this.notificationservice.show(
+          'No road data found. Please draw rectangle or enter manually.',
+          'warning'
+        );
       }
-    });
-  }
+
+      this.loaderservice.hide();
+    },
+
+    error: (err) => {
+      this.loaderservice.hide();
+
+      const apiMsg = err?.error?.message ?? 'Unable to fetch road width';
+
+      // 🚫 OUTSIDE BENGALURU
+      if (err?.error?.code === 'OUTSIDE_GBA') {
+        this.roadWidthStatus = apiMsg;
+
+        this.notificationservice.show(
+          apiMsg,
+          'error'
+        );
+        return;
+      }
+
+      // ⏱ KGIS TIMEOUT
+      if (err.status === 504) {
+        this.roadWidthStatus = 'KGIS service timeout';
+
+        this.notificationservice.show(
+          apiMsg,
+          'warning'
+        );
+        return;
+      }
+
+      // ❌ KGIS FAILURE
+      this.roadWidthStatus = apiMsg;
+
+      this.notificationservice.show(
+        apiMsg,
+        'error'
+      );
+    }
+  });
+}
 
 
 
@@ -1287,7 +1445,8 @@ onMapClick(event: google.maps.MapMouseEvent): void {
       corporationId: 1,
       amount: this.licenseFee,
       applicantName: this.tokenservice.getUserFullName(),
-      email: this.tokenservice.getUserEmail(),
+  email: this.tradeLicenseApplicationDetails.emailID,
+
       phone: this.tradeLicenseApplicationDetails.mobileNumber
     };
     console.log(payload);
@@ -1319,4 +1478,4 @@ onMapClick(event: google.maps.MapMouseEvent): void {
   }
 
   //#endregion
-}
+}  
