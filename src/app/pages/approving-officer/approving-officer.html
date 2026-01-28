@@ -36,6 +36,13 @@
           </div>
 
           <div class="col-md-2">
+            <label class="form-label">Zone</label>
+            <select class="form-select">
+              <option>All</option>
+            </select>
+          </div>
+
+          <div class="col-md-2">
             <label class="form-label">Ward</label>
             <select class="form-select">
               <option>All</option>
@@ -44,7 +51,7 @@
             </select>
           </div>
 
-          <div class="col-md-3 text-end">
+          <div class="col-md-2">
             <button class="btn btn-secondary">Apply Filters</button>
           </div>
         </div>
@@ -53,14 +60,15 @@
     <!-- APPLICATION TABLE -->
     <div class="card table-card">
       <div class="card-body p-0">
-        <table class="table table-bordered table-hover mb-0">
+        <table class="table table-bordered table-hover mb-0 fixed-table">
           <thead class="table-light">
             <tr>
-              <th>Application No</th>
-              <th>BESCOMRR Number</th>
-              <th>Submitted Date</th>
-              <th>Status</th>
-              <th>Challan No</th>
+              <th style="width: 60px;">Sl. No</th>
+              <th style="width: 220px;">Application Name</th>
+              <th style="width: 200px;">Application No</th>
+              <th style="width: 140px;">Submitted Date</th>
+              <th style="width: 240px;">Trade Name</th>
+              <th style="width: 120px;">Status</th>
             </tr>
           </thead>
 
@@ -74,27 +82,30 @@
               </td>
             </tr>
             
-            <ng-container *ngIf="!isLoading && tradeLicensesApplicationDetails.length > 0">
+            <ng-container *ngIf="!isLoading && approvedApplicationDetails.length > 0">
               <tr
-                *ngFor="let app of tradeLicensesApplicationDetails"
+                *ngFor="let app of approvedApplicationDetails; let i = index"
                 class="clickable-row"
                 (click)="onInspectionClick(app.licenceApplicationID)"
               >
+                <td>{{ i + 1 }}</td>
+                <td>{{ app.applicantName }}</td>
                 <td>{{ app.applicationNumber }}</td>
-                <td>{{ app?.bescomRRNumber }}</td>
                 <td>{{ app.applicationSubmitDate | date:'dd-MMM-yyyy' }}</td>
+                <td>
+                  {{ app.tradeName }}
+                </td>
                 <td>
                   <span class="badge bg-info text-dark">
                     {{ app.licenceApplicationStatusName }}
                   </span>
                 </td>
-                <td>{{ app.ChallanNo }}</td>
               </tr>
             </ng-container>
 
             <!-- No Data -->
-            <tr *ngIf="!isLoading && tradeLicensesApplicationDetails.length === 0">
-              <td colspan="5" class="text-center text-muted">
+            <tr *ngIf="!isLoading && approvedApplicationDetails.length === 0">
+              <td colspan="6" class="text-center text-muted">
                 No applications found
               </td>
             </tr>

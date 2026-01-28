@@ -1,3 +1,5 @@
+import { stringify } from "querystring";
+
 export interface LicenceApplicationModel {
   licenceApplicationID: number;
   applicationNumber: string;
@@ -116,5 +118,32 @@ export interface AppliedLicensesResponse {
   mobileNumber: string;
   emailId: string;
   applications: LicenceApplicationDetails[];
+}
+
+export interface ApprovedApplications{
+  role: string;
+  status: string;
+  loginID: number;
+  totalRecords: number;
+  pageNumber: number;
+  pageSize: number;
+  data : AllApprovedApplication[];
+}
+
+export interface AllApprovedApplication{
+  licenceApplicationID: number;
+  applicationNumber: string;
+  applicationSubmitDate: Date;
+  licenceApplicationStatusID: number;
+  licenceApplicationStatusName: string;
+  tradeLicenceID: number;
+  applicantName: string;
+  tradeName: string;
+  mobileNumber: string;
+  emailID: string;
+  mohID: number;
+  mohName: string;
+  wardID: number;
+  wardName: string;
 }
 

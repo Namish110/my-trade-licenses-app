@@ -5,7 +5,9 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ApprovingOfficerService } from './approving-officer.service';
-import { LicenceApplicationModel } from '../../core/models/trade-licenses-details.model';
+import { LicenceApplicationModel, ApprovedApplications, AllApprovedApplication } from '../../core/models/trade-licenses-details.model';
+import { TokenService } from '../../core/services/token.service';
+import { Notification, NotificationService } from '../../shared/components/notification/notification.service';
 
 
 declare var bootstrap: any;
@@ -21,7 +23,8 @@ export class ApprovingOfficer {
   selectedApplication: number | null = null;
   tradeTypes : TradeType[] = [];
 
-  tradeLicensesApplicationDetails : LicenceApplicationModel[] =[]; 
+  tradeLicensesApplicationDetails : LicenceApplicationModel[] = []; 
+  approvedApplicationDetails: AllApprovedApplication[] = [];
   pageNumber = 1;
   pageSize = 10;
   totalRecords = 0;
@@ -32,7 +35,9 @@ export class ApprovingOfficer {
   constructor(private newLicensesService: NewLicensesService,
     private router : Router,
     private approvingofficerService: ApprovingOfficerService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private tokenservice: TokenService,
+    private notificationservice: NotificationService
   ){}
   
   selectedTradeType: TradeType | null = null;
@@ -44,6 +49,7 @@ export class ApprovingOfficer {
   ngOnInit(){
     this.loadTradeType();
     this.loadApplications();
+    this.loadAppliedApproverApplicatiosn();
   }
   //Load Trade Types
   loadTradeType(){
@@ -61,6 +67,28 @@ export class ApprovingOfficer {
     this.router.navigate(['/approver/inspection', applicationNo]);
   }
 
+  loadAppliedApproverApplicatiosn(): void{
+    this.isLoading = true;
+    const loginId = this.tokenservice.getUserId();
+    if(!loginId){
+      this.notificationservice.show('Invalid login id', 'warning');
+      return;
+    }
+    this.approvingofficerService.getAppliedApproverApplications(loginId, this.pageNumber, this.pageSize).subscribe({
+      next: (res: ApprovedApplications) => {
+        this.approvedApplicationDetails = res.data;
+        this.totalRecords = res.totalRecords; // useful for pagination
+        this.isLoading = false;
+        this.cdr.detectChanges();
+        this.generatePages();
+      },
+      error: () => {
+        this.isLoading = false; 
+        this.approvedApplicationDetails = [];
+        this.cdr.detectChanges();
+      }
+    });
+  }
   loadApplications(): void {
     this.isLoading = true;
     this.approvingofficerService

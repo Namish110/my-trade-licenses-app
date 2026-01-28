@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { TradeType } from '../../core/models/new-trade-licenses.model';
-import { LicenceApplicationModel, TradeLicensesApplicationDetails } from '../../core/models/trade-licenses-details.model';
+import { ApprovedApplications, LicenceApplicationModel, TradeLicensesApplicationDetails } from '../../core/models/trade-licenses-details.model';
 
 @Injectable({
   providedIn: 'root'
@@ -40,6 +40,17 @@ export class InspectionService {
 
   getTradeTypeById(tradeTypeId: number){
     //return this.http.put<any>(`${this.baseUrl}/trade-type/${tradeTypeId}`);
+  }
+
+  getAppliedApproverApplications(
+    loginId: number,
+    licenceApplicationId: number,
+    pageNumber: number,
+    pageSize: number
+  ) {
+    return this.http.get<ApprovedApplications>(
+      `${this.baseUrl}/trade-licence/approver/applications?loginId=${loginId}&licenceApplicationId=${licenceApplicationId}&pageNumber=${pageNumber}&pageSize=${pageSize}`
+    );
   }
   //Documents for inspection
 }

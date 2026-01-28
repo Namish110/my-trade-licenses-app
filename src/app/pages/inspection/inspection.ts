@@ -1,14 +1,15 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NotificationService } from '../../shared/components/notification/notification.service';
 import { LoaderService } from '../../shared/components/loader/loader.service';
 import { InspectionService } from './inspection.service';
-import { LicenceApplicationModel, TradeLicensesApplicationDetails } from '../../core/models/trade-licenses-details.model';
+import { AllApprovedApplication, ApprovedApplications, LicenceApplicationModel, TradeLicensesApplicationDetails } from '../../core/models/trade-licenses-details.model';
 import { AfterViewInit, Inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
+import { TokenService } from '../../core/services/token.service';
 
 interface InspectionPhoto {
   file: File;
@@ -35,16 +36,19 @@ export class Inspection {
   remarks: string = '';
 
   constructor(
-    private route: ActivatedRoute,
+    private activeroute: ActivatedRoute,
     private router: Router,
     private notificationservice: NotificationService,
     private loaderservice: LoaderService,
     private inspectionservice: InspectionService,
+    private tokenservice: TokenService,
+    private cdr:ChangeDetectorRef,
      @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
   ngOnInit(): void {
-    this.applicationNo = this.route.snapshot.paramMap.get('applicationNo')!;
+    this.applicationNo = this.activeroute.snapshot.paramMap.get('applicationNo')!;
+    this.loadAppliedApproverApplicatiosn();
   }
 
   //#region To load Map 
@@ -113,11 +117,41 @@ export class Inspection {
   //#endregion
 
 //#region Pageload details when approver clicks on application ID
-  licenceApplicationDetails : LicenceApplicationModel | null = null;
-  tradeLicenceApplicationDetails : TradeLicensesApplicationDetails | null = null;
+  licenceApplicationDetails: AllApprovedApplication | null = null;
   locationDetails: any;
+  pageNumber = 1;
+  pageSize = 10;
+  totalRecords = 0;
+  totalPages = 0;
 
-  loadApplicationDetailsByLicensesId(licenceApplicationID: number){
+  loadAppliedApproverApplicatiosn(): void{
+    const loginId = this.tokenservice.getUserId();
+    if(!loginId){
+      this.notificationservice.show('Invalid login id', 'warning');
+      return;
+    }
+    const appNo = Number(this.applicationNo);
+    if (isNaN(appNo)) {
+      console.error('Invalid application number');
+      return;
+    }
+    this.inspectionservice.getAppliedApproverApplications(loginId, appNo, this.pageNumber, this.pageSize).subscribe({
+      next: (res: ApprovedApplications) => {
+        if (res.data && res.data.length > 0) {
+          this.licenceApplicationDetails = res.data[0];
+          console.log(this.licenceApplicationDetails);
+        }
+        this.totalRecords = res.totalRecords;
+        this.cdr.detectChanges();
+      },
+      error: () => { 
+        this.licenceApplicationDetails = null;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  /*loadApplicationDetailsByLicensesId(licenceApplicationID: number){
     if(!licenceApplicationID){
       this.notificationservice.show('Something went wrong please check with the application Id', 'warning');
       return;
@@ -164,7 +198,7 @@ export class Inspection {
 
       }
     });
-  }
+  }*/
 
   loadTradeType(){
     //this.inspectionservice.getTradeTypeById().subscribe({

@@ -12,10 +12,15 @@
   <div class="card section-card">
     <div class="card-header">Application Summary</div>
     <div class="card-body summary-grid">
-      <div><label>Trader Name</label><p>{{ tradeLicenceApplicationDetails?.tradeName }}</p></div>
-      <div><label>Trade Type</label><p>{{ licenceApplicationDetails?.tradeTypeID }}</p></div>
-      <div><label>Ward</label><p>Ward 32</p></div>
-      <div><label>Status</label><p>Inspection Pending</p></div>
+      <div><label>Application Name</label><p>{{ licenceApplicationDetails?.applicantName }}</p></div>
+      <div><label>Application Number</label><p>{{ licenceApplicationDetails?.applicationNumber }}</p></div>
+      <div><label>Application Date</label><p>{{licenceApplicationDetails?.applicationSubmitDate}}</p></div>
+      <div><label>Status</label><p>{{licenceApplicationDetails?.licenceApplicationStatusName}}</p></div>
+      <div><label>Trade Licenses Id</label><p>{{licenceApplicationDetails?.tradeLicenceID}}</p></div>
+      <div><label>Trade Name</label><p>{{licenceApplicationDetails?.tradeName}}</p></div>
+      <div><label>Mobile Number</label><p>{{licenceApplicationDetails?.mobileNumber}}</p></div>
+      <div><label>Zone</label><p>{{licenceApplicationDetails?.mohName}}</p></div>
+      <div><label>Ward Name</label><p>{{licenceApplicationDetails?.wardName}}</p></div>
     </div>
   </div>
 

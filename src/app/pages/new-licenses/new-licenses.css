@@ -282,3 +282,38 @@ table {
   cursor: not-allowed;
 }
 
+.info-row td {
+  padding: 10px 14px;
+  background-color: #fbfbfb;
+}
+
+.doc-help {
+  font-size: 13px;
+  color: #444;
+  line-height: 1.6;
+}
+
+.doc-help-title {
+  font-weight: 600;
+  color: #000;
+  margin-right: 6px;
+}
+
+.doc-help a {
+  color: #0b5ed7;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.doc-help a:hover {
+  text-decoration: underline;
+}
+
+.doc-pill {
+  background: #eef3ff;
+  border: 1px solid #d6e0ff;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 500;
+  white-space: nowrap;
+}
