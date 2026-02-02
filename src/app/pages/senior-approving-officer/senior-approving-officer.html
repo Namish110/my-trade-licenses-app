@@ -40,39 +40,108 @@
   </div>
 </div>
 
-<!-- TABLE -->
+<!-- APPLICATION TABLE -->
 <div class="card table-card">
   <div class="card-body p-0">
-    <table class="table table-bordered table-hover mb-0">
+    <table class="table table-bordered table-hover mb-0 fixed-table">
       <thead class="table-light">
         <tr>
-          <th>Application No</th>
-          <th>Trader Name</th>
-          <th>Approver</th>
-          <th>Status</th>
-          <th>Inspection</th>
-          <th>Deadline</th>
-          <th width="240">Actions</th>
+          <th style="width: 60px;">Sl. No</th>
+          <th style="width: 220px;">Application Name</th>
+          <th style="width: 200px;">Application No</th>
+          <th style="width: 140px;">Submitted Date</th>
+          <th style="width: 240px;">Trade Name</th>
+          <th style="width: 120px;">Status</th>
         </tr>
       </thead>
 
       <tbody>
-        <tr class="deadline-warning">
-          <td>TL-2026-0102</td>
-          <td>Shree Foods</td>
-          <td>Ward Officer – 32</td>
-          <td>Forwarded</td>
-          <td>Completed</td>
-          <td>07-Jan-2026</td>
-          <td>
-            <button class="btn btn-sm btn-primary">View</button>
-            <button class="btn btn-sm btn-success">Final Approve</button>
-            <button class="btn btn-sm btn-warning">Send Back</button>
-            <button class="btn btn-sm btn-danger">Reject</button>
+        <tr *ngIf="isLoading">
+          <td colspan="5" class="text-center py-4">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+            <div class="mt-2 text-muted">Loading applications...</div>
+          </td>
+        </tr>
+        
+        <ng-container *ngIf="!isLoading && submittedInspectionApplications.length > 0">
+          <tr
+            *ngFor="let app of submittedInspectionApplications; let i = index"
+            class="clickable-row"
+            (click)="onInspectionClick(app.licenceApplicationID)"
+          >
+            <td>{{ i + 1 }}</td>
+            <td>{{ app.applicantName }}</td>
+            <td>{{ app.applicationNumber }}</td>
+            <td>{{ app.applicationSubmitDate | date:'dd-MMM-yyyy' }}</td>
+            <td>
+              {{ app.tradeName }}
+            </td>
+            <td>
+              <span class="badge bg-info text-dark">
+                {{ app.licenceApplicationStatusName }}
+              </span>
+            </td>
+          </tr>
+        </ng-container>
+
+        <!-- No Data -->
+        <tr *ngIf="!isLoading && submittedInspectionApplications.length === 0">
+          <td colspan="6" class="text-center text-muted">
+            No applications found
           </td>
         </tr>
       </tbody>
     </table>
+
+    <ng-template #noData>
+      <tr>
+        <td colspan="5" class="text-center text-muted">
+          No applications found
+        </td>
+      </tr>
+    </ng-template>
+
+  </div>
+  <div class="d-flex justify-content-between align-items-center mt-3 px-2">
+    <!-- Records info -->
+    <div class="text-muted small">
+      Showing {{ showingFrom }} – {{ showingTo }} of {{ totalRecords }} records
+    </div>
+
+
+    <!-- Pagination -->
+    <nav>
+      <ul class="pagination pagination-sm mb-0">
+
+        <!-- Previous -->
+        <li class="page-item" [class.disabled]="pageNumber === 1">
+          <button class="page-link" (click)="changePage(pageNumber - 1)">
+            ‹
+          </button>
+        </li>
+
+        <!-- Page numbers -->
+        <li
+          class="page-item"
+          *ngFor="let p of pages"
+          [class.active]="p === pageNumber"
+        >
+          <button class="page-link" (click)="changePage(p)">
+            {{ p }}
+          </button>
+        </li>
+
+        <!-- Next -->
+        <li class="page-item" [class.disabled]="pageNumber === totalPages">
+          <button class="page-link" (click)="changePage(pageNumber + 1)">
+            ›
+          </button>
+        </li>
+
+      </ul>
+    </nav>
   </div>
 </div>
 

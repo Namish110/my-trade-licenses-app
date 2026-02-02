@@ -5,20 +5,34 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 
+type ModalType =
+  | 'MLA'
+  | 'WARD'
+  | 'TRADE_CATEGORY'
+  | 'MAJOR_TRADE'
+  | 'MINOR_TRADE'
+  | 'SUB_TRADE'
+  | 'ZONE'
+  | 'ZONE_CLASSIFICATION';
+
+
 @Component({
   selector: 'app-master-data-compliance',
   imports: [CommonModule, FormsModule, RouterModule, ReactiveFormsModule],
   templateUrl: './master-data-compliance.html',
   styleUrl: './master-data-compliance.css',
+  standalone: true,
 })
 export class MasterDataCompliance {
 
+  activeModal: ModalType | null = null;
   constructor(
     private masterDataComplianceService: MasterDataComplianceService,
     private fb: FormBuilder
   ){}
 
   ngOnInit() {
+    this.loadTradeTypes();
     this.loadMLAConstituencies();
     this.initForms();
   }
@@ -79,6 +93,7 @@ export class MasterDataCompliance {
     zones : Zones[] = [];
     zoneClassifications : ZoneClassification[] = [];
 
+    selectedtradeTypes: TradeType | null = null;
     selectedMajor: TradeMajor | null = null;
     selectedMinor: TradeMinor | null = null;
     selectedSub: TradeSub | null = null;
@@ -89,24 +104,25 @@ export class MasterDataCompliance {
     selectedZoneClassification: ZoneClassification | null = null;
     
     // Modal flags
-    showMLAModal = false;
-    showWardModal = false;
-    showTradeCategoryModal = false;
-    showMajorTradeModal = false;
-    showMinorTradeModal = false;
-    showSubTradeModal = false;
-    showZoneModal = false;
-    showZoneClassificationModal = false;
+    // showMLAModal = false;
+    // showWardModal = false;
+    // showTradeCategoryModal = false;
+    // showMajorTradeModal = false;
+    // showMinorTradeModal = false;
+    // showSubTradeModal = false;
+    // showZoneModal = false;
+    // showZoneClassificationModal = false;
+    isEditMode = false;
 
     // Edit flags
-    isEditMLA = false;
-    isEditWard = false;
-    isEditTradeCategory = false;
-    isEditMajorTrade = false;
-    isEditMinorTrade = false;
-    isEditSubTrade = false;
-    isEditZone = false;
-    isEditZoneClassification = false;
+    // isEditMLA = false;
+    // isEditWard = false;
+    // isEditTradeCategory = false;
+    // isEditMajorTrade = false;
+    // isEditMinorTrade = false;
+    // isEditSubTrade = false;
+    // isEditZone = false;
+    // isEditZoneClassification = false;
 
     // Forms
     mlaForm!: FormGroup;
@@ -118,10 +134,96 @@ export class MasterDataCompliance {
     zoneForm!: FormGroup;
     zoneClassificationForm!: FormGroup;
 
+  // Modal flags
+  openModal(type: ModalType, edit = false) {
+    this.activeModal = type;
+    this.isEditMode = edit;
 
+    switch (type) {
+      case 'MLA':
+        this.mlaForm.reset();
+        if (edit && this.selectedMLAConstituency) {
+          this.mlaForm.patchValue(this.selectedMLAConstituency);
+        }
+        break;
 
+      case 'TRADE_CATEGORY':
+        this.tradeCategoryForm.reset();
+        if (edit && this.selectedTradeType) {
+          this.tradeCategoryForm.patchValue(this.selectedTradeType);
+        }
+        break;
 
-  
+      case 'WARD':
+        this.wardForm.reset();
+        if (this.selectedMLAConstituency) {
+          this.wardForm.patchValue({
+            mlaId: this.selectedMLAConstituency.constituencyID
+          });
+        }
+        if (edit && this.selectedWard) {
+          this.wardForm.patchValue(this.selectedWard);
+        }
+        break;
+
+      case 'MAJOR_TRADE':
+        this.majorTradeForm.reset();
+        if (edit && this.selectedMajor) {
+          this.majorTradeForm.patchValue(this.selectedMajor);
+        }
+        break;
+
+      case 'MINOR_TRADE':
+        this.minorTradeForm.reset();
+        if (this.selectedMajor) {
+          this.minorTradeForm.patchValue({
+            tradeMajorID: this.selectedMajor.tradeMajorID
+          });
+        }
+        if (edit && this.selectedMinor) {
+          this.minorTradeForm.patchValue(this.selectedMinor);
+        }
+        break;
+
+      case 'SUB_TRADE':
+        this.subTradeForm.reset();
+        if (this.selectedMinor) {
+          this.subTradeForm.patchValue({
+            tradeMinorID: this.selectedMinor.tradeMinorID
+          });
+        }
+        if (edit && this.selectedSub) {
+          this.subTradeForm.patchValue(this.selectedSub);
+        }
+        break;
+
+      case 'ZONE':
+        this.zoneForm.reset();
+        if (edit && this.selectedZone) {
+          this.zoneForm.patchValue(this.selectedZone);
+        }
+        break;
+
+      case 'ZONE_CLASSIFICATION':
+        this.zoneClassificationForm.reset();
+        if (edit && this.selectedZoneClassification) {
+          this.zoneClassificationForm.patchValue(this.selectedZoneClassification);
+        }
+        break;
+    }
+  }
+
+  //load Trade Types
+  loadTradeTypes(){
+    this.masterDataComplianceService.getTradeTypes().subscribe({
+      next: (res) => {
+        this.tradeTypes = res;
+      console.log('Trade Types:', this.tradeTypes);
+      },
+      error: (err) => console.error(err)
+    });
+  }
+
   //Load MLA Constituencies
   loadMLAConstituencies(){
     this.masterDataComplianceService.getMLAConstituency().subscribe({
@@ -186,73 +288,44 @@ export class MasterDataCompliance {
       });
   }
 
+  saveModal() {
+    switch (this.activeModal) {
+      case 'MLA':
+        console.log(this.mlaForm.value);
+        break;
 
-  openAddMLAModal() {
-    this.isEditMLA = false;
-    this.mlaForm.reset();
-    this.showMLAModal = true;
+      case 'WARD':
+        console.log(this.wardForm.value);
+        break;
+
+      case 'MAJOR_TRADE':
+        console.log(this.majorTradeForm.value);
+        break;
+
+      case 'MINOR_TRADE':
+        console.log(this.minorTradeForm.value);
+        break;
+
+      case 'SUB_TRADE':
+        console.log(this.subTradeForm.value);
+        break;
+
+      case 'ZONE':
+        console.log(this.zoneForm.value);
+        break;
+
+      case 'ZONE_CLASSIFICATION':
+        console.log(this.zoneClassificationForm.value);
+        break;
+
+      case 'TRADE_CATEGORY':
+        console.log(this.zoneClassificationForm.value);
+        break;
+    }
+
+    this.activeModal = null;
   }
 
-  openEditMLAModal() {
-    if (!this.selectedMLAConstituency) return;
-
-    this.isEditMLA = true;
-    this.mlaForm.patchValue({
-      constituencyID: this.selectedMLAConstituency.constituencyID,
-      mohName: this.selectedMLAConstituency.mohName
-    });
-    this.showMLAModal = true;
-  }
-
-  openAddWardModal() {
-    if (!this.selectedMLAConstituency) return;
-
-    this.isEditWard = false;
-    this.wardForm.reset();
-
-    this.wardForm.patchValue({
-      mlaId: this.selectedMLAConstituency.constituencyID
-    });
-
-    this.showWardModal = true;
-  }
-
-
-  openEditWardModal() {
-    if (!this.selectedMLAConstituency || !this.selectedWard) return;
-
-    this.isEditWard = true;
-    this.wardForm.patchValue({
-      wardID: this.selectedWard.wardID,
-      wardName: this.selectedWard.wardName,
-      mlaId: this.selectedMLAConstituency.constituencyID
-    });
-
-    this.showWardModal = true;
-  }
-
-  openAddMajorTradeModal(){
-
-  }
-  openAddMinorTradeModal(){
-
-  }
-  openAddSubTradeModal(){
-
-  }
-  openEditMinorTradeModal(){
-
-  }
-  openAddJurisdictionOdHoModal(){
-
-  }
-
-  openAddZoneClassificationModal(){
-
-  }
-  openAddTradeCategoriesModal(){
-    
-  }
 
   //To Save Trade Classification Details
   tradePrice: number | null = null;

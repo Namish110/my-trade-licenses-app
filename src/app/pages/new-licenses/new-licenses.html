@@ -322,11 +322,25 @@
             <div class="form-check mb-0">
               <input
                 class="form-check-input"
-                type="checkbox"
-                id="parkingProvided"
+                type="radio"
+                name="parkingProvided"
+                id="parkingYes"
+                value="yes"
               />
-              <label class="form-check-label" for="parkingProvided">
+              <label class="form-check-label" for="parkingYes">
                 Yes
+              </label>
+            </div>
+            <div class="form-check mb-0">
+              <input
+                class="form-check-input"
+                type="radio"
+                name="parkingProvided"
+                id="parkingNo"
+                value="no"
+              />
+              <label class="form-check-label" for="parkingNo">
+                No
               </label>
             </div>
           </div>
@@ -466,8 +480,8 @@
                 </label>
                 <div class="mt-2"> 
                   <p style="font-size: 0.85rem; color: #d32f2f;">
-                    Declaration: The applicant hereby confirms that the road width entered manually is accurate to the best of their knowledge.
-                    The authority shall not be held responsible for any discrepancies resulting from road width entered manually by applicant.
+                    DISCLAIMER: ATTENTION REQUIRED-THE APPLICANT MUST VALIDATE THE ACCURACY OF THE ROAD WIDTH AUTO FETCHED /MANUALLY ENTERED IN THE APPLICATION BEING SUBMITTED. 
+                    GBA WILL NOT BE HELD RESPONSIBLE FOR ANY DISCREPANCY IN THIS MATTER.
                   </p>
                 </div>
                 <div class="form-check">

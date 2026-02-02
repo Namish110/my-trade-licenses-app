@@ -8,6 +8,7 @@ import {
   UserDesignation,
   LoginMasterRequest
 } from './user-roles.service';
+import { Zones } from '../../core/models/new-trade-licenses.model';
 
 @Component({
   selector: 'app-users-roles',
@@ -53,14 +54,25 @@ searchTimer: any = null; // ✅ ADD THIS LINE
   selectedUser: LoginMaster | null = null;
   isEditMode = false;
 
-  constructor(private service: UsersRolesService) {}
+  constructor(private userrolesservice: UsersRolesService) {}
 
   ngOnInit(): void {
     this.loadUsers();
     this.loadOffices();
     this.loadDesignations();
+    this.loadZoneHealthDetails();
   }
 
+
+  //To Load Zone Health Details
+  zones : Zones[] = [];
+  loadZoneHealthDetails(): void {
+    this.userrolesservice.getZones().subscribe({
+      next: (res) => {
+        this.zones = res;
+      }
+    });
+  }
   /* =====================================================
      LOAD USERS (DEFAULT PAGINATED)
   ===================================================== */
@@ -68,7 +80,7 @@ searchTimer: any = null; // ✅ ADD THIS LINE
   loadUsers(): void {
     this.isSearching = false;
 
-    this.service.getUsers(this.pageNumber, this.pageSize).subscribe({
+    this.userrolesservice.getUsers(this.pageNumber, this.pageSize).subscribe({
       next: (res) => {
         this.users = res.data;
         this.totalRecords = res.totalRecords;
@@ -90,7 +102,7 @@ searchTimer: any = null; // ✅ ADD THIS LINE
     this.isSearching = true;
     this.pageNumber = 1;
 
-    this.service.searchUsers(
+    this.userrolesservice.searchUsers(
       this.searchText,
       this.pageNumber,
       this.pageSize
@@ -114,7 +126,7 @@ onSearchChange(): void {
     this.isSearching = true;
     this.pageNumber = 1;
 
-    this.service.searchUsers(
+    this.userrolesservice.searchUsers(
       this.searchText,
       this.pageNumber,
       this.pageSize
@@ -147,6 +159,7 @@ onSearchChange(): void {
       loginID: 0,
       login: '',
       password: '',
+      zoneID: 0,
       officeDetailsID: 0,
       userDesignationID: 0,
       sakalaDO_Code: '',     // API expects STRING
@@ -180,6 +193,7 @@ onSearchChange(): void {
     const payload: LoginMasterRequest = {
       login: this.selectedUser.login,
       password: this.selectedUser.password,
+      zoneID: this.selectedUser.zoneID,
       officeDetailsID: this.selectedUser.officeDetailsID,
       userDesignationID: this.selectedUser.userDesignationID,
       sakalaDO_Code: this.selectedUser.sakalaDO_Code,
@@ -189,7 +203,7 @@ onSearchChange(): void {
 
     if (this.isEditMode) {
       // ✅ UPDATE
-      this.service.updateUser(this.selectedUser.loginID, payload)
+      this.userrolesservice.updateUser(this.selectedUser.loginID, payload)
         .subscribe(() => {
           this.selectedUser = null;
           this.isEditMode = false;
@@ -197,7 +211,7 @@ onSearchChange(): void {
         });
     } else {
       // ✅ INSERT
-      this.service.addUser(payload)
+      this.userrolesservice.addUser(payload)
         .subscribe(() => {
           this.selectedUser = null;
           this.isSearching ? this.searchUsers() : this.loadUsers();
@@ -212,7 +226,7 @@ onSearchChange(): void {
   deleteUser(loginID: number): void {
     if (!confirm('Are you sure you want to delete this user?')) return;
 
-    this.service.deleteUser(loginID, 1)
+    this.userrolesservice.deleteUser(loginID, 1)
       .subscribe(() => {
         this.isSearching ? this.searchUsers() : this.loadUsers();
       });
@@ -223,14 +237,14 @@ onSearchChange(): void {
   ===================================================== */
 
   loadOffices(): void {
-    this.service.getOfficeDetails().subscribe({
+    this.userrolesservice.getOfficeDetails().subscribe({
       next: (res) => this.officeList = res,
       error: (err) => console.error('Office load failed', err)
     });
   }
 
   loadDesignations(): void {
-    this.service.getUserDesignations().subscribe({
+    this.userrolesservice.getUserDesignations().subscribe({
       next: (res) =>
         this.designationList = res.filter(d => d.isActive === 'Y'),
       error: (err) => console.error('Designation load failed', err)

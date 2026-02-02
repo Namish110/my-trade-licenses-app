@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { TradeType } from '../../core/models/new-trade-licenses.model';
 import { ApprovedApplications, LicenceApplicationModel, TradeLicensesApplicationDetails } from '../../core/models/trade-licenses-details.model';
+import { LocationDetails } from './inspection.model';
 
 @Injectable({
   providedIn: 'root'
@@ -35,7 +36,7 @@ export class InspectionService {
   }
 
   getgeolocationByLicensesAppId(licenceApplicationID: number){
-    return this.http.get<any>(`${this.baseUrl}/geolocation/get/${licenceApplicationID}`);
+    return this.http.get<LocationDetails>(`${this.baseUrl}/geolocation/get/${licenceApplicationID}`);
   }
 
   getTradeTypeById(tradeTypeId: number){

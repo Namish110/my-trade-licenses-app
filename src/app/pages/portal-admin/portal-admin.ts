@@ -96,7 +96,6 @@ export class PortalAdmin {
         //console.log('cdr is', this.cdr);
         // 🔥 FORCE UI UPDATE
         this.cdr.detectChanges();
-
         //console.log('Final statusMap:', this.statusMap);
       }
     });

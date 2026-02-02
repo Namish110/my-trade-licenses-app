@@ -970,7 +970,7 @@ fetchRoadWidth(lng: number, lat: number) {
         return;
       }
 
-      // ❌ KGIS FAILURE
+      //  KGIS FAILURE
       this.roadWidthStatus = apiMsg;
 
       this.notificationservice.show(

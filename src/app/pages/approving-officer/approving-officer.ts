@@ -133,7 +133,7 @@ export class ApprovingOfficer {
     }
 
     this.pageNumber = page;
-    this.loadApplications();
+    this.loadAppliedApproverApplicatiosn();
   }
 
   //Showing details for user

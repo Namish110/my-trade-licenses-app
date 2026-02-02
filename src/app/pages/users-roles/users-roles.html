@@ -31,7 +31,7 @@
 
   <div class="form-grid">
     <div class="form-group">
-      <label>Login</label>
+      <label>User Name</label>
       <input type="text" [(ngModel)]="selectedUser.login" [disabled]="isEditMode" />
     </div>
 
@@ -47,8 +47,11 @@
 
     <div class="form-group">
       <label>Zone</label>
-      <select>
-        <option>Select Zone</option>
+      <select [(ngModel)]="selectedUser.zoneID">
+        <option value="0">Select Zone</option>
+        <option *ngFor="let z of zones" [value]="z.zoneID">
+          {{ z.zoneName }}
+        </option>
       </select>
     </div>
 
