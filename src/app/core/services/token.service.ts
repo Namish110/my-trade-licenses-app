@@ -35,15 +35,25 @@ export class TokenService {
   }
 
   // 🔥 Get UserId as NUMBER
+  // getUserId(): number | null {
+  //   const decoded = this.getDecodedToken();
+  //   return decoded?.sub ? Number(decoded.sub) : null;
+  // }
+
+  // getRole(): string {
+  //   const decoded: any = this.getDecodedToken();
+  //   return decoded?.unique_name ?? '';
+  // }
   getUserId(): number | null {
-    const decoded = this.getDecodedToken();
-    return decoded?.sub ? Number(decoded.sub) : null;
+    const decoded: any = this.getDecodedToken();
+    return decoded?.sub !== undefined ? Number(decoded.sub) : null;
   }
 
   getRole(): string {
     const decoded: any = this.getDecodedToken();
-    return decoded?.unique_name ?? '';
+    return decoded?.designation ?? '';
   }
+
 
   getUserRole(): string {
     const decoded = this.getDecodedToken();

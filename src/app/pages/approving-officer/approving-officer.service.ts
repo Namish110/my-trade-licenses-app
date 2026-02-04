@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { TradeType } from '../../core/models/new-trade-licenses.model';
-import { LicenceApplicationModel } from '../../core/models/trade-licenses-details.model';
+import { AllApprovedApplication, ApprovedApplications, LicenceApplicationModel } from '../../core/models/trade-licenses-details.model';
 
 @Injectable({
   providedIn: 'root'
@@ -37,4 +37,15 @@ export class ApprovingOfficerService {
       `${this.baseUrl}/licence-application/paged?pageNumber=${pageNumber}&pageSize=${pageSize}`
     );
   }
+
+  getAppliedApproverApplications(
+    loginId: number,
+    pageNumber: number,
+    pageSize: number
+  ) {
+    return this.http.get<ApprovedApplications>(
+      `${this.baseUrl}/trade-licence/approver/applications?loginId=${loginId}&pageNumber=${pageNumber}&pageSize=${pageSize}`
+    );
+  }
+
 }

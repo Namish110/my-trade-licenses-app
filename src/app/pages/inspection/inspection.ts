@@ -1,14 +1,17 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NotificationService } from '../../shared/components/notification/notification.service';
 import { LoaderService } from '../../shared/components/loader/loader.service';
 import { InspectionService } from './inspection.service';
-import { LicenceApplicationModel, TradeLicensesApplicationDetails } from '../../core/models/trade-licenses-details.model';
+import { AllApprovedApplication, ApprovedApplications, LicenceApplicationModel, TradeLicensesApplicationDetails } from '../../core/models/trade-licenses-details.model';
 import { AfterViewInit, Inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
+import { TokenService } from '../../core/services/token.service';
+import { GoogleMapsModule } from '@angular/google-maps';
+import { LocationDetails } from './inspection.model';
 
 interface InspectionPhoto {
   file: File;
@@ -17,7 +20,7 @@ interface InspectionPhoto {
 
 @Component({
   selector: 'app-inspection',
-  imports: [CommonModule, RouterModule, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule, GoogleMapsModule],
   templateUrl: './inspection.html',
   styleUrl: './inspection.css',
 })
@@ -35,89 +38,95 @@ export class Inspection {
   remarks: string = '';
 
   constructor(
-    private route: ActivatedRoute,
+    private activeroute: ActivatedRoute,
     private router: Router,
     private notificationservice: NotificationService,
     private loaderservice: LoaderService,
     private inspectionservice: InspectionService,
+    private tokenservice: TokenService,
+    private cdr:ChangeDetectorRef,
      @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
   ngOnInit(): void {
-    this.applicationNo = this.route.snapshot.paramMap.get('applicationNo')!;
+    this.applicationNo = this.activeroute.snapshot.paramMap.get('applicationNo')!;
+    this.loadAppliedApproverApplicatiosn();
+    this.loadApplicationDetails();
   }
 
   //#region To load Map 
-  private L: any;
-  map: any;
-  marker: any;
-
-  // Example coordinates (replace with API values)
-  latitude = 12.9716;
-  longitude = 77.5946;
-
-  initMap(): void {
-    if (!this.L) return;
-
-    if (this.map) {
-      this.map.remove();
-      this.map = null;
-    }
-
-    this.map = this.L.map('map', {
-      center: [this.latitude, this.longitude],
-      zoom: 15,
-      dragging: false,           // read-only for inspection
-      scrollWheelZoom: false,
-      doubleClickZoom: false
-    });
-
-    this.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap'
-    }).addTo(this.map);
-
-    this.marker = this.L.marker(
-      [this.latitude, this.longitude],
-      { draggable: false }
-    )
-      .addTo(this.map)
-      .bindPopup('Inspection Location')
-      .openPopup();
-
-    setTimeout(() => {
-      this.map.invalidateSize();
-    }, 200);
-  }
-
-
-  async ngAfterViewInit(): Promise<void> {
-  if (!isPlatformBrowser(this.platformId)) return;
-
-  const leaflet = await import('leaflet');
-  this.L = leaflet;
-
-  // Fix marker icon issue
-  delete (this.L.Icon.Default.prototype as any)._getIconUrl;
-
-  this.L.Icon.Default.mergeOptions({
-    iconRetinaUrl: 'assets/marker-icon-2x.png',
-    iconUrl: 'assets/marker-icon.png',
-    shadowUrl: 'assets/marker-shadow.png'
-  });
-
-  setTimeout(() => {
-    this.initMap();
-  }, 0);
-}
-
+  
   //#endregion
 
 //#region Pageload details when approver clicks on application ID
-  licenceApplicationDetails : LicenceApplicationModel | null = null;
-  tradeLicenceApplicationDetails : TradeLicensesApplicationDetails | null = null;
+  licenceApplicationDetails: AllApprovedApplication | null = null;
   locationDetails: any;
+  pageNumber = 1;
+  pageSize = 10;
+  totalRecords = 0;
+  totalPages = 0;
 
-  loadApplicationDetailsByLicensesId(licenceApplicationID: number){
+  loadAppliedApproverApplicatiosn(): void{
+    const loginId = this.tokenservice.getUserId();
+    if(!loginId){
+      this.notificationservice.show('Invalid login id', 'warning');
+      return;
+    }
+    const appNo = Number(this.applicationNo);
+    if (isNaN(appNo)) {
+      console.error('Invalid application number');
+      return;
+    }
+    this.inspectionservice.getAppliedApproverApplications(loginId, appNo, this.pageNumber, this.pageSize).subscribe({
+      next: (res: ApprovedApplications) => {
+        if (res.data && res.data.length > 0) {
+          this.licenceApplicationDetails = res.data[0];
+          console.log(this.licenceApplicationDetails);
+        }
+        this.totalRecords = res.totalRecords;
+        this.cdr.detectChanges();
+      },
+      error: () => { 
+        this.licenceApplicationDetails = null;
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  //For Map
+  loadlocationDetails: LocationDetails | null = null;
+  locationName: string = 'Not Available';
+  mapCenter!: google.maps.LatLngLiteral;
+
+  mapOptions: google.maps.MapOptions = {
+    disableDefaultUI: true,
+    draggable: false,
+    zoomControl: true
+  };
+
+  markerOptions: google.maps.MarkerOptions = {
+    draggable: false
+  };
+
+  loadApplicationDetails() {
+    // Example API response
+    this.inspectionservice.getgeolocationByLicensesAppId(Number(this.applicationNo)).subscribe({
+      next: (res) => {
+        this.loadlocationDetails = res;
+        console.log(this.loadlocationDetails);
+      },
+      error: (err) => {
+        console.error('Error fetching location details:', err);
+      }
+    });
+    this.mapCenter = {
+      lat: this.loadlocationDetails?.latitude || 0,
+      lng: this.loadlocationDetails?.longitude || 0
+    };
+  }
+
+
+  /*loadApplicationDetailsByLicensesId(licenceApplicationID: number){
     if(!licenceApplicationID){
       this.notificationservice.show('Something went wrong please check with the application Id', 'warning');
       return;
@@ -164,7 +173,7 @@ export class Inspection {
 
       }
     });
-  }
+  }*/
 
   loadTradeType(){
     //this.inspectionservice.getTradeTypeById().subscribe({
@@ -188,10 +197,12 @@ export class Inspection {
       checklist: this.inspectionChecklist,
       remarks: this.remarks
     });
-    this.router.navigate(['/approver/approving-officer']);
+    this.notificationservice.show('Inspection submitted successfully', 'success');
+    //this.router.navigate(['/approver/approving-officer']);
   }
 
   cancel() {
+    this.notificationservice.show('Inspection cancelled', 'info');
     this.router.navigate(['/approver/approving-officer']);
   }
 
@@ -199,32 +210,41 @@ export class Inspection {
      CAMERA / FILE UPLOAD
   ========================= */
   inspectionPhotos: InspectionPhoto[] = [];
+
   onPhotosSelected(event: Event) {
     const input = event.target as HTMLInputElement;
-    if (!input.files) return;
+    if (!input.files || input.files.length === 0) return;
 
-    Array.from(input.files).forEach(file => {
-      // Optional: size validation (e.g. 5MB)
+    for (let i = 0; i < input.files.length; i++) {
+      const file = input.files[i];
+
+      // Size validation (5MB)
       if (file.size > 5 * 1024 * 1024) {
         alert('Each photo must be less than 5MB');
-        return;
+        continue;
       }
 
       const reader = new FileReader();
-      reader.onload = () => {
-        this.inspectionPhotos.push({
-          file,
-          preview: reader.result as string
-        });
-      };
-      reader.readAsDataURL(file);
-    });
 
-    // Reset input so same image can be selected again
+      reader.onload = () => {
+        this.inspectionPhotos = [
+          ...this.inspectionPhotos,
+          {
+            file: file,
+            preview: reader.result as string
+          }
+        ];
+      };
+
+      reader.readAsDataURL(file);
+    }
+
+    // Reset input
     input.value = '';
   }
 
   removePhoto(index: number) {
     this.inspectionPhotos.splice(index, 1);
   }
+
 }

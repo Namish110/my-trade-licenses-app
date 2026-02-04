@@ -1,113 +1,90 @@
 <!-- ================= PAGE HEADER ================= -->
 <div class="page-header">
-  <div>
+  <div class="title-block">
     <h2>Manage Users & Roles</h2>
-    <p>Create users, assign roles, and manage access</p>
+    <p>Configure user access, roles, and office mapping</p>
   </div>
 
   <button class="btn-primary" (click)="addNewUser()">
     <i class="bi bi-plus-lg"></i>
-    Add New User
+    Add User
   </button>
 </div>
 
-<!-- ================= SEARCH BAR (LIVE SEARCH) ================= -->
-<div class="card search-card">
+<!-- ================= SEARCH ================= -->
+<!-- <div class="card search-card">
+  <i class="bi bi-search"></i>
   <input
     type="text"
-    class="search-input"
-    placeholder="🔍 Search by Login / Mobile / Designation"
+    placeholder="Search by Login / Mobile / Designation"
     [(ngModel)]="searchText"
     (input)="onSearchChange()" />
-
-  <button
-    class="btn-link clear-btn"
-    *ngIf="searchText"
-    (click)="clearSearch()">
-    Clear
-  </button>
-</div>
+  <button *ngIf="searchText" class="clear-btn" (click)="clearSearch()">✕</button>
+</div> -->
 
 <!-- ================= ADD / EDIT FORM ================= -->
 <div class="card form-card" *ngIf="selectedUser">
-  <h3 class="form-title">
-    {{ isEditMode ? 'Update User' : 'Add User' }}
-  </h3>
+  <div class="form-header">
+    <h3>{{ isEditMode ? 'Update User' : 'Add New User' }}</h3>
+    <span>User credentials and office assignment</span>
+  </div>
 
   <div class="form-grid">
-
-    <!-- LOGIN -->
     <div class="form-group">
-      <label>Login</label>
-      <input
-        type="text"
-        [(ngModel)]="selectedUser.login"
-        placeholder="Enter login"
-        [disabled]="isEditMode" />
+      <label>User Name</label>
+      <input type="text" [(ngModel)]="selectedUser.login" [disabled]="isEditMode" />
     </div>
 
-    <!-- PASSWORD -->
     <div class="form-group">
       <label>Password</label>
-      <input
-        type="password"
-        [(ngModel)]="selectedUser.password"
-        placeholder="Enter password"
-        [disabled]="isEditMode" />
+      <input type="password" [(ngModel)]="selectedUser.password" [disabled]="isEditMode" />
     </div>
 
-    <!-- MOBILE -->
     <div class="form-group">
-      <label>Mobile No</label>
-      <input
-        type="text"
-        [(ngModel)]="selectedUser.MobileNo"
-        placeholder="Enter mobile number" />
+      <label>Mobile Number</label>
+      <input type="text" [(ngModel)]="selectedUser.MobileNo" />
     </div>
 
-    <!-- OFFICE -->
     <div class="form-group">
-      <label>Office</label>
-      <select [(ngModel)]="selectedUser.officeDetailsID">
-        <option value="0">Select Office</option>
-        <option
-          *ngFor="let office of officeList"
-          [value]="office.officeID">
-          {{ office.officeName }}
+      <label>Zone</label>
+      <select [(ngModel)]="selectedUser.zoneID">
+        <option value="0">Select Zone</option>
+        <option *ngFor="let z of zones" [value]="z.zoneID">
+          {{ z.zoneName }}
         </option>
       </select>
     </div>
 
-    <!-- DESIGNATION -->
+    <div class="form-group">
+      <label>Office</label>
+      <select [(ngModel)]="selectedUser.officeDetailsID">
+        <option value="0">Select Office</option>
+        <option *ngFor="let o of officeList" [value]="o.officeID">
+          {{ o.officeName }}
+        </option>
+      </select>
+    </div>
+
     <div class="form-group">
       <label>Designation</label>
       <select [(ngModel)]="selectedUser.userDesignationID">
         <option value="0">Select Designation</option>
-        <option
-          *ngFor="let d of designationList"
-          [value]="d.userDesignationId">
+        <option *ngFor="let d of designationList" [value]="d.userDesignationId">
           {{ d.userDesignationName }}
         </option>
       </select>
     </div>
 
-    <!-- SAKALA DO CODE -->
     <div class="form-group">
       <label>Sakala DO Code</label>
-      <input
-        type="text"
-        [(ngModel)]="selectedUser.sakalaDO_Code"
-        placeholder="Enter Sakala DO Code" />
+      <input type="text" [(ngModel)]="selectedUser.sakalaDO_Code" />
     </div>
-
   </div>
 
-  <!-- FORM ACTIONS -->
   <div class="form-actions">
     <button class="btn-primary" (click)="saveUser()">
       {{ isEditMode ? 'Update User' : 'Save User' }}
     </button>
-
     <button class="btn-secondary" (click)="selectedUser = null">
       Cancel
     </button>
@@ -116,6 +93,20 @@
 
 <!-- ================= USERS TABLE ================= -->
 <div class="card table-card">
+   <!-- TABLE HEADER WITH SEARCH -->
+    <div class="table-header">
+      <h3>User List</h3>
+
+      <div class="table-search">
+        <i class="bi bi-search"></i>
+        <input
+          type="text"
+          placeholder="Search users..."
+          [(ngModel)]="searchText"
+          (input)="onSearchChange()" />
+        <button *ngIf="searchText" class="clear-btn" (click)="clearSearch()">✕</button>
+      </div>
+    </div>
   <table class="data-table">
     <thead>
       <tr>
@@ -133,29 +124,18 @@
         <td>{{ u.MobileNo }}</td>
         <td>{{ getOfficeName(u.officeDetailsID) }}</td>
         <td>{{ getDesignationName(u.userDesignationID) }}</td>
-
-        <td class="center actions">
-          <button
-            class="icon-btn edit"
-            title="Edit"
-            (click)="editUser(u)">
+        <td class="center">
+          <button class="icon-btn edit" (click)="editUser(u)">
             <i class="bi bi-pencil"></i>
           </button>
-
-          <button
-            class="icon-btn delete"
-            title="Delete"
-            (click)="deleteUser(u.loginID)">
+          <button class="icon-btn delete" (click)="deleteUser(u.loginID)">
             <i class="bi bi-trash"></i>
           </button>
         </td>
       </tr>
 
-      <!-- NO DATA -->
       <tr *ngIf="users.length === 0">
-        <td colspan="5" class="no-data">
-          No users found
-        </td>
+        <td colspan="5" class="no-data">No users found</td>
       </tr>
     </tbody>
   </table>
@@ -163,21 +143,11 @@
 
 <!-- ================= PAGINATION ================= -->
 <div class="pagination" *ngIf="totalRecords > pageSize">
-  <button
-    class="btn-secondary"
-    (click)="prevPage()"
-    [disabled]="pageNumber === 1">
-    Prev
+  <button class="btn-secondary" (click)="prevPage()" [disabled]="pageNumber === 1">
+    Previous
   </button>
-
-  <span class="page-info">
-    Page {{ pageNumber }} of {{ totalPages }}
-  </span>
-
-  <button
-    class="btn-secondary"
-    (click)="nextPage()"
-    [disabled]="pageNumber >= totalPages">
+  <span>Page {{ pageNumber }} of {{ totalPages }}</span>
+  <button class="btn-secondary" (click)="nextPage()" [disabled]="pageNumber >= totalPages">
     Next
   </button>
 </div>

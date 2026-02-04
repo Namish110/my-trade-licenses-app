@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { Zones } from '../../core/models/new-trade-licenses.model';
 
 /* ======================================================
    MODELS (STRICT & BACKEND-ALIGNED)
@@ -10,6 +11,7 @@ import { Observable } from 'rxjs';
 export interface LoginMasterRequest {
   login: string;
   password: string;
+  zoneID: number;
   officeDetailsID: number;
   userDesignationID: number;
   sakalaDO_Code: string;
@@ -22,6 +24,7 @@ export interface LoginMaster {
   loginID: number;
   login: string;
   password: string;
+  zoneID: number;
   officeDetailsID: number;
   userDesignationID: number;
   sakalaDO_Code: string;
@@ -78,6 +81,8 @@ export class UsersRolesService {
   private readonly officeUrl = `${this.baseUrl}/office-details/api/getall`;
   private readonly designationUrl =
     `${this.baseUrl}/office-details/api/get-all-user-designation`;
+  private readonly zonesUrl = `${this.baseUrl}/bbmp-zones`;
+
 
   constructor(private http: HttpClient) {}
 
@@ -192,5 +197,10 @@ export class UsersRolesService {
   /** USER DESIGNATION DROPDOWN */
   getUserDesignations(): Observable<UserDesignation[]> {
     return this.http.get<UserDesignation[]>(this.designationUrl);
+  }
+
+  //Get Zone Health Details
+  getZones(){
+    return this.http.get<Zones[]>(this.zonesUrl);
   }
 }

@@ -11,14 +11,14 @@
 
   <div class="field-block">
       <div class="field-header">
-        <label>Trade Categories</label>
+        <label>Trade Type</label>
         <div class="action-buttons">
-          <button class="icon-btn primary" (click)="openAddTradeCategoriesModal()" title="Add Trade Categories">
+          <button class="icon-btn primary" (click)="openModal('TRADE_CATEGORY')" title="Add Trade Categories">
             <i class="bi bi-plus-lg"></i>
           </button>
           <button
             class="icon-btn warning"
-            (click)="openAddTradeCategoriesModal()"
+            (click)="openModal('TRADE_CATEGORY', true)"
             title="Edit Trade Categories"
           >
             <i class="bi bi-pencil"></i>
@@ -28,12 +28,11 @@
 
       <select
         class="form-select"
-        [(ngModel)]="selectedMLAConstituency"
-        (change)="onMLAConstituencyChange()"
+        [(ngModel)]="selectedtradeTypes"
       >
-        <option [ngValue]="null">Select MLA Constituency</option>
-        <option *ngFor="let mla of mlaConstituencies" [ngValue]="mla">
-          {{ mla.mohName }}
+        <option [ngValue]="null">Select</option>
+        <option *ngFor="let tradeType of tradeTypes" [ngValue]="tradeType.tradeTypeID">
+          {{ tradeType.tradeTypeName }}
         </option>
       </select>
     </div>
@@ -55,13 +54,13 @@
       <div class="field-header">
         <label>MLA Constituency</label>
         <div class="action-buttons">
-          <button class="icon-btn primary" (click)="openAddMLAModal()" title="Add MLA">
+          <button class="icon-btn primary" (click)="openModal('MLA')" title="Add MLA">
             <i class="bi bi-plus-lg"></i>
           </button>
           <button
             class="icon-btn warning"
             [disabled]="!selectedMLAConstituency"
-            (click)="openEditMLAModal()"
+            (click)="openModal('MLA', true)"
             title="Edit MLA"
           >
             <i class="bi bi-pencil"></i>
@@ -89,7 +88,7 @@
           <button
             class="icon-btn primary"
             [disabled]="!selectedMLAConstituency"
-            (click)="openAddWardModal()"
+            (click)="openModal('WARD')"
             title="Add Ward"
           >
             <i class="bi bi-plus-lg"></i>
@@ -97,7 +96,7 @@
           <button
             class="icon-btn warning"
             [disabled]="!selectedWard"
-            (click)="openEditWardModal()"
+            (click)="openModal('WARD', true)"
             title="Edit Ward"
           >
             <i class="bi bi-pencil"></i>
@@ -130,11 +129,11 @@
           <div class="field-header">
             <label>Major Trade</label>
             <div class="action-buttons">
-              <button class="icon-btn primary" (click)="openAddMajorTradeModal()" title="Add Major Trade">
+              <button class="icon-btn primary" (click)="openModal('MAJOR_TRADE')" title="Add Major Trade">
                 <i class="bi bi-plus-lg"></i>
               </button>
               <button class="icon-btn warning" 
-                (click)="openAddMajorTradeModal()"
+                (click)="openModal('MAJOR_TRADE', true)"
                 title="Edit Major Trade">
                 <i class="bi bi-pencil"></i>
               </button>
@@ -157,7 +156,7 @@
               <button
                 class="icon-btn primary"
                 [disabled]="!selectedMajor"
-                (click)="openAddMinorTradeModal()"
+                (click)="openModal('MINOR_TRADE')"
                 title="Add Minor Trade"
               >
                 <i class="bi bi-plus-lg"></i>
@@ -165,7 +164,7 @@
               <button
                 class="icon-btn warning"
                 [disabled]="!tradeMajors"
-                (click)="openEditMinorTradeModal()"
+                (click)="openModal('MINOR_TRADE', true)"
                 title="Edit Minor Trade"
               >
                 <i class="bi bi-pencil"></i>
@@ -189,7 +188,7 @@
               <button
                 class="icon-btn primary"
                 [disabled]="!selectedMinor"
-                (click)="openAddSubTradeModal()"
+                (click)="openModal('SUB_TRADE')"
                 title="Add Sub Trade"
               >
                 <i class="bi bi-plus-lg"></i>
@@ -197,7 +196,7 @@
               <button
                 class="icon-btn warning"
                 [disabled]="!selectedSub"
-                (click)="openAddSubTradeModal()"
+                (click)="openModal('SUB_TRADE', true)"
                 title="Edit Sub Trade"
               >
                 <i class="bi bi-pencil"></i>
@@ -247,12 +246,12 @@
         <div class="field-header">
           <label>Jurisdiction of Health Officer (Zone)</label>
           <div class="action-buttons">
-            <button class="icon-btn primary" (click)="openAddJurisdictionOdHoModal()" title="Add Health Officer">
+            <button class="icon-btn primary" (click)="openModal('ZONE')" title="Add Health Officer">
               <i class="bi bi-plus-lg"></i>
             </button>
             <button
               class="icon-btn warning"
-              (click)="openAddJurisdictionOdHoModal()"
+              (click)="openModal('ZONE', true)"
               title="Edit Health Officer"
             >
               <i class="bi bi-pencil"></i>
@@ -288,12 +287,12 @@
       <div class="field-header">
         <label>Zone Classification</label>
         <div class="action-buttons">
-          <button class="icon-btn primary" (click)="openAddZoneClassificationModal()" title="Add Zone Classification">
+          <button class="icon-btn primary" (click)="openModal('ZONE_CLASSIFICATION')" title="Add Zone Classification">
             <i class="bi bi-plus-lg"></i>
           </button>
           <button
             class="icon-btn warning"
-            (click)="openAddZoneClassificationModal()"
+            (click)="openModal('ZONE_CLASSIFICATION', true)"
             title="Edit Health Officer"
           >
             <i class="bi bi-pencil"></i>
@@ -337,159 +336,72 @@
   </div>
 </div>
 
-<!-- MLA MODAL -->
-<div class="modal-backdrop" *ngIf="showMLAModal">
+  <!-- MODAL -->
+<div class="modal-backdrop" *ngIf="activeModal">
   <div class="modal-container">
-    <h3>{{ isEditMLA ? 'Edit MLA Constituency' : 'Add MLA Constituency' }}</h3>
 
-    <form [formGroup]="mlaForm">
-      <div class="form-row">
-        <label>MLA Name</label>
-        <input
-          type="text"
-          formControlName="mohName"
-          class="form-control"
-        />
-      </div>
+    <h3>
+      {{ isEditMode ? 'Edit' : 'Add' }}
+      {{ activeModal.replace('_', ' ') }}
+    </h3>
 
-      <div class="modal-actions">
-        <button class="btn-secondary" type="button" (click)="showMLAModal = false">
-          Cancel
-        </button>
-
-        <button class="btn-primary" type="button" [disabled]="mlaForm.invalid">
-          {{ isEditMLA ? 'Update' : 'Save' }}
-        </button>
-      </div>
+    <!-- MLA -->
+    <form *ngIf="activeModal === 'MLA'" [formGroup]="mlaForm">
+      <label>MLA Name</label>
+      <input class="form-control" formControlName="mohName" />
     </form>
-  </div>
-</div>
 
-<!-- WARD MODAL -->
-<div class="modal-backdrop" *ngIf="showWardModal">
-  <div class="modal-container">
-    <h3>{{ isEditWard ? 'Edit Ward' : 'Add Ward' }}</h3>
-
-    <form [formGroup]="wardForm">
-      <div class="form-row">
-        <label>Ward Name</label>
-        <input
-          type="text"
-          formControlName="wardName"
-          class="form-control"
-        />
-      </div>
-
-      <div class="modal-actions">
-        <button class="btn-secondary" type="button" (click)="showWardModal = false">
-          Cancel
-        </button>
-
-        <button class="btn-primary" type="button" [disabled]="wardForm.invalid">
-          {{ isEditWard ? 'Update' : 'Save' }}
-        </button>
-      </div>
+    <!-- Ward -->
+    <form *ngIf="activeModal === 'WARD'" [formGroup]="wardForm">
+      <label>Ward Name</label>
+      <input class="form-control" formControlName="wardName" />
     </form>
-  </div>
-</div>
 
-<!-- Trade Category Modal -->
-<div class="modal-backdrop" *ngIf="showTradeCategoryModal">
-  <div class="modal-container">
-    <h3>{{ isEditTradeCategory ? 'Edit Trade Category' : 'Add Trade Category' }}</h3>
-
-    <form [formGroup]="tradeCategoryForm">
-      <label>Trade Category Name</label>
-      <input class="form-control" formControlName="tradeCategoryName" />
-
-      <div class="modal-actions">
-        <button class="btn-secondary" (click)="showTradeCategoryModal=false">Cancel</button>
-        <button class="btn-primary" [disabled]="tradeCategoryForm.invalid">Save</button>
-      </div>
-    </form>
-  </div>
-</div>
-
-<!-- Major Trade Modal -->
-<div class="modal-backdrop" *ngIf="showMajorTradeModal">
-  <div class="modal-container">
-    <h3>{{ isEditMajorTrade ? 'Edit Major Trade' : 'Add Major Trade' }}</h3>
-
-    <form [formGroup]="majorTradeForm">
+    <!-- Major Trade -->
+    <form *ngIf="activeModal === 'MAJOR_TRADE'" [formGroup]="majorTradeForm">
       <label>Major Trade Name</label>
       <input class="form-control" formControlName="tradeMajorName" />
-
-      <div class="modal-actions">
-        <button class="btn-secondary" (click)="showMajorTradeModal=false">Cancel</button>
-        <button class="btn-primary" [disabled]="majorTradeForm.invalid">Save</button>
-      </div>
     </form>
-  </div>
-</div>
 
-<!-- Minor Trade Modal -->
-<div class="modal-backdrop" *ngIf="showMinorTradeModal">
-  <div class="modal-container">
-    <h3>{{ isEditMinorTrade ? 'Edit Minor Trade' : 'Add Minor Trade' }}</h3>
-
-    <form [formGroup]="minorTradeForm">
+    <!-- Minor Trade -->
+    <form *ngIf="activeModal === 'MINOR_TRADE'" [formGroup]="minorTradeForm">
       <label>Minor Trade Name</label>
       <input class="form-control" formControlName="tradeMinorName" />
-
-      <div class="modal-actions">
-        <button class="btn-secondary" (click)="showMinorTradeModal=false">Cancel</button>
-        <button class="btn-primary" [disabled]="minorTradeForm.invalid">Save</button>
-      </div>
     </form>
-  </div>
-</div>
-<!-- Sub Trade Modal -->
-<div class="modal-backdrop" *ngIf="showSubTradeModal">
-  <div class="modal-container">
-    <h3>{{ isEditSubTrade ? 'Edit Sub Trade' : 'Add Sub Trade' }}</h3>
 
-    <form [formGroup]="subTradeForm">
+    <!-- Sub Trade -->
+    <form *ngIf="activeModal === 'SUB_TRADE'" [formGroup]="subTradeForm">
       <label>Sub Trade Name</label>
       <input class="form-control" formControlName="tradeSubName" />
-
-      <div class="modal-actions">
-        <button class="btn-secondary" (click)="showSubTradeModal=false">Cancel</button>
-        <button class="btn-primary" [disabled]="subTradeForm.invalid">Save</button>
-      </div>
     </form>
-  </div>
-</div>
 
-<!-- Zone Modal -->
-<div class="modal-backdrop" *ngIf="showZoneModal">
-  <div class="modal-container">
-    <h3>{{ isEditZone ? 'Edit Zone' : 'Add Zone' }}</h3>
-
-    <form [formGroup]="zoneForm">
+    <!-- Zone -->
+    <form *ngIf="activeModal === 'ZONE'" [formGroup]="zoneForm">
       <label>Zone Name</label>
       <input class="form-control" formControlName="zoneName" />
-
-      <div class="modal-actions">
-        <button class="btn-secondary" (click)="showZoneModal=false">Cancel</button>
-        <button class="btn-primary" [disabled]="zoneForm.invalid">Save</button>
-      </div>
     </form>
-  </div>
-</div>
 
-<!-- Zone Classification Modal -->
-<div class="modal-backdrop" *ngIf="showZoneClassificationModal">
-  <div class="modal-container">
-    <h3>{{ isEditZoneClassification ? 'Edit Zone Classification' : 'Add Zone Classification' }}</h3>
-
-    <form [formGroup]="zoneClassificationForm">
+    <!-- Zone Classification -->
+    <form *ngIf="activeModal === 'ZONE_CLASSIFICATION'" [formGroup]="zoneClassificationForm">
       <label>Zone Classification Name</label>
       <input class="form-control" formControlName="zonalClassificationName" />
-
-      <div class="modal-actions">
-        <button class="btn-secondary" (click)="showZoneClassificationModal=false">Cancel</button>
-        <button class="btn-primary" [disabled]="zoneClassificationForm.invalid">Save</button>
-      </div>
     </form>
+
+    <!-- Trade Category Name -->
+    <form *ngIf="activeModal === 'TRADE_CATEGORY'" [formGroup]="tradeCategoryForm">
+      <label>Trade Category Name</label>
+      <input class="form-control" formControlName="tradeCategoryName" />
+    </form>
+
+    <!-- Actions -->
+    <div class="modal-actions">
+      <button class="btn-secondary" (click)="activeModal = null">
+        Cancel
+      </button>
+      <button type="button" class="btn-primary" (click)="saveModal()">
+        {{ isEditMode ? 'Update' : 'Save' }}
+      </button>
+    </div>
+
   </div>
 </div>

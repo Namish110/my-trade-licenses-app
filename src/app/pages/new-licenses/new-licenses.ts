@@ -516,6 +516,24 @@ restoreDraftIfExists(draftId: number): void {
     }
   }
 
+  canProceedRoadWidth(): boolean {
+    // Case 1: User confirmed road width from API
+    if (this.roadWidthConfirmed === true) {
+      return true;
+    }
+
+    // Case 2: User entered manual road width
+    if (
+      this.roadWidthConfirmed === false &&
+      this.manualRoadWidth !== null &&
+      this.manualRoadWidth > 0
+    ) {
+      return true;
+    }
+
+    return false;
+  }
+
 
   /* =========================
      APPLICANT
@@ -1007,7 +1025,7 @@ fetchRoadWidth(lng: number, lat: number) {
         return;
       }
 
-      // ❌ KGIS FAILURE
+      //  KGIS FAILURE
       this.roadWidthStatus = apiMsg;
 
       this.notificationservice.show(
