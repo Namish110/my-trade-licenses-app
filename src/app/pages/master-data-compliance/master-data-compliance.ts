@@ -34,6 +34,9 @@ export class MasterDataCompliance {
   ngOnInit() {
     this.loadTradeTypes();
     this.loadMLAConstituencies();
+    this.loadTradeMajors();
+    this.loadZones();
+    this.loadZoneClassification();
     this.initForms();
   }
 
@@ -50,8 +53,8 @@ export class MasterDataCompliance {
     });
 
     this.tradeCategoryForm = this.fb.group({
-      tradeCategoryID: [null],
-      tradeCategoryName: ['', Validators.required]
+      tradeTypeID: [null],
+      tradeTypeName: ['', Validators.required]
     });
 
     this.majorTradeForm = this.fb.group({
@@ -97,7 +100,6 @@ export class MasterDataCompliance {
     selectedMajor: TradeMajor | null = null;
     selectedMinor: TradeMinor | null = null;
     selectedSub: TradeSub | null = null;
-    selectedTradeType: TradeType | null = null;
     selectedMLAConstituency: MLCConstituency | null = null;
     selectedWard: Ward | null = null;
     selectedZone: Zones | null = null;
@@ -149,8 +151,8 @@ export class MasterDataCompliance {
 
       case 'TRADE_CATEGORY':
         this.tradeCategoryForm.reset();
-        if (edit && this.selectedTradeType) {
-          this.tradeCategoryForm.patchValue(this.selectedTradeType);
+        if (edit && this.selectedtradeTypes) {
+          this.tradeCategoryForm.patchValue(this.selectedtradeTypes);
         }
         break;
 
@@ -288,10 +290,37 @@ export class MasterDataCompliance {
       });
   }
 
+  //to load zones
+  loadZones(){
+    this.masterDataComplianceService.getZones().subscribe({
+      next: (res) => {
+        this.zones = res;
+      },
+      error: (err) => console.error(err)
+    });
+  }
+
+  //to load zonesclassification
+  loadZoneClassification(){
+    this.masterDataComplianceService.getZoneClassification().subscribe({
+      next: (res) => {
+        this.zoneClassifications = res;
+      },
+      error: (err) => console.error(err)
+    });
+    
+  }
+
   saveModal() {
     switch (this.activeModal) {
       case 'MLA':
-        console.log(this.mlaForm.value);
+        const mlaConstituenciesformValue = this.mlaForm.value;
+        if(mlaConstituenciesformValue.mohID){
+          //Update logic here
+        }else{
+          //Save logic here
+        }
+        console.log(mlaConstituenciesformValue);
         break;
 
       case 'WARD':
@@ -319,7 +348,7 @@ export class MasterDataCompliance {
         break;
 
       case 'TRADE_CATEGORY':
-        console.log(this.zoneClassificationForm.value);
+        console.log(this.tradeCategoryForm.value);
         break;
     }
 
