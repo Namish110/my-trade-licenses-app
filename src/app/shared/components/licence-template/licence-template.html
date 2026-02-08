@@ -1,0 +1,89 @@
+<div class="certificate">
+  <div class="watermark">
+    <img src="/WATERMARK.png" alt="BBMP Watermark">
+  </div>
+
+  <div class="content-wrapper">
+    <div class="header-box">
+      <div class="logo">
+        <img src="/LOGO.png" alt="BBMP Logo">
+      </div>
+      <div class="header-text">
+        <h1>BRUHAT BANGALORE MAHANAGARA PALIKE</h1>
+        <h2>Health Department, Shivaji Nagar MOH</h2>
+        <h3>Trade Licence Certificate</h3>
+      </div>
+    </div>
+
+    <div class="row split">
+      <div class="left">Ward : {{ wardName }}</div>
+      <div class="right"><span class="box">{{ licenceNo }}</span></div>
+    </div>
+
+    <div class="row split">
+      <div class="left"><span class="box">Application No: {{ applicationNo }}</span></div>
+      <div class="right">Year : {{ financialYear }}</div>
+    </div>
+
+    <div class="content">
+      This is to certify that <b>M/s / Smt / Shri {{ applicantName }}</b>
+      has been issued a trade license bearing no:
+      <b>{{ licenceNo }}</b> dated <b>{{ licenceDate }}</b>
+      to carry out <b>{{ tradeName }}</b> trade at
+      <b>{{ tradeAddress }}</b> with <b>{{ sanctionedPower }}</b> sanctioned.
+    </div>
+
+    <table>
+      <tr>
+        <th>Major Trade Name</th>
+        <th>Minor Trade Name</th>
+        <th>Sub Trade Name</th>
+      </tr>
+      <tr>
+        <td>{{ majorTrade }}</td>
+        <td>{{ minorTrade }}</td>
+        <td>{{ subTrade }}</td>
+      </tr>
+    </table>
+
+    <div class="conditions">
+      <b>The licence is issued subject to the conditions specified in the byelaws for the said trade. Some of the important conditions are,</b>
+      <ol>
+        <li>This licence is issued subject to the conditions specified in the byelaws of KMC act.</li>
+        <li>The licence certificate must be exhibited in a prominent place of the trade premises for public view.</li>
+        <li>To ensure that the hygiene and sanitation of trade premises is maintained to safeguard the health of the public.</li>
+        <li>To adhere to food safety measures as per FSSAI act.</li>
+        <li>All safety measures w.r.t public health like MSW rules / COTPA act / plastic handling and management rules.</li>
+        <li>This issuance of licence certificate shall not absolve the grantee from any obligations cast on him.</li>
+        <li>This licence certificate holds good to run the trade for which it is granted only.</li>
+        <li>The signage's, display boards to be displayed prominently in kannada language in the trade premises.</li>
+      </ol>
+    </div>
+
+    <div class="footer-text">
+      Trade & Power licence valid upto <b>{{ validUpto }}</b> (1 Years) and received fees of
+      <b>Rs. {{ feesPaid }}</b> on <b>{{ paymentMode }}</b> with vide receipt No.
+      <b>{{ receiptNo }}</b>, dated <b>{{ paymentDate }}</b>.
+    </div>
+
+    <div class="footer-text">
+      Kindly renew the trade license before <b>{{ renewBefore }}</b> to avoid the penality.
+    </div>
+
+    <div class="footer">
+      <div>
+        Bangalore<br>
+        Dated.
+      </div>
+      <div class="signature">
+        Medical Officer of Health<br>
+        Bruhat Bangalore Mahanagara Palike<br>
+        Bangalore
+      </div>
+    </div>
+
+    <div class="center">
+      {{ qrCodeOrCertificateHash }}
+    </div>
+  </div>
+</div>

@@ -21,6 +21,8 @@ import { RevenueCollection } from './shared/components/reports/revenue-collectio
 import { WardWiseLicenses } from './shared/components/reports/ward-wise-licenses/ward-wise-licenses';
 import { Inspection } from './pages/inspection/inspection';
 import { ViewLicensesApplication } from './pages/view-licenses-application/view-licenses-application';
+import { LicenceCertificate } from './pages/licence-certificate/licence-certificate';
+import { LicenceCertificateLookup } from './pages/licence-certificate-lookup/licence-certificate-lookup';
 import { PaymentSuccess } from './shared/components/payment-success/payment-success';
 import { PaymentFailed } from './shared/components/payment-failed/payment-failed';
 
@@ -79,6 +81,8 @@ export const routes: Routes = [
       { path: 'renewal-status', component: RenewalStatus },
       { path: 'track-application', component: TrackApplication },
       { path: 'view-licenses-application/:licensesApplicationId', component: ViewLicensesApplication },
+      { path: 'licence-certificate/:licensesApplicationId', component: LicenceCertificate },
+      { path: 'licence-certificate-lookup', component: LicenceCertificateLookup },
       { path: 'payment-success', component: PaymentSuccess },
       { path: 'payment-failed', component: PaymentFailed }
     ]

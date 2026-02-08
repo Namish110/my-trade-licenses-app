@@ -1,0 +1,19 @@
+<div class="lookup-page">
+  <div class="lookup-card">
+    <h2>Generate Licence Certificate</h2>
+    <p class="subtitle">Enter the application number to generate the licence.</p>
+
+    <label for="applicationNumber" class="form-label">Application Number</label>
+    <input
+      id="applicationNumber"
+      type="text"
+      class="form-control"
+      [(ngModel)]="applicationNumber"
+      placeholder="e.g. N14152406351023"
+    />
+
+    <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+
+    <button class="btn btn-primary" (click)="generate()">Generate Licence</button>
+  </div>
+</div>

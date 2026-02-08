@@ -1,0 +1,204 @@
+:host {
+  display: block;
+  font-family: "Times New Roman", serif;
+  background: #ffffff;
+  margin: 0;
+  padding: 0;
+}
+
+.certificate {
+  width: 794px;
+  min-height: 1123px;
+  margin: 20px auto;
+  padding: 25px 30px;
+  border: 1px solid #000;
+  box-sizing: border-box;
+  position: relative;
+  overflow: hidden;
+  background: #fff;
+}
+
+.watermark {
+  position: absolute;
+  top: 33%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 1;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.watermark img {
+  width: 1000px;
+  display: block;
+}
+
+.content-wrapper {
+  position: relative;
+  z-index: 2;
+}
+
+.header-box {
+  border: 1px solid #000;
+  padding: 8px 12px 8px 78px;
+  position: relative;
+  text-align: center;
+  min-height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo {
+  position: absolute;
+  left: 10px;
+  top: 8px;
+}
+
+.logo img {
+  height: 48px;
+  width: auto;
+}
+
+.header-text {
+  display: inline-block;
+}
+
+.header-box h1 {
+  font-size: 18px;
+  margin: 2px 0;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.2px;
+}
+
+.header-box h2 {
+  font-size: 13px;
+  margin: 2px 0 0;
+  font-weight: normal;
+}
+
+.header-box h3 {
+  font-size: 15px;
+  margin: 3px 0 0;
+  font-weight: bold;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 12px;
+  font-size: 13px;
+  gap: 12px;
+}
+
+.row.split .left,
+.row.split .right {
+  flex: 1;
+}
+
+.row.split .left {
+  text-align: left;
+}
+
+.row.split .right {
+  text-align: right;
+}
+
+.row.split .box {
+  display: inline-block;
+  min-width: 200px;
+  text-align: center;
+}
+
+.box {
+  border: 1px solid #000;
+  padding: 2px 6px;
+  font-weight: bold;
+}
+
+.label {
+  font-weight: bold;
+}
+
+.content {
+  margin-top: 12px;
+  font-size: 13px;
+  line-height: 1.45;
+  text-align: justify;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+  font-size: 12px;
+}
+
+table th,
+table td {
+  border: 1px solid #000;
+  padding: 6px;
+  vertical-align: top;
+}
+
+table th {
+  text-align: center;
+  font-weight: bold;
+}
+
+.conditions {
+  margin-top: 12px;
+  font-size: 12px;
+}
+
+.conditions ol {
+  margin: 5px 0 0 18px;
+  padding: 0;
+}
+
+.footer-text {
+  margin-top: 10px;
+  font-size: 12px;
+}
+
+.footer {
+  margin-top: 35px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+}
+
+.signature {
+  text-align: center;
+}
+
+.center {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 12px;
+}
+
+@media print {
+  .certificate {
+    width: 200mm;
+    height: 287mm;
+    min-height: 287mm;
+    margin: 0 auto;
+    padding: 10mm 10mm;
+    border: 1px solid #000;
+    box-sizing: border-box;
+    break-inside: avoid;
+    page-break-inside: avoid;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .watermark {
+    opacity: 0.18;
+  }
+
+  .watermark img {
+    width: 120mm;
+  }
+}

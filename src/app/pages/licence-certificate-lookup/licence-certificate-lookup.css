@@ -1,0 +1,52 @@
+.lookup-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f3f4f6;
+  padding: 24px;
+}
+
+.lookup-card {
+  width: min(520px, 100%);
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 28px;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.12);
+  display: grid;
+  gap: 12px;
+}
+
+.lookup-card h2 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.subtitle {
+  margin: 0;
+  color: #475569;
+  font-size: 14px;
+}
+
+.form-label {
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.form-control {
+  border-radius: 8px;
+  border: 1px solid #cbd5f5;
+  padding: 10px 12px;
+  font-size: 14px;
+}
+
+.error-message {
+  color: #b91c1c;
+  font-size: 13px;
+}
+
+.btn.btn-primary {
+  justify-self: start;
+}

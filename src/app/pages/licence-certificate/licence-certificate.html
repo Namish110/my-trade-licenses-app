@@ -1,0 +1,38 @@
+<div class="license-certificate-page">
+  <div class="page-actions">
+    <button
+      class="btn btn-outline-secondary"
+      [routerLink]="['/trader/view-licenses-application', licenceApplicationId]"
+    >
+      Back to Application
+    </button>
+    <button class="btn btn-secondary" (click)="printCertificate()">Print</button>
+    <button class="btn btn-primary" (click)="downloadPdf()">Download PDF</button>
+  </div>
+
+  <div *ngIf="loading" class="loading-state">Loading certificate...</div>
+  <div *ngIf="!loading && errorMessage" class="error-state">{{ errorMessage }}</div>
+
+  <app-licence-template
+    *ngIf="!loading && !errorMessage"
+    [wardName]="viewModel.wardName"
+    [licenceNo]="viewModel.licenceNo"
+    [applicationNo]="viewModel.applicationNo"
+    [financialYear]="viewModel.financialYear"
+    [applicantName]="viewModel.applicantName"
+    [licenceDate]="viewModel.licenceDate"
+    [tradeName]="viewModel.tradeName"
+    [tradeAddress]="viewModel.tradeAddress"
+    [sanctionedPower]="viewModel.sanctionedPower"
+    [majorTrade]="viewModel.majorTrade"
+    [minorTrade]="viewModel.minorTrade"
+    [subTrade]="viewModel.subTrade"
+    [validUpto]="viewModel.validUpto"
+    [feesPaid]="viewModel.feesPaid"
+    [paymentMode]="viewModel.paymentMode"
+    [receiptNo]="viewModel.receiptNo"
+    [paymentDate]="viewModel.paymentDate"
+    [renewBefore]="viewModel.renewBefore"
+    [qrCodeOrCertificateHash]="viewModel.qrCodeOrCertificateHash"
+  ></app-licence-template>
+</div>
