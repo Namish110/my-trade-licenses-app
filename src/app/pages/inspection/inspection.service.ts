@@ -54,4 +54,9 @@ export class InspectionService {
     );
   }
   //Documents for inspection
+
+  //Submit Inspection detailss
+  submitInspection(inspectionData: any){
+    return this.http.post(`${this.baseUrl}/licence-workflow/action`, inspectionData);
+  }
 }

@@ -1,4 +1,12 @@
 <div class="payment-container success">
+
+  <div class="alert alert-success fw-bold text-center">
+    ✔ APPLICATION SUBMITTED SUCCESSFULLY
+  </div>
+
+  <!-- <h6>Temporary Application No:</h6>
+  <strong class="fs-5 text-primary">T4RE1821K</strong> -->
+
   <h2>✅ Payment Successful</h2>
 
   <p class="success-text">
@@ -6,13 +14,15 @@
   </p>
 
   <div class="details-card">
-    <p><strong>Application No:</strong> {{ applicationNo }}</p>
+    <p><strong>Application No:</strong> {{ licensesApplicationId }}</p>
     <p><strong>Transaction ID:</strong> {{ txnId }}</p>
     <p><strong>Amount Paid:</strong> ₹{{ amount }}</p>
-    <p><strong>Payment Date:</strong> {{ paymentDate | date:'medium' }}</p>
+    <p><strong>Email:</strong> {{ email }}</p>
+    <p><strong>Phone:</strong> {{ phone }}</p>
+    <!-- <p><strong>Corporation ID:</strong> {{ corporationId }}</p> -->
   </div>
 
-  <button class="btn btn-primary" (click)="goToApplication()">
+  <!-- <button class="btn btn-primary" (click)="goToApplication()">
     View Applications
-  </button>
+  </button> -->
 </div>

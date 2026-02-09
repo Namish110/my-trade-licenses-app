@@ -29,3 +29,68 @@
 .kpi-card.warning { background: #ff9800; }
 .kpi-card.info    { background: #2196f3; }
 .kpi-card.danger  { background: #f44336; }
+/* ================= ANALYTICS CARDS ================= */
+.analytics-card {
+  background: #fff;
+  border-radius: 6px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+  height: 100%;
+}
+
+.analytics-header {
+  padding: 12px 15px;
+  font-size: 14px;
+  font-weight: 600;
+  border-bottom: 1px solid #eee;
+}
+
+.analytics-body {
+  padding: 15px;
+  height: 260px;
+}
+
+/* ================= INSIGHTS ================= */
+.insight-list {
+  list-style: none;
+  padding-left: 0;
+  font-size: 14px;
+}
+
+.insight-list li {
+  margin-bottom: 8px;
+}
+
+/* ================= ACTION PANEL ================= */
+.action-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.action-item {
+  padding: 10px;
+  border-radius: 5px;
+  font-size: 13px;
+}
+
+.action-item.danger {
+  background: #fdecea;
+  color: #b71c1c;
+}
+
+.action-item.warning {
+  background: #fff4e5;
+  color: #e65100;
+}
+
+.action-item.info {
+  background: #e3f2fd;
+  color: #0d47a1;
+}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 768px) {
+  .analytics-body {
+    height: auto;
+  }
+}

@@ -1,8 +1,7 @@
 <div class="dashboard-wrapper">
-  <!-- ================= CONTENT ================= -->
   <div class="container dashboard-content">
 
-    <!-- KPI CARDS -->
+    <!-- ================= KPI CARDS ================= -->
     <div class="row g-3 mb-4">
       <div class="col-md-3">
         <div class="kpi-card primary">
@@ -32,5 +31,70 @@
         </div>
       </div>
     </div>
+
+    <!-- ================= ANALYTICS ================= -->
+    <div class="row g-3 mb-4">
+      <!-- Status Distribution -->
+      <div class="col-md-4">
+        <div class="analytics-card">
+          <div class="analytics-header">Final Decision Status</div>
+          <div class="analytics-body">
+            <canvas id="finalStatusChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Decision Trend -->
+      <div class="col-md-8">
+        <div class="analytics-card">
+          <div class="analytics-header">Approval Trend (Last 30 Days)</div>
+          <div class="analytics-body">
+            <canvas id="decisionTrendChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= OPERATIONAL INSIGHTS ================= -->
+    <div class="row g-3">
+      <!-- Risk / Value Analysis -->
+      <div class="col-md-6">
+        <div class="analytics-card">
+          <div class="analytics-header">Risk & Value Analysis</div>
+          <div class="analytics-body">
+            <ul class="insight-list">
+              <li>🔍 4 high-value applications require review</li>
+              <li>⚠ 2 applications delayed beyond SLA</li>
+              <li>📄 3 inspections need clarification</li>
+            </ul>
+            <button class="btn btn-sm btn-outline-primary mt-2">
+              Review High-Risk Applications
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Panel -->
+      <div class="col-md-6">
+        <div class="analytics-card">
+          <div class="analytics-header">Immediate Actions</div>
+          <div class="analytics-body action-panel">
+            <div class="action-item danger">
+              ⏰ 2 decisions overdue
+            </div>
+            <div class="action-item warning">
+              ⌛ 6 pending final approvals
+            </div>
+            <div class="action-item info">
+              📤 3 escalations awaiting response
+            </div>
+            <button class="btn btn-sm btn-outline-danger mt-2">
+              View Priority Queue
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
