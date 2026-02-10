@@ -65,7 +65,7 @@ selectedRectangle!: google.maps.Rectangle;
   infoAboutRules3: any = 'I/We further understand that the Trade license may be suspended or cancelled in the event it is found that the business is being run in the premises that violating existing rules and zonal regulation as per the Comprehensive Development Plan 2015 issued by Bangalore Development Authority.';
   infoAboutRules4: any = 'I/We further undertake to have no objection in the authorities revoking the trade license in case there is any discrepancies,disputes,defects or false information in any documentation that is submitted by me/us as stated in the application form.';
   infoAboutRules5: any = 'I/We undertake that I/We will not employ/engage child labour for the purpose of carrying the trade.';
-  infoAboutRules6: any = 'I/We declare that incase of any objections/Complaints raised by immediate neighbors,I/We shall furnish all the documents and take corrective action as per the BBMP act.';
+  infoAboutRules6: any = 'I/We declare that incase of any objections/Complaints raised by immediate neighbors,I/We shall furnish all the documents and take corrective action as per the KMC act.';
 
   //Creating a trade major list 
   tradeMajors : TradeMajor[] = [];
@@ -225,49 +225,6 @@ autoDetectCurrentLocation() {
       timeout: 10000
     }
   );
-}
-restoreDraftIfExists(draftId: number): void {
-
-  this.loaderservice.show();
-
-  this.newLicensesService
-    .get(`/licence-application/${draftId}`)
-    .subscribe({
-      next: (res: any) => {
-
-        // 🔥 Restore STEP FIRST
-        this.currentStep = res.lastCompletedStep ?? 1;
-
-        // 🔥 Restore main objects
-        this.tradeLicenseApplications = res;
-        this.tradeLicenseApplicationDetails = res.tradeLicenceDetails;
-
-        // 🔥 Restore dropdown selections
-        this.selectedTradeType = this.tradeTypes
-          .find(t => t.tradeTypeID === res.tradeTypeID) ?? null;
-
-        this.selectedMLAConstituency = this.mlaConstituencies
-          .find(m => m.mohID === res.mohID) ?? null;
-
-        this.selectedWard = this.wards
-          .find(w => w.wardID === res.wardID) ?? null;
-
-        // 🔥 Restore location
-        if (res.latitude && res.longitude) {
-          this.setLocation(res.latitude, res.longitude);
-          this.roadWidthConfirmed = true;
-        }
-
-        this.loaderservice.hide();
-      },
-      error: () => {
-        this.loaderservice.hide();
-        this.notificationservice.show(
-          'Failed to restore saved draft',
-          'error'
-        );
-      }
-    });
 }
 
   startApplication() {
@@ -490,11 +447,6 @@ restoreDraftIfExists(draftId: number): void {
         }, 300);
       }
     }
-  }
-
-  isValidEmail(email: string): boolean {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
   }
 
   prevStep() {

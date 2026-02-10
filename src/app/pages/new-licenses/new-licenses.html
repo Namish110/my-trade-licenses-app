@@ -138,8 +138,8 @@
         </div>
         <div class="row g-3">
           <div class="col-md-4">
-            <label class="required">Emaild</label>
-            <input class="form-control" id="emailID" [(ngModel)]="tradeLicenseApplicationDetails.emailID" name="emailID">
+            <label>Email</label>
+            <input class="form-control" [(ngModel)]="tradeLicenseApplicationDetails.emailID">
           </div>
           <div class="col-md-4">
             <label class="required">Mobile No.</label>
@@ -541,14 +541,14 @@
 
         </div>
 
-        <div class="d-flex justify-content-between mt-4">
-          <button class="btn btn-outline-secondary" (click)="prevStep()">← Back</button>
-        <button class="btn btn-primary"
-              [disabled]="!canProceedRoadWidth()"
-              (click)="nextStep()">
-        Continue →
-      </button>
-        </div>
+  <div class="d-flex justify-content-between mt-4">
+    <button class="btn btn-outline-secondary" (click)="prevStep()">← Back</button>
+  <button class="btn btn-primary"
+        [disabled]="roadWidthConfirmed !== true"
+        (click)="nextStep()">
+  Continue →
+</button>
+  </div>
 
       </div>
 
