@@ -23,6 +23,8 @@ import { Inspection } from './pages/inspection/inspection';
 import { ViewLicensesApplication } from './pages/view-licenses-application/view-licenses-application';
 import { LicenceCertificate } from './pages/licence-certificate/licence-certificate';
 import { LicenceCertificateLookup } from './pages/licence-certificate-lookup/licence-certificate-lookup';
+import { AdminLicenceApplications } from './pages/admin-licence-applications/admin-licence-applications';
+import { AdminLicenceApplicationDetails } from './pages/admin-licence-application-details/admin-licence-application-details';
 import { PaymentSuccess } from './shared/components/payment-success/payment-success';
 import { PaymentFailed } from './shared/components/payment-failed/payment-failed';
 
@@ -56,6 +58,10 @@ export const routes: Routes = [
       { path: 'user-roles', component: UsersRoles },
       { path: 'system-settings', component: SystemSettings },
       { path: 'master-data-compliance', component: MasterDataCompliance },
+      { path: 'licence-certificate-lookup', component: LicenceCertificateLookup },
+      { path: 'licence-certificate/:licensesApplicationId', component: LicenceCertificate },
+      { path: 'licence-applications', component: AdminLicenceApplications },
+      { path: 'licence-applications/:licenceApplicationId', component: AdminLicenceApplicationDetails },
 
       // REPORT PAGES (FLAT)
       { path: 'reports/control-sheet', component: ControlSheet },

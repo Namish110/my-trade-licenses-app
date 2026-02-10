@@ -1,10 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, ViewEncapsulation } from '@angular/core';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { Component, ViewEncapsulation, HostListener } from '@angular/core';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { LicenceTemplate } from '../../shared/components/licence-template/licence-template';
 import { InspectionService } from '../inspection/inspection.service';
 import { LicenceApplicationModel } from '../../core/models/trade-licenses-details.model';
 import { ApiService } from '../../core/services/api.service';
+import { timeout } from 'rxjs/operators';
 
 interface ApprovedLicenceCertificateItem {
   licenceApplicationID: number;
@@ -86,11 +87,20 @@ export class LicenceCertificate {
   constructor(
     private route: ActivatedRoute,
     private inspectionService: InspectionService,
-    private api: ApiService
+    private api: ApiService,
+    private router: Router
   ) {}
+
+  private from = '';
 
   ngOnInit(): void {
     const rawParam = this.route.snapshot.paramMap.get('licensesApplicationId') ?? '';
+    this.from = this.route.snapshot.queryParamMap.get('from') ?? '';
+    const refId = this.route.snapshot.queryParamMap.get('licenceApplicationId') ?? '';
+    const parsedId = Number(refId);
+    if (Number.isFinite(parsedId) && parsedId > 0) {
+      this.licenceApplicationId = parsedId;
+    }
     if (!rawParam) {
       this.loading = false;
       this.errorMessage = 'Invalid application id.';
@@ -110,18 +120,40 @@ export class LicenceCertificate {
   }
 
   printCertificate(): void {
+    this.setPrintMode(true);
     window.print();
   }
 
   downloadPdf(): void {
+    this.setPrintMode(true);
     window.print();
+  }
+
+  @HostListener('window:afterprint')
+  onAfterPrint(): void {
+    this.setPrintMode(false);
+  }
+
+  goBack(): void {
+    if (this.from === 'admin' && this.licenceApplicationId) {
+      this.router.navigate(['/admin/licence-applications', this.licenceApplicationId]);
+      return;
+    }
+    if (this.licenceApplicationId) {
+      this.router.navigate(['/trader/view-licenses-application', this.licenceApplicationId]);
+      return;
+    }
+    this.router.navigate(['/admin/licence-applications']);
   }
 
   private resolveApplicationNumberFromId(licenceApplicationId: number): void {
     this.loading = true;
     this.errorMessage = '';
 
-    this.inspectionService.getlicenceApplicationDetails(licenceApplicationId).subscribe({
+    this.inspectionService
+      .getlicenceApplicationDetails(licenceApplicationId)
+      .pipe(timeout(10000))
+      .subscribe({
       next: (application: LicenceApplicationModel) => {
         if (!application?.applicationNumber) {
           this.loading = false;
@@ -144,6 +176,7 @@ export class LicenceCertificate {
 
     this.api
       .get<ApprovedLicenceCertificateItem[]>(`/licence/certificate/approved/${applicationNo}`)
+      .pipe(timeout(10000))
       .subscribe({
         next: (items) => {
           const record = items?.[0];
@@ -204,5 +237,12 @@ export class LicenceCertificate {
       month: '2-digit',
       year: 'numeric',
     });
+  }
+
+  private setPrintMode(enabled: boolean): void {
+    if (typeof document === 'undefined') {
+      return;
+    }
+    document.body.classList.toggle('is-printing', enabled);
   }
 }

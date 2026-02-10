@@ -27,11 +27,10 @@ export class PortalAdmin {
 
   //dashboard model
   portalAdminDetailsCount:  PortalAdminModel[]= [];
-
   constructor(
   private portalAdminService: PortalAdminService,
   private tokenService: TokenService,
-  private cdr: ChangeDetectorRef   
+  private cdr: ChangeDetectorRef
 ) {}
 
   //Checkeing if the user is portal - admin or not if portal - admin then loading the details from autofetch.
@@ -100,4 +99,5 @@ export class PortalAdmin {
       }
     });
   }
+
 }

@@ -53,5 +53,37 @@ export class InspectionService {
       `${this.baseUrl}/trade-licence/approver/applications?loginId=${loginId}&licenceApplicationId=${licenceApplicationId}&pageNumber=${pageNumber}&pageSize=${pageSize}`
     );
   }
+
+  getSeniorApproverApplications(
+    loginId: number,
+    licenceApplicationId: number,
+    pageNumber: number,
+    pageSize: number
+  ) {
+    return this.http.get<ApprovedApplications>(
+      `${this.baseUrl}/trade-licence/senior-approver/applications?loginId=${loginId}&licenceApplicationId=${licenceApplicationId}&pageNumber=${pageNumber}&pageSize=${pageSize}`
+    );
+  }
   //Documents for inspection
+
+  submitLicenceProcessAction(body: {
+    licenceApplicationID: number;
+    loginID: number;
+    licenceProcessID: number;
+    currentStatus: string;
+    currentStatusID?: number;
+    remarks: string;
+    actionReasonIds: string;
+  }) {
+    return this.http.post(
+      `${this.baseUrl}/master/licence-process/submit-action`,
+      body
+    );
+  }
+
+  getLicenceProcessTimeline(licenceApplicationID: number) {
+    return this.http.get<any[]>(
+      `${this.baseUrl}/master/licence-process/application/${licenceApplicationID}/timeline`
+    );
+  }
 }

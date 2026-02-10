@@ -1,0 +1,20 @@
+.table-card {
+  border-radius: 14px;
+  border: 1px solid #eef0f3;
+}
+
+.table-card .card-body {
+  padding: 16px;
+}
+
+.filter-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  margin-bottom: 16px;
+}
+
+.filter-actions {
+  display: flex;
+  align-items: flex-end;
+}

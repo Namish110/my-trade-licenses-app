@@ -1,9 +1,6 @@
 <div class="license-certificate-page">
   <div class="page-actions">
-    <button
-      class="btn btn-outline-secondary"
-      [routerLink]="['/trader/view-licenses-application', licenceApplicationId]"
-    >
+    <button class="btn btn-outline-secondary" (click)="goBack()">
       Back to Application
     </button>
     <button class="btn btn-secondary" (click)="printCertificate()">Print</button>

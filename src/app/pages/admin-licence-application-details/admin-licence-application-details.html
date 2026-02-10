@@ -1,0 +1,190 @@
+<div class="inspection-container">
+
+  <!-- Header -->
+  <div class="inspection-header">
+    <h4>Licence Application Details</h4>
+    <span class="application-no">
+      Application No: <strong>{{ applicationNo }}</strong>
+    </span>
+  </div>
+
+  <div *ngIf="loading" class="status-text">Loading application details...</div>
+  <div *ngIf="!loading && errorMessage" class="status-text error">{{ errorMessage }}</div>
+
+  <ng-container *ngIf="!loading && details">
+    <!-- Application Summary -->
+    <div class="card section-card">
+      <div class="card-header">Application Summary</div>
+      <div class="card-body summary-grid">
+        <div><label>Application Name</label><p>{{ details.applicantName }}</p></div>
+        <div><label>Application Number</label><p>{{ details.applicationNumber }}</p></div>
+        <div><label>Application Date</label><p>{{ details.applicationSubmitDate | date:'dd-MMM-yyyy' }}</p></div>
+        <div><label>Status</label><p>{{ details.licenceApplicationStatusName }}</p></div>
+        <div><label>Trade Licenses Id</label><p>{{ details.tradeLicenceID }}</p></div>
+        <div><label>Trade Name</label><p>{{ details.tradeName }}</p></div>
+        <div><label>Mobile Number</label><p>{{ details.mobileNumber }}</p></div>
+        <div><label>Zone</label><p>{{ details.mohName }}</p></div>
+        <div><label>Ward Name</label><p>{{ details.wardName }}</p></div>
+      </div>
+    </div>
+
+    <!-- Map Details -->
+    <div class="card section-card">
+      <div class="card-header">Map Details</div>
+
+      <div class="card-body map-grid">
+        <!-- Left: Details -->
+        <div class="map-form">
+          <label>Location</label>
+
+          <label class="mt-2">Latitude</label>
+          <input type="text" class="form-control" [value]="loadlocationDetails?.latitude" disabled />
+
+          <label class="mt-2">Longitude</label>
+          <input type="text" class="form-control" [value]="loadlocationDetails?.longitude" disabled />
+
+          <label class="mt-2">Road Type</label>
+          <input type="text" class="form-control" [value]="loadlocationDetails?.roadID" disabled />
+
+          <label class="mt-2">Road Width (meters)</label>
+          <input type="text" class="form-control" [value]="loadlocationDetails?.roadWidthMtrs" disabled />
+
+          <label class="mt-2">Road Category</label>
+          <input type="text" class="form-control" [value]="loadlocationDetails?.roadCategory" disabled />
+        </div>
+
+        <!-- Right: Map -->
+        <google-map
+          height="350px"
+          width="100%"
+          [center]="mapCenter"
+          [zoom]="18"
+          [options]="mapOptions"
+        >
+          <map-marker
+            [position]="mapCenter"
+            [options]="markerOptions">
+          </map-marker>
+        </google-map>
+      </div>
+    </div>
+
+    <!-- Documents Details -->
+    <div class="card section-card">
+      <div class="card-header">Documents Details</div>
+
+      <div class="card-body">
+        <div class="row g-3">
+          <div class="col-md-6">
+            <div class="document-card">
+              <div class="doc-info">
+                <i class="bi bi-file-earmark-pdf-fill text-danger"></i>
+                <span>Trade License Application</span>
+              </div>
+              <button class="btn btn-outline-primary btn-sm" disabled>
+                Download
+              </button>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="document-card">
+              <div class="doc-info">
+                <i class="bi bi-file-earmark-pdf-fill text-danger"></i>
+                <span>Identity Proof</span>
+              </div>
+              <button class="btn btn-outline-primary btn-sm" disabled>
+                Download
+              </button>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="document-card">
+              <div class="doc-info">
+                <i class="bi bi-file-earmark-pdf-fill text-danger"></i>
+                <span>Address Proof</span>
+              </div>
+              <button class="btn btn-outline-primary btn-sm" disabled>
+                Download
+              </button>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="document-card">
+              <div class="doc-info">
+                <i class="bi bi-file-earmark-pdf-fill text-danger"></i>
+                <span>Fire Safety Certificate</span>
+              </div>
+              <button class="btn btn-outline-primary btn-sm" disabled>
+                Download
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Checklist -->
+    <div class="card section-card">
+      <div class="card-header">Inspection Checklist</div>
+      <div class="card-body">
+        <div class="form-check checklist-item" *ngFor="let item of inspectionChecklist">
+          <input class="form-check-input" type="checkbox" [checked]="item.checked" disabled />
+          <label class="form-check-label">
+            {{ item.label }}
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Remarks -->
+    <div class="card section-card">
+      <div class="card-header">Inspection Remarks</div>
+      <div class="card-body">
+        <textarea
+          class="form-control"
+          rows="4"
+          [value]="remarks"
+          readonly
+          placeholder="No remarks"
+        ></textarea>
+      </div>
+    </div>
+
+    <!-- Timeline -->
+    <div class="card section-card">
+      <div class="card-header">Application Timeline</div>
+      <div class="card-body">
+        <div *ngIf="timelineLoading" class="text-muted">Loading timeline...</div>
+        <div *ngIf="!timelineLoading && timelineError" class="text-danger">
+          {{ timelineError }}
+        </div>
+        <div *ngIf="!timelineLoading && !timelineError && timeline.length === 0" class="text-muted">
+          No timeline entries found.
+        </div>
+        <div *ngIf="!timelineLoading && !timelineError && timeline.length > 0" class="table-responsive">
+          <table class="table table-bordered mb-0">
+            <thead class="table-light">
+              <tr>
+                <th style="width: 160px;">Date</th>
+                <th style="width: 160px;">Process</th>
+                <th>Remarks</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of timeline">
+                <td>{{ item.entryDate | date:'dd-MMM-yyyy HH:mm' }}</td>
+                <td>{{ item.licenceProcessName }}</td>
+                <td>{{ item.remarks || '-' }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+
+</div>

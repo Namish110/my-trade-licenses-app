@@ -37,6 +37,7 @@
   body {
     background: #fff;
     margin: 0;
+    padding: 0;
   }
 
   .page-actions,
@@ -58,10 +59,13 @@
   .license-certificate-page {
     padding: 0;
     background: #fff;
+    width: 100%;
+    height: auto;
+    min-height: 0;
   }
 
   .license-certificate-page .certificate {
-    margin: 0 auto;
+    margin: 0;
     box-shadow: none;
   }
 }

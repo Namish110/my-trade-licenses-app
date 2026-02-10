@@ -18,6 +18,16 @@ interface InspectionPhoto {
   preview: string;
 }
 
+interface LicenceProcessTimelineItem {
+  licenceFlowID: number;
+  licenceApplicationID: number;
+  loginID: number;
+  licenceProcessName: string;
+  remarks: string;
+  ActionReasonIds: string;
+  entryDate: string;
+}
+
 @Component({
   selector: 'app-inspection',
   imports: [CommonModule, RouterModule, FormsModule, GoogleMapsModule],
@@ -26,6 +36,10 @@ interface InspectionPhoto {
 })
 export class Inspection {
   applicationNo!: string;
+  role = '';
+  get isSeniorApprover(): boolean {
+    return this.role === 'SeniorApprover' || this.role === 'SENIOR_APPROVER';
+  }
 
   // Mock inspection data (later replace with API)
   inspectionChecklist = [
@@ -36,6 +50,17 @@ export class Inspection {
   ];
 
   remarks: string = '';
+  isSubmitting = false;
+  timeline: LicenceProcessTimelineItem[] = [];
+  timelineLoading = false;
+  timelineError = '';
+  private setSubmitting(value: boolean) {
+    // Defer to avoid ExpressionChangedAfterItHasBeenChecked in dev mode.
+    setTimeout(() => {
+      this.isSubmitting = value;
+      this.cdr.detectChanges();
+    }, 0);
+  }
 
   constructor(
     private activeroute: ActivatedRoute,
@@ -50,8 +75,10 @@ export class Inspection {
 
   ngOnInit(): void {
     this.applicationNo = this.activeroute.snapshot.paramMap.get('applicationNo')!;
+    this.role = this.tokenservice.getRole();
     this.loadAppliedApproverApplicatiosn();
     this.loadApplicationDetails();
+    this.loadTimeline();
   }
 
   //#region To load Map 
@@ -77,7 +104,11 @@ export class Inspection {
       console.error('Invalid application number');
       return;
     }
-    this.inspectionservice.getAppliedApproverApplications(loginId, appNo, this.pageNumber, this.pageSize).subscribe({
+    const source$ = this.isSeniorApprover
+      ? this.inspectionservice.getSeniorApproverApplications(loginId, appNo, this.pageNumber, this.pageSize)
+      : this.inspectionservice.getAppliedApproverApplications(loginId, appNo, this.pageNumber, this.pageSize);
+
+    source$.subscribe({
       next: (res: ApprovedApplications) => {
         if (res.data && res.data.length > 0) {
           this.licenceApplicationDetails = res.data[0];
@@ -204,6 +235,74 @@ export class Inspection {
   cancel() {
     this.notificationservice.show('Inspection cancelled', 'info');
     this.router.navigate(['/approver/approving-officer']);
+  }
+
+  loadTimeline() {
+    const appId = Number(this.applicationNo);
+    if (!appId || Number.isNaN(appId)) {
+      return;
+    }
+    this.timelineLoading = true;
+    this.timelineError = '';
+    this.inspectionservice.getLicenceProcessTimeline(appId).subscribe({
+      next: (items) => {
+        this.timeline = items || [];
+        this.timelineLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.timelineLoading = false;
+        this.timelineError = 'Unable to load timeline.';
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  submitProcessAction(licenceProcessID: number, currentStatusID: number) {
+    if (this.isSubmitting) {
+      return;
+    }
+
+    const loginId = this.tokenservice.getUserId();
+    if (!loginId) {
+      this.notificationservice.show('Invalid login id', 'warning');
+      return;
+    }
+
+    const licenceApplicationID =
+      this.licenceApplicationDetails?.licenceApplicationID ?? Number(this.applicationNo);
+    if (!licenceApplicationID || Number.isNaN(licenceApplicationID)) {
+      this.notificationservice.show('Invalid licence application id', 'warning');
+      return;
+    }
+
+    this.setSubmitting(true);
+
+    this.inspectionservice
+      .submitLicenceProcessAction({
+        licenceApplicationID,
+        loginID: loginId,
+        licenceProcessID,
+        currentStatus: String(currentStatusID),
+        currentStatusID,
+        remarks: this.remarks || '',
+        actionReasonIds: ''
+      })
+      .subscribe({
+        next: () => {
+          this.setSubmitting(false);
+          this.notificationservice.show('Status updated successfully', 'success');
+          this.router.navigate(['/approver/approving-officer']);
+        },
+        error: (error) => {
+          this.setSubmitting(false);
+          const message =
+            error?.error?.message ||
+            error?.error?.title ||
+            'Failed to update status';
+          this.notificationservice.show(message, 'error');
+        }
+      });
   }
 
   /* =========================
