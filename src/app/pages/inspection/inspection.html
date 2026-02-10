@@ -52,6 +52,7 @@
 
         <!-- Right: Map -->
         <google-map
+          *ngIf="mapCenter"
           height="350px"
           width="100%"
           [center]="mapCenter"

@@ -1,35 +1,82 @@
 <div class="dashboard-wrapper">
-  <!-- ================= CONTENT ================= -->
   <div class="container dashboard-content">
 
-    <!-- KPI CARDS -->
-    <div class="kpi-row">
+    <!-- ================= KPI CARDS ================= -->
+    <div class="kpi-row mb-4">
       <div class="kpi-card warning">
         <span>Total Applications</span>
         <h3>24</h3>
       </div>
 
       <div class="kpi-card info">
-        <span>Applications Process</span>
+        <span>Applications In Process</span>
         <h3>7</h3>
       </div>
 
       <div class="kpi-card primary">
-        <span>Forwarded To Senior Approver</span>
+        <span>Forwarded to Senior</span>
         <h3>12</h3>
       </div>
 
       <div class="kpi-card success">
-        <span>Application Issue</span>
+        <span>Issues Raised</span>
         <h3>10</h3>
       </div>
 
       <div class="kpi-card danger">
-        <span>Application Rejected</span>
+        <span>Rejected</span>
         <h3>3</h3>
+      </div>
+    </div>
+
+    <!-- ================= ANALYTICS ROW ================= -->
+    <div class="analytics-row mb-4">
+      <!-- Status Distribution -->
+      <div class="analytics-card">
+        <div class="analytics-header">Applications by Status</div>
+        <div class="analytics-body">
+          <canvas id="statusChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Trend -->
+      <div class="analytics-card wide">
+        <div class="analytics-header">Applications Trend (Last 30 Days)</div>
+        <div class="analytics-body">
+          <canvas id="trendChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= OPERATIONAL INSIGHTS ================= -->
+    <div class="analytics-row">
+      <!-- Zone Load -->
+      <div class="analytics-card">
+        <div class="analytics-header">Zone-wise Load</div>
+        <div class="analytics-body">
+          <canvas id="zoneChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Approver Actions -->
+      <div class="analytics-card">
+        <div class="analytics-header">Action Required</div>
+        <div class="analytics-body action-panel">
+          <div class="action-item danger">
+            ⚠ 3 applications overdue
+          </div>
+          <div class="action-item warning">
+            ⏳ 5 pending > 7 days
+          </div>
+          <div class="action-item info">
+            📤 4 awaiting senior approval
+          </div>
+          <button class="btn btn -sm btn-outline-primary mt-2 w-100">
+            View Priority Applications
+          </button>
+        </div>
       </div>
     </div>
 
   </div>
 </div>
-<!-- ================= CONTENT END ================= -->

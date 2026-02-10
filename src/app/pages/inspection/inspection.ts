@@ -130,9 +130,9 @@ export class Inspection {
   mapCenter!: google.maps.LatLngLiteral;
 
   mapOptions: google.maps.MapOptions = {
-    disableDefaultUI: true,
+    disableDefaultUI: false,
     draggable: false,
-    zoomControl: true
+    zoomControl: false
   };
 
   markerOptions: google.maps.MarkerOptions = {
@@ -144,16 +144,24 @@ export class Inspection {
     this.inspectionservice.getgeolocationByLicensesAppId(Number(this.applicationNo)).subscribe({
       next: (res) => {
         this.loadlocationDetails = res;
+         // ✅ SET MAP CENTER AFTER DATA COMES
+        this.mapCenter = {
+          lat: Number(res.latitude),
+          lng: Number(res.longitude)
+        };
+
+        // Optional but safe
+        this.cdr.detectChanges();
         console.log(this.loadlocationDetails);
       },
       error: (err) => {
         console.error('Error fetching location details:', err);
       }
     });
-    this.mapCenter = {
-      lat: this.loadlocationDetails?.latitude || 0,
-      lng: this.loadlocationDetails?.longitude || 0
-    };
+    // this.mapCenter = {
+    //   lat: this.loadlocationDetails?.latitude || 0,
+    //   lng: this.loadlocationDetails?.longitude || 0
+    // };
   }
 
 
@@ -228,8 +236,28 @@ export class Inspection {
       checklist: this.inspectionChecklist,
       remarks: this.remarks
     });
+
+    const playload = {
+      licenceApplicationID: Number(this.applicationNo),
+      licenceProcessID: 3, //APPROVED
+      remarks: this.remarks,
+      actionReasonIds: '1'
+    };
+    if(!this.remarks){
+      this.notificationservice.show('Please enter remarks before submitting inspection', 'warning');
+      return;
+    }
+    //inspectionPhotos: this.inspectionChecklist.filter(item => item.checked).map(item => item.label)
     this.notificationservice.show('Inspection submitted successfully', 'success');
-    //this.router.navigate(['/approver/approving-officer']);
+    this.router.navigate(['/approver/approving-officer']);
+    // this.inspectionservice.submitInspection(playload).subscribe({
+    //   next: (res) => {
+        
+    //   },
+    //   error: (err) => {
+    //     this.notificationservice.show('Error submitting inspection', 'error');
+    //   }
+    // });
   }
 
   cancel() {

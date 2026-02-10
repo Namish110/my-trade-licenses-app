@@ -37,7 +37,7 @@ export class Home {
     { value: '50K+', label: 'Active Licenses' },
     { value: '24/7', label: 'Online Access' },
     { value: '99.5%', label: 'System Uptime' },
-    { value: '3 Days', label: 'Avg. Processing' }
+    { value: '30 Days', label: 'Avg. Processing' }
   ];
 
   roles = [
@@ -49,7 +49,7 @@ export class Home {
       color: 'bg-primary'
     },
     {
-      title: 'Approving Officer',
+      title: 'Approving/Senior Approving Officer',
       description: 'Review applications and approve licenses',
       icon: 'bi-people',
       link: '/login', //login also should be created

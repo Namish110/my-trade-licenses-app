@@ -1,14 +1,16 @@
+/* ================= KPI ================= */
 .kpi-row {
   display: flex;
   gap: 16px;
 }
 
 .kpi-card {
-  flex: 1; /* 🔥 all cards get equal width */
+  flex: 1;
   padding: 16px;
   border-radius: 10px;
   color: #fff;
   min-width: 0;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
 }
 
 .kpi-card span {
@@ -27,4 +29,69 @@
 .kpi-card.info    { background: #2196f3; }
 .kpi-card.success { background: #4caf50; }
 .kpi-card.danger  { background: #f44336; }
-.kpi-card.primary { background: #3f51b5; } 
+.kpi-card.primary { background: #3f51b5; }
+
+/* ================= ANALYTICS ================= */
+.analytics-row {
+  display: flex;
+  gap: 16px;
+}
+
+.analytics-card {
+  background: #fff;
+  border-radius: 10px;
+  flex: 1;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.analytics-card.wide {
+  flex: 2;
+}
+
+.analytics-header {
+  padding: 12px 16px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  border-bottom: 1px solid #eee;
+}
+
+.analytics-body {
+  padding: 16px;
+  height: 260px;
+}
+
+/* ================= ACTION PANEL ================= */
+.action-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.action-item {
+  padding: 10px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+}
+
+.action-item.danger {
+  background: #fdecea;
+  color: #b71c1c;
+}
+
+.action-item.warning {
+  background: #fff4e5;
+  color: #e65100;
+}
+
+.action-item.info {
+  background: #e3f2fd;
+  color: #0d47a1;
+}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 992px) {
+  .kpi-row,
+  .analytics-row {
+    flex-direction: column;
+  }
+}

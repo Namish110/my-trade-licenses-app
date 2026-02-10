@@ -7,7 +7,10 @@
 
 <!-- TRADE CATEGORIES -->
 <div class="card">
-  <h3>Trade Categories</h3>
+  <div class="card-header">
+    <h3>Trade Categories</h3>
+    <p class="sub-text">Manage Trade Categories</p>
+  </div>
 
   <div class="field-block">
       <div class="field-header">
@@ -31,7 +34,7 @@
         [(ngModel)]="selectedtradeTypes"
       >
         <option [ngValue]="null">Select</option>
-        <option *ngFor="let tradeType of tradeTypes" [ngValue]="tradeType.tradeTypeID">
+        <option *ngFor="let tradeType of tradeTypes" [ngValue]="tradeType">
           {{ tradeType.tradeTypeName }}
         </option>
       </select>
@@ -141,7 +144,7 @@
           </div>
 
           <select class="form-select" [(ngModel)]="selectedMajor" (change)="onMajorChange()">
-            <option [ngValue]="null">Minor Trade</option>
+            <option [ngValue]="null">Select Major Trade</option>
             <option *ngFor="let majorTrade of tradeMajors" [ngValue]="majorTrade">
               {{ majorTrade.tradeMajorName }}
             </option>
@@ -172,7 +175,7 @@
             </div>
           </div>
 
-          <select class="form-select" [(ngModel)]="tradeMinors">
+          <select class="form-select" [(ngModel)]="selectedMinor" (change)="onMinorChange()">
             <option [ngValue]="null">Select Minor Trade</option>
             <option *ngFor="let minorTrade of tradeMinors" [ngValue]="minorTrade">
               {{ minorTrade.tradeMinorName }}
@@ -204,8 +207,8 @@
             </div>
           </div>
 
-          <select class="form-select" [(ngModel)]="tradeSubs">
-            <option [ngValue]="null">Select Minor Trade</option>
+          <select class="form-select" [(ngModel)]="selectedSub">
+            <option [ngValue]="null">Select Sub Trade</option>
             <option *ngFor="let subTrade of tradeSubs" [ngValue]="subTrade">
               {{ subTrade.tradeSubName }}
             </option>
@@ -240,7 +243,10 @@
 
   <!-- Jurisdiction of Health Officer (Zone) -->
   <div class="card">
-    <h3>Jurisdiction of Health Officer (Zone)</h3>
+    <div class="card-header">
+      <h3>Jurisdiction of Health Officer (Zone)</h3>
+      <p class="sub-text">Manage Zones</p>
+    </div>
 
     <div class="field-block">
         <div class="field-header">
@@ -390,7 +396,7 @@
     <!-- Trade Category Name -->
     <form *ngIf="activeModal === 'TRADE_CATEGORY'" [formGroup]="tradeCategoryForm">
       <label>Trade Category Name</label>
-      <input class="form-control" formControlName="tradeCategoryName" />
+      <input class="form-control" formControlName="tradeTypeName" />
     </form>
 
     <!-- Actions -->

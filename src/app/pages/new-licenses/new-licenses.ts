@@ -24,6 +24,7 @@ import { TokenService } from '../../core/services/token.service';
 import { NotificationService } from '../../shared/components/notification/notification.service';
 import { forkJoin, lastValueFrom } from 'rxjs';
 import { LoaderService } from '../../shared/components/loader/loader.service';
+import { TradeLicenceStateService } from '../../shared/services/trade-licenses-service';
 
 
 /* =========================
@@ -47,7 +48,7 @@ declare const google: any;
 })
 export class NewLicenses {
   //Stepper Logic
-  currentStep = 0; // 0 = Declaration
+  currentStep = 1; // 0 = Declaration
   agree = false;
  
 
@@ -60,12 +61,22 @@ selectedRectangle!: google.maps.Rectangle;
 
 
   infoAboutIssueRelated: any = 'For any issue related to online payments mail us to "bbmptl@gmail.com" with all transaction detail like transaction id, date of transaction, old license number.';
+<<<<<<< HEAD
   infoAboutRules1: any = 'I/We do hereby affirm and state that the information to be furnished by me/us in the trade license new or renewal application are true and correct to the best of my/our knowledge and belief.';
   infoAboutRules2: any = 'I/We further declare that I/We am/are aware that the trade license application is specifically for the Trade for which it is to be issued and does not regularize unauthorized constructions, or violations of building by laws and regulations and that I/We may be prosecuted for such infringments even through I/We have obtained a trade license under the act.';
   infoAboutRules3: any = 'I/We further understand that the Trade license may be suspended or cancelled in the event it is found that the business is being run in the premises that violating existing rules and zonal regulation as per the Comprehensive Development Plan 2015 issued by Bangalore Development Authority.';
   infoAboutRules4: any = 'I/We further undertake to have no objection in the authorities revoking the trade license in case there is any discrepancies,disputes,defects or false information in any documentation that is submitted by me/us as stated in the application form.';
   infoAboutRules5: any = 'I/We undertake that I/We will not employ/engage child labour for the purpose of carrying the trade.';
   infoAboutRules6: any = 'I/We declare that incase of any objections/Complaints raised by immediate neighbors,I/We shall furnish all the documents and take corrective action as per the KMC act.';
+=======
+  infoAboutRules1: any = 'I/We………………………………………..do hereby affirm and state that the information to be furnished by me/us in the trade license new or renewal application are true and correct to the best of my/our knowledge and belief.';
+  infoAboutRules2: any = 'I/We further declare that I/We am/are aware that the trade license application is specifically for the trade for which it is to be issued and does not regularize un authorized constructions, or violations  of building bye laws  and regulations and that  I/We may be prosecuted for such infringements even though I/We obtained a Trade Licence under the act.';
+  infoAboutRules3: any = 'I/We further understand that the Trade Licence may be suspended or cancelled in the event it is found that the business is being run in premises that the violating existing rules and zonal regulations as per the Comprehensive Development Plan 2015 issued by Bangalore Development Authority.';
+  infoAboutRules4: any = 'I/We further undertake to have no objection in revoking the Trade License in the case that there are any discrepancies/disputes/defects/falls information in any documentation that may be provided by me or stated in the application form.';
+  infoAboutRules5: any = 'I/We undertake that I will not employ/engage child labour for the purpose of carrying out the trade. ';
+  infoAboutRules6: any = 'I/We declare that incase of any objections/Complaints raised by immediate neighbours, I/We shall furnish all the documents and take corrective action as per the Greater Bengaluru Governance Act ,2024.';
+  infoAboutRules7: any = 'I/We hereby declare that if there is any violations as pointed by the Municipal Corporation I undertake and agree to file affidavit that I have no objections to voluntarily close my trade premises.';
+>>>>>>> upstream/Dev_Rupendra
 
   //Creating a trade major list 
   tradeMajors : TradeMajor[] = [];
@@ -142,6 +153,7 @@ selectedRectangle!: google.maps.Rectangle;
   private tokenservice : TokenService,
   private notificationservice: NotificationService,
   private loaderservice: LoaderService,
+  private tradeLicenceStateService: TradeLicenceStateService,
   private cdr: ChangeDetectorRef) {}
 
 
@@ -228,7 +240,7 @@ autoDetectCurrentLocation() {
 }
 
   startApplication() {
-    this.currentStep = 1;
+    this.currentStep = 8;
   }
 
   nextStep() {
@@ -698,6 +710,7 @@ autoDetectCurrentLocation() {
   roadWidthSource = '';
   roadWidthStatus = '';
   roadWidthDetails: RoadWidthDetails | null = null;
+  roadWidth_feet = 0;
   
 
 
@@ -891,6 +904,7 @@ fetchRoadWidthByBox(
   this.newLicensesService.getRoadWidth(payload).subscribe({
     next: (res: RoadWidthDetails[]) => {
       this.roadWidthDetails = res?.[0] ?? null;
+      this.roadWidth_feet = +(this.roadWidthDetails?.road_Width_mtrs || 0) * 3.28084;
     },
     error: () => {
       this.roadWidthDetails = null;
@@ -929,6 +943,7 @@ fetchRoadWidth(lng: number, lat: number) {
       if (res?.code === 'SUCCESS' && Array.isArray(res.data) && res.data.length > 0) {
 
         this.roadWidthDetails = res.data[0];
+        this.roadWidth_feet = +(this.roadWidthDetails?.road_Width_mtrs || 0) * 3.28084;
         this.roadWidthStatus = 'Road width detected automatically';
 
         this.notificationservice.show(
@@ -1364,7 +1379,7 @@ fetchRoadWidth(lng: number, lat: number) {
       this.newLicensesService.post('/trade-licence', tradeLicencePayload)
         .subscribe({
           next: (res: any) => {
-
+            this.tradeLicenceStateService.setTradeLicenceID(res.tradeLicenceID);
             const licenceApplicationDraftPayload = {
               finanicalYearID: this.tradeLicenseApplications.finanicalYearID,
               tradeTypeID: this.selectedTradeType ? this.selectedTradeType.tradeTypeID : 0,
@@ -1377,7 +1392,7 @@ fetchRoadWidth(lng: number, lat: number) {
               licenceToDate: this.tradeLicenseApplications.licenceToDate,
 
               tradeLicenceID: res.tradeLicenceID, // from API-1
-
+              
               loginID: this.tokenservice.getTraderUserId(),
               entryOriginLoginID: this.tradeLicenseApplications.entryOriginLoginID,
               inspectingOfficerID: this.tradeLicenseApplications.inspectingOfficerID,
@@ -1398,12 +1413,16 @@ fetchRoadWidth(lng: number, lat: number) {
                   this.tradeLicenseApplications.licenceApplicationID =
                     draftRes.licenceApplicationID;
 
+<<<<<<< HEAD
                       localStorage.setItem(
         'draftLicenceApplicationId',
         draftRes.licenceApplicationID.toString()
       );
 
                   await this.saveLocationDetails(draftRes.licenceApplicationID);
+=======
+                  await this.saveUserLocationDetails(draftRes.licenceApplicationID);
+>>>>>>> upstream/Dev_Rupendra
                   await this.saveOrUpdateDocuments(draftRes.licenceApplicationID);
 
                   resolve(draftRes.licenceApplicationID);
@@ -1507,7 +1526,7 @@ fetchRoadWidth(lng: number, lat: number) {
         });
     });
   }
-  saveLocationDetails(licenceAppId: number): Promise<void> {
+  saveUserLocationDetails(licenceAppId: number): Promise<void> {
     return new Promise((resolve, reject) => {
       if (!this.latitude || !this.longitude || !this.roadWidthDetails) {
         this.notificationservice.show(
@@ -1580,6 +1599,7 @@ fetchRoadWidth(lng: number, lat: number) {
   proceedForPayment() {
     this.loaderservice.show();
     this.saveDraft().then(() => {
+
       this.loaderservice.hide();
       this.initiatePayment();
     })
@@ -1599,8 +1619,7 @@ fetchRoadWidth(lng: number, lat: number) {
       corporationId: 1,
       amount: this.licenseFee,
       applicantName: this.tokenservice.getUserFullName(),
-  email: this.tradeLicenseApplicationDetails.emailID,
-
+      email: this.tradeLicenseApplicationDetails.emailID,
       phone: this.tradeLicenseApplicationDetails.mobileNumber
     };
     console.log(payload);

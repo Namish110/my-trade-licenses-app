@@ -48,4 +48,11 @@ export class ApprovingOfficerService {
     );
   }
 
+  //trade-licence/search?text//&pageNumber=${pageNumber}&pageSize=${pageSize}
+  searchApplications(searchText: string) {
+    return this.http.get<ApprovedApplications>(
+      `${this.baseUrl}/trade-licence/search?text=${searchText}`
+    );
+  }
+
 }
