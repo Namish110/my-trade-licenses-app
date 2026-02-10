@@ -1001,7 +1001,7 @@ fetchRoadWidth(lng: number, lat: number) {
 //#endregion
 
   //PageLoadMethod
- ngOnInit(): void {
+  ngOnInit(): void {
 
   // 1️⃣ Load dropdown masters (safe to load always)
   this.loadTradeMajors();
@@ -1025,6 +1025,115 @@ fetchRoadWidth(lng: number, lat: number) {
   this.tradeLicenseApplications.licenceFromDate =
     new Date(this.applicationDate);
 }
+
+  private restoreDraftIfExists(draftId: number): void {
+    if (!draftId || Number.isNaN(draftId)) {
+      return;
+    }
+
+    this.loaderservice.show();
+    this.newLicensesService.getLicenceApplicationById(draftId).subscribe({
+      next: (res: any) => {
+        const application =
+          res?.tradeLicenseApplications ??
+          res?.tradeLicenseApplication ??
+          res?.licenceApplication ??
+          res?.application ??
+          res;
+        const details =
+          res?.tradeLicenseApplicationDetails ??
+          res?.tradeLicenseDetails ??
+          res?.tradeLicenceDetails ??
+          null;
+
+        if (application) {
+          this.tradeLicenseApplications = {
+            ...initializeTradeApplication(),
+            ...application
+          };
+        }
+
+        if (details) {
+          this.tradeLicenseApplicationDetails = {
+            ...initializeApplicationDetails(),
+            ...details
+          };
+        }
+
+        if (this.tradeLicenseApplications.licenceFromDate) {
+          this.tradeLicenseApplications.licenceFromDate = new Date(
+            this.tradeLicenseApplications.licenceFromDate
+          );
+        }
+
+        if (this.tradeLicenseApplications.licenceToDate) {
+          this.tradeLicenseApplications.licenceToDate = new Date(
+            this.tradeLicenseApplications.licenceToDate
+          );
+        }
+
+        this.applySelectionsFromDraft();
+        this.currentStep = Math.max(this.currentStep, 1);
+        this.notificationservice.show('Draft restored. You can continue.', 'success');
+        this.loaderservice.hide();
+      },
+      error: (err) => {
+        console.error('Failed to restore draft', err);
+        this.notificationservice.show(
+          'Failed to restore draft. Starting a new application.',
+          'warning'
+        );
+        localStorage.removeItem('draftLicenceApplicationId');
+        this.tradeLicenseApplicationDetails = initializeApplicationDetails();
+        this.tradeLicenseApplications = initializeTradeApplication();
+        this.tradeLicenseApplications.licenceFromDate =
+          new Date(this.applicationDate);
+        this.loaderservice.hide();
+      }
+    });
+  }
+
+  private applySelectionsFromDraft(): void {
+    const tradeTypeId = this.tradeLicenseApplications.tradeTypeID;
+    if (tradeTypeId && this.tradeTypes?.length) {
+      this.selectedTradeType =
+        this.tradeTypes.find(t => t.tradeTypeID === tradeTypeId) ?? null;
+    }
+
+    const zonalId = this.tradeLicenseApplicationDetails.zonalClassificationID;
+    if (zonalId && this.zoneClassifications?.length) {
+      this.selectedZoneClassification =
+        this.zoneClassifications.find(z => z.zonalClassificationID === zonalId) ??
+        null;
+    }
+
+    const mohId =
+      this.tradeLicenseApplicationDetails.mohID ||
+      this.tradeLicenseApplications.mohID;
+    if (mohId && this.mlaConstituencies?.length) {
+      this.selectedMLAConstituency =
+        this.mlaConstituencies.find(m => m.mohID === mohId) ?? null;
+
+      if (this.selectedMLAConstituency) {
+        this.newLicensesService
+          .getWardsByMLAConstituency(
+            this.selectedMLAConstituency.constituencyID
+          )
+          .subscribe({
+            next: (res) => {
+              this.wards = res;
+              const wardId = this.tradeLicenseApplicationDetails.wardID;
+              if (wardId) {
+                this.selectedWard =
+                  this.wards.find(w => w.wardID === wardId) ?? null;
+              }
+              this.cdr.detectChanges();
+            },
+            error: (err) => console.error(err)
+          });
+      }
+    }
+  }
 
 
   //#region  Dropdown Methods
