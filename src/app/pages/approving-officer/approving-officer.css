@@ -52,6 +52,10 @@
   border-radius: 8px;
 }
 
+.page-size-select {
+  min-width: 72px;
+}
+
 .fixed-table {
   table-layout: fixed;
   width: 100%;

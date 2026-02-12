@@ -58,6 +58,9 @@ interface LicenceCertificateViewModel {
   encapsulation: ViewEncapsulation.None,
 })
 export class LicenceCertificate {
+  private static readonly CERT_CACHE_PREFIX = 'licence-cert:';
+  private static readonly APP_NO_CACHE_PREFIX = 'licence-appno:';
+
   loading = true;
   errorMessage = '';
   licenceApplicationId: number | null = null;
@@ -96,6 +99,7 @@ export class LicenceCertificate {
   ngOnInit(): void {
     const rawParam = this.route.snapshot.paramMap.get('licensesApplicationId') ?? '';
     this.from = this.route.snapshot.queryParamMap.get('from') ?? '';
+    const appNoFromQuery = (this.route.snapshot.queryParamMap.get('applicationNumber') ?? '').trim();
     const refId = this.route.snapshot.queryParamMap.get('licenceApplicationId') ?? '';
     const parsedId = Number(refId);
     if (Number.isFinite(parsedId) && parsedId > 0) {
@@ -110,23 +114,43 @@ export class LicenceCertificate {
     const asNumber = Number(rawParam);
     const isNumericId = Number.isFinite(asNumber) && asNumber > 0 && rawParam.trim() === asNumber.toString();
 
+    if (appNoFromQuery) {
+      if (this.licenceApplicationId) {
+        this.cacheApplicationNumber(this.licenceApplicationId, appNoFromQuery);
+      }
+      this.loadCertificateByApplicationNo(appNoFromQuery, true);
+      return;
+    }
+
     if (isNumericId) {
       this.licenceApplicationId = asNumber;
+      const cachedAppNo = this.getCachedApplicationNumber(asNumber);
+      if (cachedAppNo) {
+        this.loadCertificateByApplicationNo(cachedAppNo, true);
+        return;
+      }
       this.resolveApplicationNumberFromId(asNumber);
     } else {
       this.licenceApplicationId = null;
-      this.loadCertificateByApplicationNo(rawParam);
+      this.loadCertificateByApplicationNo(rawParam, true);
     }
   }
 
   printCertificate(): void {
-    this.setPrintMode(true);
-    window.print();
+    this.triggerPrintDialog();
   }
 
   downloadPdf(): void {
-    this.setPrintMode(true);
-    window.print();
+    if (typeof document === 'undefined') {
+      this.triggerPrintDialog();
+      return;
+    }
+    const previousTitle = document.title;
+    const safeLicenceNo = (this.viewModel.licenceNo || 'certificate').replace(/[^a-z0-9-_]/gi, '_');
+    document.title = `Licence_${safeLicenceNo}`;
+    this.triggerPrintDialog(() => {
+      document.title = previousTitle;
+    });
   }
 
   @HostListener('window:afterprint')
@@ -161,7 +185,8 @@ export class LicenceCertificate {
           return;
         }
 
-        this.loadCertificateByApplicationNo(application.applicationNumber);
+        this.cacheApplicationNumber(licenceApplicationId, application.applicationNumber);
+        this.loadCertificateByApplicationNo(application.applicationNumber, true);
       },
       error: () => {
         this.loading = false;
@@ -170,30 +195,107 @@ export class LicenceCertificate {
     });
   }
 
-  private loadCertificateByApplicationNo(applicationNo: string): void {
+  private loadCertificateByApplicationNo(applicationNo: string, useCache: boolean): void {
     this.loading = true;
     this.errorMessage = '';
+    const normalizedAppNo = (applicationNo ?? '').trim();
+    if (!normalizedAppNo) {
+      this.loading = false;
+      this.errorMessage = 'Invalid application number.';
+      return;
+    }
+
+    if (useCache) {
+      const cachedRecord = this.getCachedCertificate(normalizedAppNo);
+      if (cachedRecord) {
+        this.viewModel = this.buildViewModelFromCertificate(cachedRecord);
+        this.loading = false;
+      }
+    }
 
     this.api
-      .get<ApprovedLicenceCertificateItem[]>(`/licence/certificate/approved/${applicationNo}`)
+      .get<ApprovedLicenceCertificateItem[]>(`/licence/certificate/approved/${normalizedAppNo}`)
       .pipe(timeout(10000))
       .subscribe({
         next: (items) => {
           const record = items?.[0];
           if (!record) {
-            this.loading = false;
-            this.errorMessage = 'No approved licence certificate found.';
+            if (this.loading) {
+              this.loading = false;
+              this.errorMessage = 'No approved licence certificate found.';
+            }
             return;
           }
 
+          this.cacheCertificate(record);
+          if (this.licenceApplicationId && record.applicationNumber) {
+            this.cacheApplicationNumber(this.licenceApplicationId, record.applicationNumber);
+          }
           this.viewModel = this.buildViewModelFromCertificate(record);
           this.loading = false;
+          this.errorMessage = '';
         },
         error: () => {
-          this.loading = false;
-          this.errorMessage = 'Unable to load approved licence certificate.';
+          if (this.loading) {
+            this.loading = false;
+            this.errorMessage = 'Unable to load approved licence certificate.';
+          }
         }
       });
+  }
+
+  private cacheCertificate(record: ApprovedLicenceCertificateItem): void {
+    if (typeof sessionStorage === 'undefined') {
+      return;
+    }
+    const applicationNo = (record?.applicationNumber ?? '').trim();
+    if (!applicationNo) {
+      return;
+    }
+    sessionStorage.setItem(
+      `${LicenceCertificate.CERT_CACHE_PREFIX}${applicationNo}`,
+      JSON.stringify(record)
+    );
+  }
+
+  private getCachedCertificate(applicationNo: string): ApprovedLicenceCertificateItem | null {
+    if (typeof sessionStorage === 'undefined') {
+      return null;
+    }
+    const raw = sessionStorage.getItem(
+      `${LicenceCertificate.CERT_CACHE_PREFIX}${applicationNo}`
+    );
+    if (!raw) {
+      return null;
+    }
+    try {
+      return JSON.parse(raw) as ApprovedLicenceCertificateItem;
+    } catch {
+      return null;
+    }
+  }
+
+  private cacheApplicationNumber(licenceApplicationId: number, applicationNo: string): void {
+    if (typeof sessionStorage === 'undefined') {
+      return;
+    }
+    const normalized = (applicationNo ?? '').trim();
+    if (!normalized) {
+      return;
+    }
+    sessionStorage.setItem(
+      `${LicenceCertificate.APP_NO_CACHE_PREFIX}${licenceApplicationId}`,
+      normalized
+    );
+  }
+
+  private getCachedApplicationNumber(licenceApplicationId: number): string | null {
+    if (typeof sessionStorage === 'undefined') {
+      return null;
+    }
+    return sessionStorage.getItem(
+      `${LicenceCertificate.APP_NO_CACHE_PREFIX}${licenceApplicationId}`
+    );
   }
 
   private buildViewModelFromCertificate(
@@ -244,5 +346,16 @@ export class LicenceCertificate {
       return;
     }
     document.body.classList.toggle('is-printing', enabled);
+  }
+
+  private triggerPrintDialog(onComplete?: () => void): void {
+    this.setPrintMode(true);
+    setTimeout(() => {
+      window.print();
+      setTimeout(() => {
+        this.setPrintMode(false);
+        onComplete?.();
+      }, 0);
+    }, 0);
   }
 }

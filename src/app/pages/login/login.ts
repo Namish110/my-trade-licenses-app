@@ -37,6 +37,10 @@ export class Login {
     private notificationService: NotificationService,
     private loginService: LoginService) {}
 
+  private normalizeRole(role: string | null | undefined): string {
+    return (role ?? '').toLowerCase().replace(/[\s_-]+/g, '');
+  }
+
   togglePassword() {
     this.showPassword = !this.showPassword;
   }
@@ -77,19 +81,20 @@ export class Login {
 
       this.auth.login(payload).subscribe({
         next: () => {
-            // Extract UserId from JWT
-            const userId = this.tokenService.getUserId(); // number
-            const role = this.tokenService.getUserRole(); // string
-            console.log(role);
-            if(role === 'Admin'){
-              this.router.navigate(['/admin']);  //approver,trader,admin, senior-approver
-            }else if(role === 'trader'){
+            const role = this.normalizeRole(this.tokenService.getUserRole());
+            console.log('Login role:', role);
+
+            if (role === 'admin') {
+              this.router.navigate(['/admin']);
+            } else if (role === 'trader' || role === 'tradeowner') {
               this.router.navigate(['/trader']);
-            }else if(role === 'Approver'){
+            } else if (role === 'approver' || role === 'approvingofficer') {
               this.router.navigate(['/approver']);
-            }else if(role === 'SeniorApprover'){
+            } else if (role === 'seniorapprover' || role === 'seniorapprovingofficer') {
               this.router.navigate(['/senior-approver']);
-            }else{
+            } else if (role === 'zoneapprover' || role === 'zonalapprover') {
+              this.router.navigate(['/zone-approver']);
+            } else {
               this.notificationService.show('Invalid credentials', 'warning');
               return;
             }

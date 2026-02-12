@@ -27,6 +27,8 @@ import { AdminLicenceApplications } from './pages/admin-licence-applications/adm
 import { AdminLicenceApplicationDetails } from './pages/admin-licence-application-details/admin-licence-application-details';
 import { PaymentSuccess } from './shared/components/payment-success/payment-success';
 import { PaymentFailed } from './shared/components/payment-failed/payment-failed';
+import { ZoneApprovingOfficer } from './pages/zone-approving-officer/zone-approving-officer';
+import { ZoneapproverDashboard } from './layout/zoneapprover-dashboard/zoneapprover-dashboard';
 
 export const routes: Routes = [
   { path: '', component: Home },
@@ -45,6 +47,10 @@ export const routes: Routes = [
           {
             path: 'senior-approving-officer',
             component: SeniorApprovingOfficer
+          },
+          {
+            path: 'zone-approving-officer',
+            component: ZoneApprovingOfficer
           }
         ]
       },
@@ -119,6 +125,15 @@ export const routes: Routes = [
       { path: 'inspection/:applicationNo', component: Inspection, runGuardsAndResolvers: 'always' }
 
       // OTHER PAGES
+    ]
+  },
+  {
+    path: 'zone-approver',
+    component: DashboardLayout,
+    children: [
+      { path: '', component: ZoneapproverDashboard },
+      { path: 'zone-approving-officer', component: ZoneApprovingOfficer },
+      { path: 'licence-applications/:licenceApplicationId', component: AdminLicenceApplicationDetails }
     ]
   },
 

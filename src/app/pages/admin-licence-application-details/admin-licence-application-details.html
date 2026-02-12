@@ -147,11 +147,38 @@
         <textarea
           class="form-control"
           rows="4"
-          [value]="remarks"
-          readonly
-          placeholder="No remarks"
+          [(ngModel)]="remarks"
+          [readonly]="!canShowReviewActions"
+          [placeholder]="canShowReviewActions ? 'Enter remarks...' : 'No remarks'"
         ></textarea>
       </div>
+    </div>
+
+    <div class="inspection-actions" *ngIf="canShowReviewActions">
+      <button
+        class="btn btn-warning text-dark"
+        type="button"
+        [disabled]="isSubmitting"
+        (click)="submitAdminAction(6, 'Application forwarded to higher authority')"
+      >
+        Forward To Higher Authority
+      </button>
+      <button
+        class="btn btn-outline-secondary"
+        type="button"
+        [disabled]="isSubmitting"
+        (click)="submitAdminAction(5, 'Objection submitted')"
+      >
+        Objection
+      </button>
+      <button
+        class="btn btn-danger"
+        type="button"
+        [disabled]="isSubmitting"
+        (click)="submitAdminAction(4, 'Application rejected')"
+      >
+        Rejected
+      </button>
     </div>
 
     <!-- Timeline -->
@@ -170,6 +197,7 @@
             <thead class="table-light">
               <tr>
                 <th style="width: 160px;">Date</th>
+                <th style="width: 180px;">Updated By</th>
                 <th style="width: 160px;">Process</th>
                 <th>Remarks</th>
               </tr>
@@ -177,6 +205,7 @@
             <tbody>
               <tr *ngFor="let item of timeline">
                 <td>{{ item.entryDate | date:'dd-MMM-yyyy HH:mm' }}</td>
+                <td>{{ item.updatedByUser || ('Login ID: ' + item.loginID) }}</td>
                 <td>{{ item.licenceProcessName }}</td>
                 <td>{{ item.remarks || '-' }}</td>
               </tr>

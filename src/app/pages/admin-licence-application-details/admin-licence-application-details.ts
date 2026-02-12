@@ -2,9 +2,13 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { GoogleMapsModule } from '@angular/google-maps';
+import { FormsModule } from '@angular/forms';
 import { PortalAdminService } from '../portal-admin/portal-admin.service';
 import { InspectionService } from '../inspection/inspection.service';
 import { LocationDetails } from '../inspection/inspection.model';
+import { TokenService } from '../../core/services/token.service';
+import { NotificationService } from '../../shared/components/notification/notification.service';
+import { LicenceProcessTimelineItem } from '../inspection/inspection.service';
 
 interface AdminApplicationDetails {
   licenceApplicationID: number;
@@ -26,19 +30,9 @@ interface AdminApplicationDetails {
   loginID: number;
 }
 
-interface LicenceProcessTimelineItem {
-  licenceFlowID: number;
-  licenceApplicationID: number;
-  loginID: number;
-  licenceProcessName: string;
-  remarks: string;
-  ActionReasonIds: string;
-  entryDate: string;
-}
-
 @Component({
   selector: 'app-admin-licence-application-details',
-  imports: [CommonModule, RouterModule, GoogleMapsModule],
+  imports: [CommonModule, RouterModule, GoogleMapsModule, FormsModule],
   templateUrl: './admin-licence-application-details.html',
   styleUrl: './admin-licence-application-details.css',
 })
@@ -59,6 +53,8 @@ export class AdminLicenceApplicationDetails {
   ];
 
   remarks = '';
+  isSubmitting = false;
+  role = '';
 
   loadlocationDetails: LocationDetails | null = null;
   mapCenter: google.maps.LatLngLiteral = { lat: 0, lng: 0 };
@@ -77,10 +73,13 @@ export class AdminLicenceApplicationDetails {
     private route: ActivatedRoute,
     private portalAdminService: PortalAdminService,
     private inspectionService: InspectionService,
+    private tokenService: TokenService,
+    private notificationService: NotificationService,
     private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
+    this.role = this.tokenService.getUserRole();
     const idParam = this.route.snapshot.paramMap.get('licenceApplicationId') ?? '';
     const id = Number(idParam);
     if (!id) {
@@ -146,5 +145,87 @@ export class AdminLicenceApplicationDetails {
 
   downloadDocument(): void {
     return;
+  }
+
+  submitAdminAction(licenceProcessID: number, successMessage: string): void {
+    if (this.isSubmitting) {
+      return;
+    }
+
+    const loginID = this.tokenService.getUserId();
+    const licenceApplicationID = this.details?.licenceApplicationID;
+    const currentStatusID = this.details?.licenceApplicationStatusID;
+    if (!loginID || !licenceApplicationID) {
+      this.notificationService.show('Unable to submit action', 'warning');
+      return;
+    }
+    if (!currentStatusID) {
+      this.notificationService.show('Current status not available', 'warning');
+      return;
+    }
+    if (this.canShowReviewActions && !this.remarks?.trim()) {
+      this.notificationService.show('Please enter remarks before submitting action', 'warning');
+      return;
+    }
+
+    this.isSubmitting = true;
+    this.inspectionService.submitLicenceProcessAction({
+      licenceApplicationID,
+      loginID,
+      licenceProcessID,
+      currentStatus: String(currentStatusID),
+      remarks: this.remarks.trim(),
+      actionReasonIds: ''
+    }).subscribe({
+      next: () => {
+        this.isSubmitting = false;
+        this.notificationService.show(successMessage, 'success');
+      },
+      error: (error) => {
+        this.isSubmitting = false;
+        const message = this.extractApiErrorMessage(error);
+        this.notificationService.show(message, 'error');
+      }
+    });
+  }
+
+  private extractApiErrorMessage(error: any): string {
+    const errors = error?.error?.errors;
+    if (errors && typeof errors === 'object') {
+      const firstKey = Object.keys(errors)[0];
+      const firstValue = firstKey ? errors[firstKey] : null;
+      if (Array.isArray(firstValue) && firstValue.length > 0) {
+        return String(firstValue[0]);
+      }
+    }
+
+    return (
+      error?.error?.Message ||
+      error?.error?.message ||
+      error?.error?.detail ||
+      error?.error?.title ||
+      'Failed to submit action'
+    );
+  }
+
+  get canForwardToSenior(): boolean {
+    const status = this.details?.licenceApplicationStatusName?.trim().toUpperCase() ?? '';
+    return status.includes('INSPECT');
+  }
+
+  private normalizeRole(role: string | null | undefined): string {
+    return (role ?? '').toLowerCase().replace(/[\s_-]+/g, '');
+  }
+
+  get isZoneApproverRole(): boolean {
+    const normalized = this.normalizeRole(this.role);
+    return normalized === 'zoneapprover' || normalized === 'zonalapprover';
+  }
+
+  get canShowReviewActions(): boolean {
+    if (this.isZoneApproverRole) {
+      return true;
+    }
+    return this.canForwardToSenior;
   }
 }

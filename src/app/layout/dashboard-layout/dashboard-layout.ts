@@ -28,6 +28,34 @@ export class DashboardLayout {
     this.getUserDetails();
   }
 
+  private normalizeRole(role: string | null | undefined): string {
+    return (role ?? '').toLowerCase().replace(/[\s_-]+/g, '');
+  }
+
+  get normalizedRole(): string {
+    return this.normalizeRole(this.role);
+  }
+
+  get isAdminRole(): boolean {
+    return this.normalizedRole === 'admin';
+  }
+
+  get isSeniorApproverRole(): boolean {
+    return this.normalizedRole === 'seniorapprover' || this.normalizedRole === 'seniorapprovingofficer';
+  }
+
+  get isApproverRole(): boolean {
+    return this.normalizedRole === 'approver' || this.normalizedRole === 'approvingofficer';
+  }
+
+  get isZoneApproverRole(): boolean {
+    return this.normalizedRole === 'zoneapprover' || this.normalizedRole === 'zonalapprover';
+  }
+
+  get isTradeOwnerRole(): boolean {
+    return this.normalizedRole === 'tradeowner' || this.normalizedRole === 'trader';
+  }
+
 
   getUserDetails(){
     this.userEmailID = this.tokenService.getUserEmail();

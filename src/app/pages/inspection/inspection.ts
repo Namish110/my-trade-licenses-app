@@ -12,20 +12,11 @@ import { isPlatformBrowser } from '@angular/common';
 import { TokenService } from '../../core/services/token.service';
 import { GoogleMapsModule } from '@angular/google-maps';
 import { LocationDetails } from './inspection.model';
+import { LicenceProcessTimelineItem } from './inspection.service';
 
 interface InspectionPhoto {
   file: File;
   preview: string;
-}
-
-interface LicenceProcessTimelineItem {
-  licenceFlowID: number;
-  licenceApplicationID: number;
-  loginID: number;
-  licenceProcessName: string;
-  remarks: string;
-  ActionReasonIds: string;
-  entryDate: string;
 }
 
 @Component({
@@ -262,7 +253,7 @@ export class Inspection {
 
   cancel() {
     this.notificationservice.show('Inspection cancelled', 'info');
-    this.router.navigate(['/approver/approving-officer']);
+    this.router.navigate([this.getBackRoute()]);
   }
 
   loadTimeline() {
@@ -286,7 +277,7 @@ export class Inspection {
     });
   }
 
-  submitProcessAction(licenceProcessID: number, currentStatusID: number) {
+  submitProcessAction(licenceProcessID: number, currentStatusID?: number) {
     if (this.isSubmitting) {
       return;
     }
@@ -304,33 +295,74 @@ export class Inspection {
       return;
     }
 
+    const resolvedCurrentStatusID =
+      currentStatusID ||
+      this.licenceApplicationDetails?.licenceApplicationStatusID;
+    if (!resolvedCurrentStatusID) {
+      this.notificationservice.show('Current status is not loaded. Please refresh and try again.', 'warning');
+      return;
+    }
+
+    const remarks = this.remarks?.trim() ?? '';
+    if (!remarks) {
+      this.notificationservice.show('Please enter remarks before submitting action', 'warning');
+      return;
+    }
+
     this.setSubmitting(true);
 
+    const payload = {
+      licenceApplicationID,
+      loginID: loginId,
+      licenceProcessID,
+      currentStatus: String(resolvedCurrentStatusID),
+      remarks,
+      actionReasonIds: ''
+    };
+
+    console.log('[Inspection] submitProcessAction payload:', payload);
+
     this.inspectionservice
-      .submitLicenceProcessAction({
-        licenceApplicationID,
-        loginID: loginId,
-        licenceProcessID,
-        currentStatus: String(currentStatusID),
-        currentStatusID,
-        remarks: this.remarks || '',
-        actionReasonIds: ''
-      })
+      .submitLicenceProcessAction(payload)
       .subscribe({
         next: () => {
           this.setSubmitting(false);
           this.notificationservice.show('Status updated successfully', 'success');
-          this.router.navigate(['/approver/approving-officer']);
+          this.router.navigate([this.getBackRoute()]);
         },
         error: (error) => {
           this.setSubmitting(false);
-          const message =
-            error?.error?.message ||
-            error?.error?.title ||
-            'Failed to update status';
+          console.error('[Inspection] submitProcessAction API error:', error);
+          console.error('[Inspection] failed payload:', payload);
+          const message = this.extractApiErrorMessage(error);
           this.notificationservice.show(message, 'error');
         }
       });
+  }
+
+  private extractApiErrorMessage(error: any): string {
+    const errors = error?.error?.errors;
+    if (errors && typeof errors === 'object') {
+      const firstKey = Object.keys(errors)[0];
+      const firstValue = firstKey ? errors[firstKey] : null;
+      if (Array.isArray(firstValue) && firstValue.length > 0) {
+        return String(firstValue[0]);
+      }
+    }
+
+    return (
+      error?.error?.Message ||
+      error?.error?.message ||
+      error?.error?.detail ||
+      error?.error?.title ||
+      'Failed to update status'
+    );
+  }
+
+  private getBackRoute(): string {
+    return this.isSeniorApprover
+      ? '/senior-approver/senior-approving-officer'
+      : '/approver/approving-officer';
   }
 
   /* =========================

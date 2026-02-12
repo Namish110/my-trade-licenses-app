@@ -73,9 +73,19 @@
     <div class="footer">
       <div>
         Bangalore<br>
-        Dated.
+        Date: {{ generatedAt | date: 'dd/MM/yyyy' }}<br>
+        Time: {{ generatedAt | date: 'hh:mm:ss a' }}
       </div>
       <div class="signature">
+        <div class="signature-mark">
+          <img
+            *ngIf="showSignatureImage"
+            [src]="signatureImageUrl"
+            alt="Authorised Signature"
+            (error)="onSignatureImageError()"
+          >
+          <span *ngIf="!showSignatureImage">Authorised Signature</span>
+        </div>
         Medical Officer of Health<br>
         Bruhat Bangalore Mahanagara Palike<br>
         Bangalore
