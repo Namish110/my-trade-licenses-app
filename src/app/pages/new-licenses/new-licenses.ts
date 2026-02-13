@@ -34,6 +34,7 @@ interface TradeGridItem {
   major: any;
   minor: string;
   sub: string;
+  tradeSubID: number;
   rate: number;
 }
 declare const google: any;
@@ -568,6 +569,7 @@ autoDetectCurrentLocation() {
             major: this.selectedMajor!.tradeMajorName,
             minor: this.selectedMinor!.tradeMinorName,
             sub: this.selectedSub!.tradeSubName,
+            tradeSubID: this.selectedSub!.tradeSubID,
             rate: res.tradeLicenceFee ?? 0
           });
 
@@ -1404,6 +1406,7 @@ fetchRoadWidth(lng: number, lat: number) {
                   this.tradeLicenseApplications.licenceApplicationID =
                     draftRes.licenceApplicationID;
 
+                  await this.saveTradeDetailsTemp(draftRes.licenceApplicationID);
                   await this.saveUserLocationDetails(draftRes.licenceApplicationID);
                   await this.saveOrUpdateDocuments(draftRes.licenceApplicationID);
 
@@ -1414,6 +1417,36 @@ fetchRoadWidth(lng: number, lat: number) {
           },
           error: reject
         });
+    });
+  }
+
+  private saveTradeDetailsTemp(licenceAppId: number): Promise<void> {
+    return new Promise((resolve, reject) => {
+      if (!licenceAppId || Number.isNaN(licenceAppId)) {
+        resolve();
+        return;
+      }
+
+      if (!this.tradeGrid.length) {
+        resolve();
+        return;
+      }
+
+      const requests = this.tradeGrid.map((item) =>
+        this.newLicensesService.saveTradeDetailTemp({
+          licenceApplicationID: licenceAppId,
+          tradeSubID: item.tradeSubID,
+          tradeFee: item.rate
+        })
+      );
+
+      forkJoin(requests).subscribe({
+        next: () => resolve(),
+        error: (err) => {
+          console.error('Failed to save trade details temp:', err);
+          reject(err);
+        }
+      });
     });
   }
 

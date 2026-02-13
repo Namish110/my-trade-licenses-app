@@ -126,4 +126,12 @@ getDraftByLogin(loginId: number) {
   paymentIntiate(payload: any){
     return this.http.post<any>(`${this.baseUrl}/payment/initiate`, payload);
   }
+
+  saveTradeDetailTemp(payload: {
+    licenceApplicationID: number;
+    tradeSubID: number;
+    tradeFee: number;
+  }) {
+    return this.http.post<any>(`${this.baseUrl}/licence-trade-details/temp`, payload);
+  }
 }

@@ -43,4 +43,17 @@ export class PaymentSuccessService {
         `${this.baseUrl}/licence-application/payment-success/${licensesApplicationNumber}`, {}
     );
   }
+
+  saveTradeDetailsFinalSubmit(licenceApplicationID: number) {
+    return this.http.post(
+      `${this.baseUrl}/licence-trade-details/final-submit/${licenceApplicationID}`,
+      {}
+    );
+  }
+
+  getLicenceApplicationById(licenceApplicationID: number) {
+    return this.http.get<any>(
+      `${this.baseUrl}/licence-application/${licenceApplicationID}`
+    );
+  }
 }
