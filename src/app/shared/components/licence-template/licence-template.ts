@@ -27,4 +27,12 @@ export class LicenceTemplate {
   @Input() paymentDate = '';
   @Input() renewBefore = '';
   @Input() qrCodeOrCertificateHash = '';
+  @Input() signatureImageUrl = '/SIGNATURE.png';
+
+  generatedAt = new Date();
+  showSignatureImage = true;
+
+  onSignatureImageError(): void {
+    this.showSignatureImage = false;
+  }
 }

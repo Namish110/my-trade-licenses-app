@@ -254,6 +254,7 @@
           <thead class="table-light">
             <tr>
               <th style="width: 160px;">Date</th>
+              <th style="width: 180px;">Updated By</th>
               <th style="width: 160px;">Process</th>
               <th>Remarks</th>
             </tr>
@@ -261,6 +262,7 @@
           <tbody>
             <tr *ngFor="let item of timeline">
               <td>{{ item.entryDate | date:'dd-MMM-yyyy HH:mm' }}</td>
+              <td>{{ item.updatedByUser || ('Login ID: ' + item.loginID) }}</td>
               <td>{{ item.licenceProcessName }}</td>
               <td>{{ item.remarks || '-' }}</td>
             </tr>
@@ -276,26 +278,26 @@
     <button class="btn btn-outline-primary" (click)="saveDraft()">
       Save Draft
     </button>
-    <button *ngIf="!isSeniorApprover" class="btn btn-success" [disabled]="isSubmitting" (click)="submitProcessAction(7, 3)">
-      Submit Inspection
+    <button *ngIf="!isSeniorApprover" class="btn btn-success" [disabled]="isSubmitting" (click)="submitProcessAction(7)">
+      Inspected
     </button>
-    <button *ngIf="!isSeniorApprover" class="btn btn-warning text-dark" [disabled]="isSubmitting" (click)="submitProcessAction(6, 3)">
-      Forward
+    <button *ngIf="!isSeniorApprover" class="btn btn-warning text-dark" [disabled]="isSubmitting" (click)="submitProcessAction(6)">
+      Forward To Higher Authority
     </button>
-    <button *ngIf="!isSeniorApprover" class="btn btn-danger" [disabled]="isSubmitting" (click)="submitProcessAction(4, 3)">
-      Reject
+    <button *ngIf="!isSeniorApprover" class="btn btn-danger" [disabled]="isSubmitting" (click)="submitProcessAction(4)">
+      Rejected
+    </button>
+    <button *ngIf="!isSeniorApprover" class="btn btn-outline-secondary" [disabled]="isSubmitting" (click)="submitProcessAction(5)">
+      Objection
     </button>
 
-    <button *ngIf="isSeniorApprover" class="btn btn-success" [disabled]="isSubmitting" (click)="submitProcessAction(3, 3)">
-      Approve
+    <button *ngIf="isSeniorApprover" class="btn btn-success" [disabled]="isSubmitting" (click)="submitProcessAction(3)">
+      Approved
     </button>
-    <button *ngIf="isSeniorApprover" class="btn btn-warning text-dark" [disabled]="isSubmitting" (click)="submitProcessAction(6, 3)">
-      Forward
+    <button *ngIf="isSeniorApprover" class="btn btn-danger" [disabled]="isSubmitting" (click)="submitProcessAction(4)">
+      Rejected
     </button>
-    <button *ngIf="isSeniorApprover" class="btn btn-danger" [disabled]="isSubmitting" (click)="submitProcessAction(4, 3)">
-      Reject
-    </button>
-    <button *ngIf="isSeniorApprover" class="btn btn-outline-secondary" [disabled]="isSubmitting" (click)="submitProcessAction(5, 3)">
+    <button *ngIf="isSeniorApprover" class="btn btn-outline-secondary" [disabled]="isSubmitting" (click)="submitProcessAction(5)">
       Objection
     </button>
   </div>

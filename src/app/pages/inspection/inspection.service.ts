@@ -1,8 +1,28 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { map } from 'rxjs';
 import { TradeType } from '../../core/models/new-trade-licenses.model';
 import { ApprovedApplications, LicenceApplicationModel, TradeLicensesApplicationDetails } from '../../core/models/trade-licenses-details.model';
 import { LocationDetails } from './inspection.model';
+
+export interface LicenceProcessTimelineItem {
+  licenceFlowID: number;
+  licenceApplicationID: number;
+  loginID: number;
+  updatedByUser?: string;
+  licenceProcessName: string;
+  status?: string;
+  remarks: string;
+  actionReasonIds?: string;
+  ActionReasonIds?: string;
+  entryDate: string;
+}
+
+interface LicenceProcessTimelineResponse {
+  success?: boolean;
+  licenceApplicationID?: number;
+  timeline?: LicenceProcessTimelineItem[];
+}
 
 @Injectable({
   providedIn: 'root'
@@ -71,7 +91,6 @@ export class InspectionService {
     loginID: number;
     licenceProcessID: number;
     currentStatus: string;
-    currentStatusID?: number;
     remarks: string;
     actionReasonIds: string;
   }) {
@@ -82,8 +101,15 @@ export class InspectionService {
   }
 
   getLicenceProcessTimeline(licenceApplicationID: number) {
-    return this.http.get<any[]>(
+    return this.http.get<LicenceProcessTimelineItem[] | LicenceProcessTimelineResponse>(
       `${this.baseUrl}/master/licence-process/application/${licenceApplicationID}/timeline`
+    ).pipe(
+      map((response) => {
+        if (Array.isArray(response)) {
+          return response;
+        }
+        return response?.timeline ?? [];
+      })
     );
   }
 }

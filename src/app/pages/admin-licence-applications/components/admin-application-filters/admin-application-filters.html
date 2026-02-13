@@ -1,0 +1,81 @@
+<div class="filter-grid">
+  <div>
+    <label class="form-label">Zone</label>
+    <div class="suggestion-input-wrap">
+      <input
+        class="form-control"
+        [(ngModel)]="zoneSearchTerm"
+        (change)="onZoneChanged()"
+        [attr.list]="'zone-suggestion-list'"
+        placeholder="Search and select Zone"
+      />
+      <button
+        type="button"
+        class="btn btn-sm btn-outline-secondary clear-btn"
+        (click)="clearZone()"
+      >
+        Clear
+      </button>
+    </div>
+    <datalist id="zone-suggestion-list">
+      <option *ngFor="let zone of filteredZones" [value]="zone.zoneName"></option>
+    </datalist>
+  </div>
+
+  <div>
+    <label class="form-label">MOH</label>
+    <div class="suggestion-input-wrap">
+      <input
+        class="form-control"
+        [(ngModel)]="mohSearchTerm"
+        (change)="onMohChanged()"
+        [attr.list]="'moh-suggestion-list'"
+        placeholder="Search and select MOH"
+      />
+      <button
+        type="button"
+        class="btn btn-sm btn-outline-secondary clear-btn"
+        (click)="clearMoh()"
+      >
+        Clear
+      </button>
+    </div>
+    <datalist id="moh-suggestion-list">
+      <option *ngFor="let moh of filteredMohOptions" [value]="moh.mohName"></option>
+    </datalist>
+  </div>
+
+  <div>
+    <label class="form-label">Ward</label>
+    <div class="suggestion-input-wrap">
+      <input
+        class="form-control"
+        [(ngModel)]="wardSearchTerm"
+        (change)="onWardChanged()"
+        [attr.list]="'ward-suggestion-list'"
+        placeholder="Search and select Ward"
+        [disabled]="wards.length === 0"
+      />
+      <button
+        type="button"
+        class="btn btn-sm btn-outline-secondary clear-btn"
+        (click)="clearWard()"
+      >
+        Clear
+      </button>
+    </div>
+    <datalist id="ward-suggestion-list">
+      <option *ngFor="let ward of filteredWardOptions" [value]="ward.wardName"></option>
+    </datalist>
+  </div>
+
+  <div class="search-col">
+    <label class="form-label">Search</label>
+    <input
+      class="form-control"
+      [(ngModel)]="localSearchText"
+      (ngModelChange)="onSearchChanged()"
+      placeholder="Application No / Applicant / Trade / Mobile / Status"
+    />
+  </div>
+</div>

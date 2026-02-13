@@ -37,7 +37,7 @@
     <!-- SIDEBAR -->
     <aside class="sidebar" [class.collapsed]="isSidebarCollapsed">
 
-      <nav class="menu" *ngIf="role === 'Admin'">
+      <nav class="menu" *ngIf="isAdminRole">
         <a class="menu-item" routerLink="/admin" routerLinkActive="active">
           <i class="bi bi-speedometer2"></i>
           <span>Dashboard</span>
@@ -83,6 +83,12 @@
               <i class="bi bi-dot"></i>
               <span>Senior Approving Officer</span>
             </a>
+            <a class="menu-item submenu-item"
+              routerLink="/admin/workflows/zone-approving-officer"
+              routerLinkActive="active">
+              <i class="bi bi-dot"></i>
+              <span>Zone Approver</span>
+            </a>
           </div>
         </div>
 
@@ -117,7 +123,7 @@
         </a>
       </nav>
 
-      <nav class="menu" *ngIf="role === 'SeniorApprover'">
+      <nav class="menu" *ngIf="isSeniorApproverRole">
         <a class="menu-item" routerLink="/senior-approver" routerLinkActive="active">
           <i class="bi bi-speedometer2"></i>
           <span>Dashboard</span>
@@ -134,7 +140,7 @@
         </a>
       </nav>
 
-      <nav class="menu" *ngIf="role === 'Approver'">
+      <nav class="menu" *ngIf="isApproverRole">
         <a class="menu-item" routerLink="/approver" routerLinkActive="active">
           <i class="bi bi-speedometer2"></i>
           <span>Dashboard</span>
@@ -150,9 +156,21 @@
           <span>Reports</span>
         </a>
       </nav>
+
+      <nav class="menu" *ngIf="isZoneApproverRole">
+        <a class="menu-item" routerLink="/zone-approver" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+          <i class="bi bi-speedometer2"></i>
+          <span>Dashboard</span>
+        </a>
+
+        <a class="menu-item" routerLink="/zone-approver/zone-approving-officer" routerLinkActive="active">
+          <i class="bi bi-diagram-3"></i>
+          <span>Zone Approver Panel</span>
+        </a>
+      </nav>
   
 
-      <nav class="menu" *ngIf="role === 'TRADE_OWNER'">
+      <nav class="menu" *ngIf="isTradeOwnerRole">
 
         <a class="menu-item"
           routerLink="/trader"

@@ -1,0 +1,16 @@
+.table-card {
+  border-radius: 12px;
+}
+
+.page-size-select {
+  min-width: 72px;
+}
+
+.table th,
+.table td {
+  vertical-align: middle;
+}
+
+.clickable-row {
+  cursor: pointer;
+}

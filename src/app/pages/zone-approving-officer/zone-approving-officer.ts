@@ -1,25 +1,28 @@
-import { ChangeDetectorRef, Component, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterModule } from '@angular/router';
+import { ChangeDetectorRef, Component, OnDestroy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ApprovingOfficerService } from './approving-officer.service';
-import { ApprovedApplications, AllApprovedApplication } from '../../core/models/trade-licenses-details.model';
+import { Router, RouterModule } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { TokenService } from '../../core/services/token.service';
 import { NotificationService } from '../../shared/components/notification/notification.service';
-import { Subscription } from 'rxjs';
+import {
+  ZoneApproverApplication,
+  ZoneApprovingOfficerService
+} from './zone-approving-officer.service';
 
 @Component({
-  selector: 'app-approving-officer',
-  imports: [CommonModule, RouterModule, FormsModule],
-  templateUrl: './approving-officer.html',
-  styleUrl: './approving-officer.css',
+  selector: 'app-zone-approving-officer',
+  imports: [CommonModule, FormsModule, RouterModule],
+  templateUrl: './zone-approving-officer.html',
+  styleUrl: './zone-approving-officer.css'
 })
-export class ApprovingOfficer implements OnDestroy {
-  applications: AllApprovedApplication[] = [];
-  filteredApplications: AllApprovedApplication[] = [];
-  pageApplications: AllApprovedApplication[] = [];
+export class ZoneApprovingOfficer implements OnDestroy {
+  applications: ZoneApproverApplication[] = [];
+  filteredApplications: ZoneApproverApplication[] = [];
+  pageApplications: ZoneApproverApplication[] = [];
   zones: string[] = [];
   wards: string[] = [];
+  visibleStatuses: string[] = [];
   statusOptions: string[] = [];
 
   selectedZone = '';
@@ -34,22 +37,21 @@ export class ApprovingOfficer implements OnDestroy {
   totalPages = 0;
   pages: number[] = [];
   isLoading = false;
-  visibleStatuses: string[] = [];
 
   private filterTimer: ReturnType<typeof setTimeout> | null = null;
   private requestId = 0;
   private readonly subscriptions = new Subscription();
 
   constructor(
+    private readonly zoneApprovingOfficerService: ZoneApprovingOfficerService,
+    private readonly tokenService: TokenService,
+    private readonly notificationService: NotificationService,
     private readonly router: Router,
-    private readonly approvingofficerService: ApprovingOfficerService,
-    private readonly cdr: ChangeDetectorRef,
-    private readonly tokenservice: TokenService,
-    private readonly notificationservice: NotificationService
+    private readonly cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
-    this.loadAppliedApproverApplications();
+    this.loadZoneApproverApplications();
   }
 
   ngOnDestroy(): void {
@@ -59,74 +61,71 @@ export class ApprovingOfficer implements OnDestroy {
     }
   }
 
-  onInspectionClick(applicationNo: number): void {
-    this.router.navigate(['/approver/inspection', applicationNo]);
-  }
-
-  loadAppliedApproverApplications(): void {
-    this.isLoading = true;
-    const loginId = this.tokenservice.getUserId();
+  loadZoneApproverApplications(): void {
+    const loginId = this.tokenService.getUserId();
     if (!loginId) {
-      this.notificationservice.show('Invalid login id', 'warning');
-      this.isLoading = false;
+      this.notificationService.show('Invalid login id', 'warning');
       return;
     }
 
+    this.isLoading = true;
     const currentRequest = ++this.requestId;
-    const sub = this.approvingofficerService
-      .getAppliedApproverApplications(loginId, this.pageNumber, this.pageSize)
+
+    const sub = this.zoneApprovingOfficerService
+      .getZoneApproverApplications(loginId, this.pageNumber, this.pageSize)
       .subscribe({
-      next: (res: ApprovedApplications) => {
-        if (currentRequest !== this.requestId) {
-          return;
-        }
+        next: (response) => {
+          if (currentRequest !== this.requestId) {
+            return;
+          }
 
-        this.applications = res?.data ?? [];
-        this.totalRecords = Number(res?.totalRecords ?? 0);
-        this.pageNumber = Number(res?.pageNumber ?? this.pageNumber);
-        this.pageSize = Number(res?.pageSize ?? this.pageSize);
-        this.totalPages = Math.max(1, Math.ceil(this.totalRecords / this.pageSize));
+          this.applications = response?.data ?? [];
+          this.totalRecords = Number(response?.totalRecords ?? 0);
+          this.pageNumber = Number(response?.pageNumber ?? this.pageNumber);
+          this.pageSize = Number(response?.pageSize ?? this.pageSize);
+          this.totalPages = Math.max(1, Math.ceil(this.totalRecords / this.pageSize));
+          this.visibleStatuses = response?.visibleStatuses ?? [];
 
-        this.zones = Array.from(
-          new Set(this.applications.map((app) => app.mohName).filter(Boolean))
-        ).sort();
-        this.wards = this.buildWardOptions();
-        this.visibleStatuses = this.buildVisibleStatuses(res?.status);
-        this.statusOptions = this.buildStatusOptions();
+          this.zones = Array.from(
+            new Set(this.applications.map((app) => app.mohName).filter(Boolean))
+          ).sort();
+          this.wards = this.buildWardOptions();
+          this.statusOptions = this.buildStatusOptions();
 
-        if (this.selectedZone && !this.zones.includes(this.selectedZone)) {
-          this.selectedZone = '';
-        }
-        if (this.selectedWard && !this.wards.includes(this.selectedWard)) {
-          this.selectedWard = '';
-        }
-        if (this.selectedStatus && !this.statusOptions.includes(this.selectedStatus)) {
-          this.selectedStatus = '';
-        }
+          if (this.selectedZone && !this.zones.includes(this.selectedZone)) {
+            this.selectedZone = '';
+          }
+          if (this.selectedWard && !this.wards.includes(this.selectedWard)) {
+            this.selectedWard = '';
+          }
+          if (this.selectedStatus && !this.statusOptions.includes(this.selectedStatus)) {
+            this.selectedStatus = '';
+          }
 
-        this.applyLocalFilters();
-        this.generatePages();
-        this.isLoading = false;
-        this.cdr.detectChanges();
-      },
-      error: () => {
-        if (currentRequest !== this.requestId) {
-          return;
+          this.applyLocalFilters();
+          this.generatePages();
+          this.isLoading = false;
+          this.cdr.detectChanges();
+        },
+        error: () => {
+          if (currentRequest !== this.requestId) {
+            return;
+          }
+
+          this.applications = [];
+          this.filteredApplications = [];
+          this.pageApplications = [];
+          this.totalRecords = 0;
+          this.totalPages = 0;
+          this.visibleStatuses = [];
+          this.zones = [];
+          this.wards = [];
+          this.statusOptions = [];
+          this.pages = [];
+          this.isLoading = false;
+          this.cdr.detectChanges();
         }
-        this.applications = [];
-        this.filteredApplications = [];
-        this.pageApplications = [];
-        this.totalRecords = 0;
-        this.totalPages = 0;
-        this.zones = [];
-        this.wards = [];
-        this.statusOptions = [];
-        this.visibleStatuses = [];
-        this.pages = [];
-        this.isLoading = false;
-        this.cdr.detectChanges();
-      }
-    });
+      });
 
     this.subscriptions.add(sub);
   }
@@ -134,6 +133,9 @@ export class ApprovingOfficer implements OnDestroy {
   onZoneChanged(): void {
     this.selectedWard = '';
     this.wards = this.buildWardOptions();
+    if (this.selectedWard && !this.wards.includes(this.selectedWard)) {
+      this.selectedWard = '';
+    }
     this.applyLocalFilters();
   }
 
@@ -149,20 +151,20 @@ export class ApprovingOfficer implements OnDestroy {
     if (this.filterTimer) {
       clearTimeout(this.filterTimer);
     }
+
     this.filterTimer = setTimeout(() => {
       this.applyLocalFilters();
     }, 300);
   }
 
-  generatePages(): void {
-    const maxPagesToShow = 5;
-    const startPage = Math.max(1, this.pageNumber - 2);
-    const endPage = Math.min(this.totalPages, startPage + maxPagesToShow - 1);
-
-    this.pages = [];
-    for (let i = startPage; i <= endPage; i++) {
-      this.pages.push(i);
+  onOpenApplicationDetails(application: ZoneApproverApplication): void {
+    if (!application.licenceApplicationID) {
+      return;
     }
+    this.router.navigate(
+      ['/zone-approver/licence-applications', application.licenceApplicationID],
+      { queryParams: { from: 'zone-approver' } }
+    );
   }
 
   changePage(page: number): void {
@@ -170,7 +172,7 @@ export class ApprovingOfficer implements OnDestroy {
       return;
     }
     this.pageNumber = page;
-    this.loadAppliedApproverApplications();
+    this.loadZoneApproverApplications();
   }
 
   onPageSizeChanged(value: number): void {
@@ -180,7 +182,18 @@ export class ApprovingOfficer implements OnDestroy {
     }
     this.pageSize = parsed;
     this.pageNumber = 1;
-    this.loadAppliedApproverApplications();
+    this.loadZoneApproverApplications();
+  }
+
+  private generatePages(): void {
+    const maxPagesToShow = 5;
+    const startPage = Math.max(1, this.pageNumber - 2);
+    const endPage = Math.min(this.totalPages, startPage + maxPagesToShow - 1);
+    this.pages = [];
+
+    for (let page = startPage; page <= endPage; page++) {
+      this.pages.push(page);
+    }
   }
 
   private applyLocalFilters(): void {
@@ -215,24 +228,14 @@ export class ApprovingOfficer implements OnDestroy {
     const source = selectedZone
       ? this.applications.filter((app) => (app.mohName || '').toLowerCase() === selectedZone)
       : this.applications;
-    return Array.from(new Set(source.map((app) => app.wardName).filter(Boolean))).sort();
-  }
 
-  private buildVisibleStatuses(statusValue: string | null | undefined): string[] {
-    if (!statusValue?.trim()) {
-      return [];
-    }
-    return statusValue
-      .split(',')
-      .map((value) => value.trim())
-      .filter(Boolean);
+    return Array.from(new Set(source.map((app) => app.wardName).filter(Boolean))).sort();
   }
 
   private buildStatusOptions(): string[] {
     if (this.visibleStatuses.length > 0) {
       return [...this.visibleStatuses];
     }
-
     return Array.from(
       new Set(this.applications.map((app) => app.licenceApplicationStatusName).filter(Boolean))
     ).sort();
@@ -256,18 +259,15 @@ export class ApprovingOfficer implements OnDestroy {
     return 'badge text-bg-secondary';
   }
 
-  get showingTo(): number {
-    return Math.min(
-      (this.pageNumber - 1) * this.pageSize + this.pageApplications.length,
-      this.displayTotalRecords
-    );
-  }
-
   get showingFrom(): number {
     if (!this.displayTotalRecords) {
       return 0;
     }
     return (this.pageNumber - 1) * this.pageSize + 1;
+  }
+
+  get showingTo(): number {
+    return Math.min((this.pageNumber - 1) * this.pageSize + this.pageApplications.length, this.displayTotalRecords);
   }
 
   get displayTotalRecords(): number {

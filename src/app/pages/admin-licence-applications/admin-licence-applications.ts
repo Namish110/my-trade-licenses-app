@@ -1,186 +1,231 @@
 import { CommonModule } from '@angular/common';
-import { Component, ChangeDetectorRef } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
-import { PortalAdminService } from '../portal-admin/portal-admin.service';
-
-interface AdminApplication {
-  licenceApplicationID: number;
-  applicationNumber: string;
-  applicationSubmitDate: string;
-  licenceApplicationStatusID: number;
-  licenceApplicationStatusName: string;
-  tradeLicenceID: number;
-  applicantName: string;
-  tradeName: string;
-  mobileNumber: string;
-  emailID: string;
-  zoneID: number;
-  zoneName: string;
-  mohID: number;
-  mohName: string;
-  wardID: number;
-  wardName: string;
-  loginID: number;
-}
+import { Component, OnDestroy } from '@angular/core';
+import { forkJoin, Subscription } from 'rxjs';
+import { Router } from '@angular/router';
+import { AdminApplicationFiltersComponent, AdminApplicationFilterState } from './components/admin-application-filters/admin-application-filters';
+import { AdminApplicationTableComponent } from './components/admin-application-table/admin-application-table';
+import { AdminApplication, AdminApplicationsService } from './admin-applications.service';
+import { MLCConstituency, Ward, Zones } from '../../core/models/new-trade-licenses.model';
 
 @Component({
   selector: 'app-admin-licence-applications',
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, AdminApplicationFiltersComponent, AdminApplicationTableComponent],
   templateUrl: './admin-licence-applications.html',
   styleUrl: './admin-licence-applications.css',
 })
-export class AdminLicenceApplications {
+export class AdminLicenceApplications implements OnDestroy {
   isLoadingApplications = false;
   applications: AdminApplication[] = [];
+  zones: Zones[] = [];
+  mohs: MLCConstituency[] = [];
+  filteredMohs: MLCConstituency[] = [];
+  wards: Ward[] = [];
+
+  selectedZoneId: number | null = null;
+  selectedMohId: number | null = null;
+  selectedWardId: number | null = null;
+  searchText = '';
+
   totalRecords = 0;
   pageNumber = 1;
   pageSize = 10;
-  totalPages = 0;
-  pages: number[] = [];
-  filters = {
-    zoneId: '',
-    mohId: '',
-    wardId: '',
-    licenceApplicationId: '',
-    applicationNumber: '',
-    status: 'ALL',
-  };
+
+  private filterTimer: ReturnType<typeof setTimeout> | null = null;
+  private requestId = 0;
+  private readonly subscriptions = new Subscription();
 
   constructor(
-    private portalAdminService: PortalAdminService,
-    private router: Router,
-    private cdr: ChangeDetectorRef
+    private readonly adminApplicationsService: AdminApplicationsService,
+    private readonly router: Router
   ) {}
 
-  private filterTimer: any = null;
-  private requestId = 0;
-
   ngOnInit(): void {
+    this.loadFilterMasters();
     this.loadAdminApplications();
   }
 
-  loadAdminApplications(): void {
-    this.isLoadingApplications = true;
-    const currentRequest = ++this.requestId;
-    this.portalAdminService
-      .getAdminApplications({
-        zoneId: this.toNumberOrNull(this.filters.zoneId),
-        mohId: this.toNumberOrNull(this.filters.mohId),
-        wardId: this.toNumberOrNull(this.filters.wardId),
-        licenceApplicationId: this.toNumberOrNull(this.filters.licenceApplicationId),
-        applicationNumber: this.filters.applicationNumber?.trim() || null,
-        pageNumber: this.pageNumber,
-        pageSize: this.pageSize
-      })
-      .subscribe({
-        next: (response) => {
-          if (currentRequest !== this.requestId) {
-            return;
-          }
-          const data = (response?.data ?? []) as AdminApplication[];
-          const statusFilter = this.filters.status?.trim().toUpperCase();
-          const isStatusFiltered = statusFilter && statusFilter !== 'ALL';
-          this.applications = isStatusFiltered
-            ? data.filter((app: AdminApplication) =>
-                (app.licenceApplicationStatusName || '').toUpperCase() === statusFilter
-              )
-            : data;
-
-          if (isStatusFiltered) {
-            this.totalRecords = this.applications.length;
-            this.totalPages = 1;
-            this.pageNumber = 1;
-            this.pages = [1];
-          } else {
-            this.totalRecords = response?.totalRecords ?? 0;
-            this.totalPages = Math.ceil(this.totalRecords / this.pageSize) || 1;
-            this.generatePages();
-          }
-          this.isLoadingApplications = false;
-          this.cdr.detectChanges();
-        },
-        error: (err) => {
-          if (currentRequest !== this.requestId) {
-            return;
-          }
-          console.error('Failed to load admin applications', err);
-          this.isLoadingApplications = false;
-          this.cdr.detectChanges();
-        }
-      });
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
+    if (this.filterTimer) {
+      clearTimeout(this.filterTimer);
+    }
   }
 
-  applyFilters(): void {
-    this.pageNumber = 1;
-    this.loadAdminApplications();
+  onFiltersChanged(filterState: AdminApplicationFilterState): void {
+    const zoneChanged = this.selectedZoneId !== filterState.zoneId;
+    const mohChanged = this.selectedMohId !== filterState.mohId;
+    const wardChanged = this.selectedWardId !== filterState.wardId;
+
+    this.selectedZoneId = filterState.zoneId;
+    this.filteredMohs = this.selectedZoneId
+      ? this.mohs.filter((moh) => moh.zoneID === this.selectedZoneId)
+      : [...this.mohs];
+
+    const hasSelectedMoh = this.filteredMohs.some((moh) => moh.mohID === filterState.mohId);
+    if (!hasSelectedMoh && filterState.mohId !== null) {
+      this.selectedMohId = null;
+      this.selectedWardId = null;
+      this.wards = [];
+    } else {
+      this.selectedMohId = filterState.mohId;
+      this.selectedWardId = filterState.wardId;
+    }
+
+    if (mohChanged || zoneChanged) {
+      this.selectedWardId = null;
+      this.loadWardsForSelectedMoh();
+    }
+
+    if (zoneChanged || mohChanged || wardChanged) {
+      this.pageNumber = 1;
+      this.loadAdminApplications();
+    }
   }
 
-  onFiltersChanged(): void {
+  onSearchChanged(value: string): void {
+    this.searchText = value;
     this.pageNumber = 1;
+
     if (this.filterTimer) {
       clearTimeout(this.filterTimer);
     }
     this.filterTimer = setTimeout(() => {
       this.loadAdminApplications();
-    }, 400);
+    }, 350);
   }
 
-  changePage(page: number) {
-    if (page < 1 || page > this.totalPages || page === this.pageNumber) {
-      return;
-    }
+  onPageChanged(page: number): void {
     this.pageNumber = page;
     this.loadAdminApplications();
   }
 
-  generatePages() {
-    const maxPagesToShow = 5;
-    const startPage = Math.max(1, this.pageNumber - 2);
-    const endPage = Math.min(this.totalPages, startPage + maxPagesToShow - 1);
-
-    this.pages = [];
-    for (let i = startPage; i <= endPage; i++) {
-      this.pages.push(i);
-    }
+  onPageSizeChanged(pageSize: number): void {
+    this.pageSize = pageSize;
+    this.pageNumber = 1;
+    this.loadAdminApplications();
   }
 
-  get showingFrom(): number {
-    if (this.totalRecords === 0) {
-      return 0;
-    }
-    return (this.pageNumber - 1) * this.pageSize + 1;
-  }
-
-  get showingTo(): number {
-    return Math.min(this.pageNumber * this.pageSize, this.totalRecords);
-  }
-
-  onGenerateLicence(applicationNumber: string, licenceApplicationId?: number) {
-    if (!applicationNumber) {
+  onViewApplication(application: AdminApplication): void {
+    if (!application.applicationNumber) {
       return;
     }
-    this.router.navigate(['/admin/licence-certificate', applicationNumber], {
-      queryParams: {
-        from: 'admin',
-        licenceApplicationId: licenceApplicationId ?? null
-      }
+    const appNo = encodeURIComponent(application.applicationNumber);
+    const licenceApplicationId = application.licenceApplicationID;
+    this.router.navigate(['/admin/licence-certificate', appNo], {
+      queryParams: { from: 'admin', licenceApplicationId }
     });
   }
 
-  openDetails(licenceApplicationId: number) {
-    if (!licenceApplicationId) {
+  onOpenApplicationDetails(application: AdminApplication): void {
+    if (!application.licenceApplicationID) {
       return;
     }
-    this.router.navigate(['/admin/licence-applications', licenceApplicationId]);
+    this.router.navigate(['/admin/licence-applications', application.licenceApplicationID]);
   }
 
-  private toNumberOrNull(value: string): number | null {
-    const trimmed = value?.trim();
-    if (!trimmed) {
-      return null;
+  private loadAdminApplications(): void {
+    this.isLoadingApplications = true;
+    const currentRequest = ++this.requestId;
+
+    const query = {
+      zoneId: this.selectedZoneId,
+      mohId: this.selectedMohId,
+      wardId: this.selectedWardId,
+      applicationNumber: this.searchText?.trim() || null,
+      pageNumber: this.pageNumber,
+      pageSize: this.pageSize
+    };
+
+    const sub = this.adminApplicationsService.getAdminApplications(query).subscribe({
+      next: (response) => {
+        if (currentRequest !== this.requestId) {
+          return;
+        }
+
+        this.applications = response?.data ?? [];
+        this.totalRecords = Number(response?.totalRecords ?? 0);
+        this.pageNumber = Number(response?.pageNumber ?? this.pageNumber);
+        this.pageSize = Number(response?.pageSize ?? this.pageSize);
+        this.isLoadingApplications = false;
+      },
+      error: (error) => {
+        if (currentRequest !== this.requestId) {
+          return;
+        }
+        console.error('Failed to load admin applications', error);
+        this.applications = [];
+        this.totalRecords = 0;
+        this.isLoadingApplications = false;
+      }
+    });
+
+    this.subscriptions.add(sub);
+  }
+
+  private loadFilterMasters(): void {
+    const sub = forkJoin({
+      zones: this.adminApplicationsService.getZones(),
+      mohs: this.adminApplicationsService.getMohs()
+    }).subscribe({
+      next: ({ zones, mohs }) => {
+        this.zones = zones ?? [];
+        this.mohs = mohs ?? [];
+        this.filteredMohs = [...this.mohs];
+      },
+      error: (error) => {
+        console.error('Failed to load application filters', error);
+        this.zones = [];
+        this.mohs = [];
+        this.filteredMohs = [];
+      }
+    });
+
+    this.subscriptions.add(sub);
+  }
+
+  private loadWardsForSelectedMoh(): void {
+    this.wards = [];
+    const targetMohs = this.selectedMohId
+      ? this.mohs.filter((moh) => moh.mohID === this.selectedMohId)
+      : this.selectedZoneId
+        ? this.mohs.filter((moh) => moh.zoneID === this.selectedZoneId)
+        : [];
+
+    const constituencyIds = Array.from(
+      new Set(
+        targetMohs
+          .map((moh) => moh.constituencyID)
+          .filter((id): id is number => Number.isFinite(id) && id > 0)
+      )
+    );
+
+    if (!constituencyIds.length) {
+      return;
     }
-    const parsed = Number(trimmed);
-    return Number.isFinite(parsed) ? parsed : null;
+
+    const wardRequests = constituencyIds.map((id) =>
+      this.adminApplicationsService.getWardsByConstituency(id)
+    );
+
+    const sub = forkJoin(wardRequests).subscribe({
+      next: (wardGroups) => {
+        const merged = wardGroups.flat();
+        const unique = new Map<number, Ward>();
+        for (const ward of merged) {
+          if (!unique.has(ward.wardID)) {
+            unique.set(ward.wardID, ward);
+          }
+        }
+        this.wards = Array.from(unique.values()).sort((a, b) =>
+          (a.wardName || '').localeCompare(b.wardName || '')
+        );
+      },
+      error: (error) => {
+        console.error('Failed to load wards', error);
+        this.wards = [];
+      }
+    });
+
+    this.subscriptions.add(sub);
   }
 }

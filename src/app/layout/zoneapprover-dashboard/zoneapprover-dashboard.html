@@ -1,0 +1,54 @@
+<div class="zone-dashboard">
+  <section class="hero">
+    <div>
+      <h3>Zone Approver Dashboard</h3>
+      <p>Cross-check inspected applications zone-wise and forward valid files for final approval.</p>
+    </div>
+    <a class="btn btn-sm btn-light" routerLink="/zone-approver/zone-approving-officer">Open Workflow Panel</a>
+  </section>
+
+  <section class="kpi-grid">
+    <article class="kpi-card" *ngFor="let item of kpis" [ngClass]="item.tone">
+      <span>{{ item.label }}</span>
+      <h4>{{ item.value }}</h4>
+    </article>
+  </section>
+
+  <section class="content-grid">
+    <article class="panel">
+      <header>Zone Workload</header>
+      <div class="table-responsive">
+        <table class="table table-sm align-middle mb-0">
+          <thead>
+            <tr>
+              <th>Zone</th>
+              <th class="text-end">Pending</th>
+              <th class="text-end">Forwarded</th>
+              <th class="text-end">Objections</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let row of zoneSummary">
+              <td>{{ row.zone }}</td>
+              <td class="text-end">{{ row.pending }}</td>
+              <td class="text-end">{{ row.forwarded }}</td>
+              <td class="text-end">{{ row.objections }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </article>
+
+    <article class="panel">
+      <header>Action Queue</header>
+      <div class="queue">
+        <div class="queue-item danger">2 applications overdue for cross-check</div>
+        <div class="queue-item warning">5 applications pending beyond 3 days</div>
+        <div class="queue-item info">4 files waiting for forward to senior</div>
+      </div>
+      <a class="btn btn-outline-primary btn-sm w-100 mt-2" routerLink="/zone-approver/zone-approving-officer">
+        Review Priority Applications
+      </a>
+    </article>
+  </section>
+</div>

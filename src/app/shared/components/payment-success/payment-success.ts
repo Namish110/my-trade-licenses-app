@@ -2,6 +2,8 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { of } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 import { PaymentSuccessService } from './payment-success.service';
 import { LoaderService } from '../loader/loader.service';
 import { TradeLicenceStateService } from '../../services/trade-licenses-service';
@@ -29,13 +31,6 @@ export class PaymentSuccess {
   ) {}
 
   ngOnInit(): void {
-    // this.route.queryParams.subscribe(params => {
-    //   this.txnId = params['txnid'];
-    //   this.amount = params['amount'];
-    //   this.applicationNo = params['applicationNumber'];
-    //   this.paymentDate = params['addedon'];
-    // });
-    this.saveApplocation();
     this.route.queryParams.subscribe(params => {
       this.txnId = params['txnid'];
       this.amount = params['amount'];
@@ -43,55 +38,110 @@ export class PaymentSuccess {
       this.phone = params['phone'];
       this.corporationId = +params['corporationId'];
       this.licensesApplicationId = params['applicationNo'];
+      this.saveApplocation();
     });
   }
 
 
 
   saveApplocation(){
-    //To update in TradeLicense details
     this.loaderservice.show();
-    const tradeLicenceID = this.tradeLicenceStateService.getTradeLicenceID();
-    if(!tradeLicenceID){
-      console.log('Trade Licence ID is not available. Cannot save application to Trade License.');
-      console.log('Licenses Application ID:', this.licensesApplicationId);
-      console.log('Trade Licence State Service:', this.tradeLicenceStateService.getTradeLicenceID());
+    const licenceApplicationID = Number(this.licensesApplicationId);
+    if (!licenceApplicationID || Number.isNaN(licenceApplicationID)) {
+      console.error('Invalid licenceApplicationID in payment-success:', this.licensesApplicationId);
       this.loaderservice.hide();
       return;
     }
-    this.paymentSuccessService.saveApplicationToTradeLicense(tradeLicenceID).subscribe({
-      next: (res) => {
-        console.log('Application saved to Trade License:', res);    
-      },
-      error: (err) => {
-        console.error('Error saving application to Trade License:', err);
-        this.loaderservice.hide(); 
-      }
-    });
-    //To update in LicensesApplication details
-    this.loaderservice.show();
-    this.paymentSuccessService.saveApplicationToLicensesApp(+this.licensesApplicationId).subscribe({
-      next: (res) => {
-        console.log('Application submitted to Licence Application:', res); 
-        this.loaderservice.hide(); 
-      },
-      error: (err) => {
-        console.error('Error submitting application to Licence Application:', err);
-        this.loaderservice.hide(); 
-      }
-    });
-    //To update in payment details  
-    this.loaderservice.show();
-    this.paymentSuccessService.saveApplicationToTradeLicenseWithPayment(+this.licensesApplicationId).subscribe({
-      next: (res) => {
-        console.log('Application submitted to Trade License with payment:', res); 
-        this.loaderservice.hide(); 
+
+    // 1) Mark payment success first
+    this.paymentSuccessService.saveApplicationToTradeLicenseWithPayment(licenceApplicationID).subscribe({
+      next: (paymentRes) => {
+        console.log('Application submitted to Trade License with payment:', paymentRes);
+        this.submitFinalApis(licenceApplicationID);
       },
       error: (err) => {
         console.error('Error submitting application to Trade License with payment:', err);
-        this.loaderservice.hide(); 
+        this.loaderservice.hide();
       }
     });
+  }
+
+  private submitFinalApis(licenceApplicationID: number): void {
+    this.paymentSuccessService.saveApplicationToLicensesApp(licenceApplicationID).subscribe({
+      next: (licenceRes: any) => {
+        console.log('Licence application final submit success:', licenceRes);
+
+        const finalSubmittedLicenceApplicationID =
+          Number(licenceRes?.licenceApplicationID) || licenceApplicationID;
+
+        this.paymentSuccessService
+          .saveTradeDetailsFinalSubmit(finalSubmittedLicenceApplicationID)
+          .subscribe({
+            next: (tradeDetailsRes) => {
+              console.log('Trade details final submit success:', tradeDetailsRes);
+              this.submitTradeLicenceFinal(finalSubmittedLicenceApplicationID);
+            },
+            error: (err) => {
+              console.error('Error final submitting trade details:', err);
+              this.loaderservice.hide();
+            }
+          });
+      },
+      error: (err) => {
+        console.error('Error submitting application to Licence Application:', err);
+        this.loaderservice.hide();
+      }
+    });
+  }
+
+  private submitTradeLicenceFinal(licenceApplicationID: number): void {
+    this.resolveTradeLicenceID(licenceApplicationID).subscribe({
+      next: (tradeLicenceID) => {
+        if (!tradeLicenceID) {
+          console.warn('Trade Licence ID missing. Skipping trade-licence final submit.');
+          this.loaderservice.hide();
+          return;
+        }
+
+        this.paymentSuccessService.saveApplicationToTradeLicense(tradeLicenceID).subscribe({
+          next: (tradeRes) => {
+            console.log('Trade licence final submit success:', tradeRes);
+            console.log('Final submit flow completed.');
+            this.loaderservice.hide();
+          },
+          error: (err) => {
+            console.error('Error saving application to Trade License:', err);
+            this.loaderservice.hide();
+          }
+        });
+      },
+      error: (err) => {
+        console.error('Failed to resolve tradeLicenceID:', err);
+        this.loaderservice.hide();
+      }
+    });
+  }
+
+  private resolveTradeLicenceID(licenceApplicationID: number) {
+    const stateTradeLicenceID = this.tradeLicenceStateService.getTradeLicenceID();
+    if (stateTradeLicenceID) {
+      return of(stateTradeLicenceID);
+    }
+
+    return this.paymentSuccessService.getLicenceApplicationById(licenceApplicationID).pipe(
+      map((res: any) => {
+        const tradeLicenceID = Number(res?.tradeLicenceID);
+        if (tradeLicenceID && !Number.isNaN(tradeLicenceID)) {
+          this.tradeLicenceStateService.setTradeLicenceID(tradeLicenceID);
+          return tradeLicenceID;
+        }
+        return null;
+      }),
+      catchError((err) => {
+        console.error('Error fetching licence application details for tradeLicenceID:', err);
+        return of(null);
+      })
+    );
   }
 
   goToApplication(){
