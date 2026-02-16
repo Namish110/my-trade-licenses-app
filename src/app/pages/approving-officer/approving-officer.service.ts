@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { TradeType } from '../../core/models/new-trade-licenses.model';
 import { AllApprovedApplication, ApprovedApplications, LicenceApplicationModel } from '../../core/models/trade-licenses-details.model';
@@ -41,10 +41,75 @@ export class ApprovingOfficerService {
   getAppliedApproverApplications(
     loginId: number,
     pageNumber: number,
-    pageSize: number
+    pageSize: number,
+    filters?: {
+      mohId?: number | null;
+      wardId?: number | null;
+      licenceApplicationId?: number | null;
+      applicationNumber?: string | null;
+    }
   ) {
-    return this.http.get<ApprovedApplications>(
-      `${this.baseUrl}/trade-licence/approver/applications?loginId=${loginId}&pageNumber=${pageNumber}&pageSize=${pageSize}`
+    let params = new HttpParams()
+      .set('loginId', loginId.toString())
+      .set('pageNumber', pageNumber.toString())
+      .set('pageSize', pageSize.toString());
+
+    if (filters?.mohId) {
+      params = params.set('mohId', filters.mohId.toString());
+    }
+    if (filters?.wardId) {
+      params = params.set('wardId', filters.wardId.toString());
+    }
+    if (filters?.licenceApplicationId) {
+      params = params.set('licenceApplicationId', filters.licenceApplicationId.toString());
+    }
+    if (filters?.applicationNumber?.trim()) {
+      params = params.set('applicationNumber', filters.applicationNumber.trim());
+    }
+
+    return this.http.get<ApprovedApplications>(`${this.baseUrl}/trade-licence/approver/applications`, { params });
+  }
+
+  getApproverLookup(loginId: number) {
+    const params = new HttpParams().set('loginId', loginId.toString());
+    return this.http.get<{
+      role?: string;
+      mode?: string;
+      loginID?: number;
+      zones?: Array<{ ZoneID?: number; ZoneName?: string; zoneID?: number; zoneName?: string }>;
+      wards?: Array<{ WardID?: number; WardName?: string; ZoneID?: number; zoneID?: number; wardID?: number; wardName?: string }>;
+      Zones?: Array<{ ZoneID?: number; ZoneName?: string; zoneID?: number; zoneName?: string }>;
+      Wards?: Array<{ WardID?: number; WardName?: string; ZoneID?: number; zoneID?: number; wardID?: number; wardName?: string }>;
+    }>(`${this.baseUrl}/trade-licence/approver/lookup`, { params });
+  }
+
+  getApproverDashboard(loginId: number) {
+    return this.http.get<{
+      role?: string;
+      mode?: string;
+      loginID?: number;
+      data?: {
+        TotalApplied?: number;
+        TotalObjection?: number;
+        TotalRejected?: number;
+        GrandTotal?: number;
+        totalApplied?: number;
+        totalObjection?: number;
+        totalRejected?: number;
+        grandTotal?: number;
+      };
+      Data?: {
+        TotalApplied?: number;
+        TotalObjection?: number;
+        TotalRejected?: number;
+        GrandTotal?: number;
+        totalApplied?: number;
+        totalObjection?: number;
+        totalRejected?: number;
+        grandTotal?: number;
+      };
+    }>(
+      `${this.baseUrl}/trade-licence/approver/dashboard?loginId=${loginId}`
     );
   }
 
