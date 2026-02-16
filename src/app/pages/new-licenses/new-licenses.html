@@ -84,12 +84,14 @@
         <div class="row g-3">
           <div class="col-md-4">
             <label class="required">Trade Type</label>
-            <select class="form-select" [(ngModel)]="selectedTradeType">
-              <option [ngValue]="null">Select</option>
-              <option *ngFor="let trade of tradeTypes" [ngValue]="trade">
-                {{ trade.tradeTypeName }}
-              </option>
-            </select>
+            <ng-select
+              [items]="tradeTypes"
+              bindLabel="tradeTypeName"
+              [(ngModel)]="selectedTradeType"
+              [clearable]="false"
+              placeholder="Select">
+            </ng-select>
+
           </div>
           <div class="col-md-4">
             <label class="required">Trade Name</label>
@@ -121,21 +123,41 @@
         <div class="row g-3">
           <div class="col-md-4">
             <label class="required">MLA Constituency</label>
-            <select class="form-select" [(ngModel)]="selectedMLAConstituency" (change)="onMLAConstituencyChange()">
+            <!-- <select class="form-select" [(ngModel)]="selectedMLAConstituency" (change)="onMLAConstituencyChange()">
               <option [ngValue]="null">Select</option>
               <option *ngFor="let mla of mlaConstituencies" [ngValue]="mla">
                 {{ mla.mohName }}
               </option>
-            </select>
+            </select> -->
+            <ng-select
+              [items]="mlaConstituencies"
+              bindLabel="mohName"
+              [(ngModel)]="selectedMLAConstituency"
+              (change)="onMLAConstituencyChange()"
+              placeholder="Select"
+              [clearable]="false">
+            </ng-select>
+
+
           </div>
           <div class="col-md-4">
             <label class="required">Ward</label>
-            <select class="form-select" [(ngModel)]="selectedWard" [disabled]="!selectedMLAConstituency">
+            <!-- <select class="form-select" [(ngModel)]="selectedWard" [disabled]="!selectedMLAConstituency">
               <option [ngValue]="null">Select</option>
               <option *ngFor="let w of wards" [ngValue]="w">
                 {{ w.wardName }}
               </option>
-            </select>
+            </select> -->
+            <ng-select
+              [items]="wards"
+              bindLabel="wardName"
+              [(ngModel)]="selectedWard"
+              [disabled]="!selectedMLAConstituency"
+              [clearable]="false"
+              placeholder="Select">
+            </ng-select>
+
+
           </div>
           <div class="col-md-4">
             <label class="required">BESCOM RR No.</label>
@@ -173,14 +195,14 @@
       <!-- ======================================================
            STEP 2 – TRADE
       ======================================================= -->
-      <div *ngIf="currentStep === 2">
+      <div [hidden]="currentStep !== 2">
 
         <h5 class="section-title">Trade Classification (Schedule X)</h5>
 
-        <div class="row g-3 align-items-end">
+        <div class="row g-3">
           <div class="col-md-4">
             <label class="required">Major Trade</label>
-            <select
+            <!-- <select
               class="form-select"
               [(ngModel)]="selectedMajor"
               [compareWith]="compareById"
@@ -189,13 +211,21 @@
               <option *ngFor="let m of tradeMajors" [ngValue]="m">
                 {{ m.tradeMajorName }}
               </option>
-            </select>
+            </select> -->
+            <ng-select
+              [items]="tradeMajors"
+              bindLabel="tradeMajorName"
+              [(ngModel)]="selectedMajor"
+              (change)="onMajorChange()"
+              placeholder="Select"
+              [clearable]="false">
+            </ng-select>
           </div>
 
 
           <div class="col-md-4">
             <label class="required">Minor Trade</label>
-            <select
+            <!-- <select
                 class="form-select"
                 [(ngModel)]="selectedMinor"
                 [compareWith]="compareById"
@@ -205,12 +235,21 @@
               <option *ngFor="let mi of tradeMinors" [ngValue]="mi">
                 {{ mi.tradeMinorName }}
               </option>
-            </select>
+            </select> -->
+            <ng-select
+              [items]="tradeMinors"
+              bindLabel="tradeMinorName"
+              [(ngModel)]="selectedMinor"
+              (change)="onMinorChange()"
+              [disabled]="!selectedMajor"
+              placeholder="Select"
+              [clearable]="false">
+            </ng-select>
           </div>
 
           <div class="col-md-4">
             <label class="required">Sub Trade</label>
-            <select
+            <!-- <select
               class="form-select"
               [(ngModel)]="selectedSub"
               [compareWith]="compareById"
@@ -219,14 +258,22 @@
               <option *ngFor="let s of tradeSubs" [ngValue]="s">
                 {{ s.tradeSubName }}
               </option>
-            </select>
+            </select> -->
+            <ng-select
+              [items]="tradeSubs"
+              bindLabel="tradeSubName"
+              [(ngModel)]="selectedSub"
+              [disabled]="!selectedMinor"
+              placeholder="Select"
+              [clearable]="false">
+            </ng-select>
           </div>
         </div>
 
         <div class="mt-3">
           <strong>Rate:</strong> {{ '--' }}
           <button
-            type="submit"
+            type="button"
             class="btn btn-primary ms-3"
             (click)="addTrade()">
             Add
@@ -252,7 +299,7 @@
             <td>{{ t.sub }}</td>
             <td>{{ t.rate }}</td>
             <td>
-              <button class="btn btn-danger btn-sm" (click)="removeTrade(i)">
+              <button type="button" class="btn btn-danger btn-sm" (click)="removeTrade(i)">
                 Remove
               </button>
             </td>
@@ -275,7 +322,7 @@
       <!-- ======================================================
            STEP 3 – FEE
       ======================================================= -->
-      <div *ngIf="currentStep === 3">
+      <div [hidden]="currentStep !== 3">
         <h5 class="section-title">Parking Details</h5>
 
         <div class="row g-4">
@@ -316,12 +363,14 @@
         <div class="row g-3">
           <div class="col-md-4">
             <label class="required">Jurisdiction of Health Officer (Zone)</label>
-            <select class="form-select" [(ngModel)]="selectedZone">
-              <option [ngValue]="null">Select</option>
-              <option *ngFor="let z of zones" [ngValue]="z">
-                {{ z.zoneName }}
-              </option>
-            </select>
+            <ng-select
+              [items]="zones"
+              bindLabel="zoneName"
+              [(ngModel)]="selectedZone"
+              [searchable]="true"
+              [clearable]="false"
+              placeholder="Select">
+            </ng-select>
           </div>
           <div class="col-md-4">
             <label class="required">Date of Application</label>
@@ -348,12 +397,21 @@
           <div class="row g-3">
           <div class="col-md-4">
             <label class="required">Zone Classification</label>
-            <select class="form-select" [(ngModel)]="selectedZoneClassification">
+            <!-- <select class="form-select" [(ngModel)]="selectedZoneClassification">
               <option [ngValue]="null">Select</option>
               <option *ngFor="let zc of zoneClassifications" [ngValue]="zc">
                 {{ zc.zonalClassificationName }}
               </option>
-            </select>
+            </select> -->
+            <ng-select
+              [items]="zoneClassifications"
+              bindLabel="zonalClassificationName"
+              [(ngModel)]="selectedZoneClassification"
+              placeholder="Select"
+              [clearable]="false"
+              [searchable]="true">
+            </ng-select>
+
           </div>
           <div class="col-md-4">
             <label class="required">License Fee Prescribed</label>
@@ -371,7 +429,7 @@
     <!-- ======================================================
      STEP 4 – LOCATION (GOOGLE MAP ONLY)
       ======================================================= -->
-      <div *ngIf="currentStep === 4">
+      <div [hidden]="currentStep !== 4">
 
         <h5 class="section-title">Road Width Check (Location)</h5>
 
@@ -622,14 +680,14 @@
 
         <div class="d-flex justify-content-between mt-4">
           <button class="btn btn-outline-secondary" (click)="prevStep()">← Back</button>
-          <button class="btn btn-primary" (click)="nextStep()">Send OTP →</button>
+          <button class="btn btn-primary" (click)="nextStep()">Continue →</button>
         </div>
 
       </div>
       <!-- ======================================================
           STEP 6 – OTP VERIFICATION
       ======================================================= -->
-      <div *ngIf="currentStep === 6">
+      <div [hidden]="currentStep !== 6">
 
         <h5 class="section-title">OTP Verification</h5>
 
@@ -645,13 +703,13 @@
           <label>Enter OTP</label>
           <input class="form-control mb-2"
                 [(ngModel)]="otp"
-                placeholder="Enter OTP">
+                placeholder="Enter a 6 Digit OTP">
           <button class="btn btn-success" (click)="verifyOtp()">Verify OTP</button>
         </div>
 
-        <!-- <div *ngIf="otpVerified" class="alert alert-success mt-3">
+        <div *ngIf="otpVerified" class="alert alert-success mt-3">
           OTP verified successfully.
-        </div> -->
+        </div>
 
         <div class="d-flex justify-content-between mt-4">
           <button class="btn btn-outline-secondary" (click)="prevStep()">← Back</button>
@@ -666,7 +724,7 @@
       <!--==========================================================
           STEP FOR CONFORMATION
           ==========================================================-->
-        <div *ngIf="currentStep === 7">
+      <div [hidden]="currentStep !== 7">
         <h6>
           {{ infoAboutIssueRelated }}
         </h6>
@@ -706,7 +764,7 @@
       <!-- ======================================================
           STEP 7 – FINAL PREVIEW
       ======================================================= -->
-      <div *ngIf="currentStep === 8">
+      <div [hidden]="currentStep !== 8">
         <h5 class="section-title mt-4">Trade & Fee Summary</h5>
 
         <table class="table table-bordered">
