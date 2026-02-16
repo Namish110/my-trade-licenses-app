@@ -1,82 +1,101 @@
-<div class="dashboard-wrapper">
-  <div class="container dashboard-content">
-
-    <!-- ================= KPI CARDS ================= -->
-    <div class="kpi-row mb-4">
-      <div class="kpi-card warning">
-        <span>Total Applications</span>
-        <h3>24</h3>
-      </div>
-
-      <div class="kpi-card info">
-        <span>Applications In Process</span>
-        <h3>7</h3>
-      </div>
-
-      <div class="kpi-card primary">
-        <span>Forwarded to Senior</span>
-        <h3>12</h3>
-      </div>
-
-      <div class="kpi-card success">
-        <span>Issues Raised</span>
-        <h3>10</h3>
-      </div>
-
-      <div class="kpi-card danger">
-        <span>Rejected</span>
-        <h3>3</h3>
-      </div>
+<div class="approver-dashboard">
+  <section class="hero-card">
+    <div>
+      <p class="eyebrow">Approver Control Panel</p>
+      <h2>License Decisions Overview</h2>
+      <p class="subtext">Real-time count summary for applied, objection, and rejected applications.</p>
     </div>
+    <button class="btn btn-light btn-sm" (click)="loadDashboard()" [disabled]="isLoading">
+      {{ isLoading ? 'Refreshing...' : 'Refresh Counts' }}
+    </button>
+  </section>
 
-    <!-- ================= ANALYTICS ROW ================= -->
-    <div class="analytics-row mb-4">
-      <!-- Status Distribution -->
-      <div class="analytics-card">
-        <div class="analytics-header">Applications by Status</div>
-        <div class="analytics-body">
-          <canvas id="statusChart"></canvas>
-        </div>
-      </div>
+  <section class="status-strip" *ngIf="!loadError">
+    <span>Last updated: {{ lastUpdated | date: 'dd MMM yyyy, hh:mm a' }}</span>
+    <span>Coverage: {{ accountedPercent | number : '1.0-1' }}%</span>
+  </section>
 
-      <!-- Trend -->
-      <div class="analytics-card wide">
-        <div class="analytics-header">Applications Trend (Last 30 Days)</div>
-        <div class="analytics-body">
-          <canvas id="trendChart"></canvas>
-        </div>
-      </div>
-    </div>
+  <section class="error-state" *ngIf="loadError">
+    <span>{{ loadError }}</span>
+    <button class="btn btn-outline-danger btn-sm" (click)="loadDashboard()">Try Again</button>
+  </section>
 
-    <!-- ================= OPERATIONAL INSIGHTS ================= -->
-    <div class="analytics-row">
-      <!-- Zone Load -->
-      <div class="analytics-card">
-        <div class="analytics-header">Zone-wise Load</div>
-        <div class="analytics-body">
-          <canvas id="zoneChart"></canvas>
-        </div>
-      </div>
+  <section class="kpi-grid" *ngIf="!loadError">
+    <article class="kpi-card grand">
+      <span>Grand Total</span>
+      <h3>{{ formatNumber(stats.GrandTotal) }}</h3>
+      <small>All applications in scope</small>
+    </article>
 
-      <!-- Approver Actions -->
-      <div class="analytics-card">
-        <div class="analytics-header">Action Required</div>
-        <div class="analytics-body action-panel">
-          <div class="action-item danger">
-            ⚠ 3 applications overdue
+    <article class="kpi-card applied" [routerLink]="['/approver/approving-officer']" [queryParams]="{ statusId: 2 }">
+      <span>Total Applied</span>
+      <h3>{{ formatNumber(stats.TotalApplied) }}</h3>
+      <small>{{ totalAppliedPercent | number : '1.0-1' }}% of total</small>
+    </article>
+
+    <article class="kpi-card objection" [routerLink]="['/approver/approving-officer']" [queryParams]="{ statusId: 5 }">
+      <span>Total Objection</span>
+      <h3>{{ formatNumber(stats.TotalObjection) }}</h3>
+      <small>{{ totalObjectionPercent | number : '1.0-1' }}% of total</small>
+    </article>
+
+    <article class="kpi-card rejected" [routerLink]="['/approver/approving-officer']" [queryParams]="{ statusId: 4 }">
+      <span>Total Rejected</span>
+      <h3>{{ formatNumber(stats.TotalRejected) }}</h3>
+      <small>{{ totalRejectedPercent | number : '1.0-1' }}% of total</small>
+    </article>
+  </section>
+
+  <section class="insight-grid" *ngIf="!loadError">
+    <article class="panel distribution">
+      <header>Application Distribution</header>
+      <div class="ring-wrap">
+        <div
+          class="progress-ring"
+          [style.--applied]="totalAppliedPercent"
+          [style.--objection]="totalObjectionPercent"
+          [style.--rejected]="totalRejectedPercent"
+        >
+          <div class="ring-center">
+            <strong>{{ stats.GrandTotal ? (accountedPercent | number : '1.0-0') : '0' }}%</strong>
+            <span>Accounted</span>
           </div>
-          <div class="action-item warning">
-            ⏳ 5 pending > 7 days
-          </div>
-          <div class="action-item info">
-            📤 4 awaiting senior approval
-          </div>
-          <button class="btn btn -sm btn-outline-primary mt-2 w-100">
-            View Priority Applications
-          </button>
+        </div>
+        <div class="legend">
+          <div><span class="dot applied"></span>Applied: {{ formatNumber(stats.TotalApplied) }}</div>
+          <div><span class="dot objection"></span>Objection: {{ formatNumber(stats.TotalObjection) }}</div>
+          <div><span class="dot rejected"></span>Rejected: {{ formatNumber(stats.TotalRejected) }}</div>
         </div>
       </div>
-    </div>
+    </article>
 
-  </div>
+    <article class="panel actions">
+      <header>Quick Actions</header>
+      <div class="queue">
+        <div class="queue-item warning">
+          <a [routerLink]="['/approver/approving-officer']" [queryParams]="{ statusId: 2 }">
+            Applied pending review: {{ formatNumber(stats.TotalApplied) }}
+          </a>
+        </div>
+        <div class="queue-item info">
+          <a [routerLink]="['/approver/approving-officer']" [queryParams]="{ statusId: 5 }">
+            Objection cases to resolve: {{ formatNumber(stats.TotalObjection) }}
+          </a>
+        </div>
+        <div class="queue-item danger">
+          <a [routerLink]="['/approver/approving-officer']" [queryParams]="{ statusId: 4 }">
+            Rejected cases recorded: {{ formatNumber(stats.TotalRejected) }}
+          </a>
+        </div>
+      </div>
+      <a class="btn btn-outline-primary btn-sm w-100 mt-2" routerLink="/approver/approving-officer">
+        Open Approval Workflow
+      </a>
+    </article>
+  </section>
+
+  <section class="loading-state" *ngIf="isLoading">
+    <div class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></div>
+    <span>Loading latest approver dashboard data...</span>
+  </section>
 </div>
