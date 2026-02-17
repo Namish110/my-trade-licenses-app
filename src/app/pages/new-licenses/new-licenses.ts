@@ -9,13 +9,9 @@ import {
 } from '@angular/core';
 import { GoogleMapsModule } from '@angular/google-maps';
 import { GoogleMap } from '@angular/google-maps';
-
-
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-
-
 import { NewLicensesService } from './new-licenses.service';
 import { TradeMajor, TradeMinor, TradeSub, TradeType, Ward, TradeLicenseApplication, TradeLicenseApplicationDetails, AssemblyConstituency, Zones, ZoneClassification, MLCConstituency, TradeLicensesFee, LicenseDocuments, RoadWidthDetails } from '../../core/models/new-trade-licenses.model';
 import { initializeApplicationDetails, initializeTradeApplication } from '../../helpers/trade-license.factory';
@@ -25,14 +21,17 @@ import { NotificationService } from '../../shared/components/notification/notifi
 import { forkJoin, lastValueFrom } from 'rxjs';
 import { LoaderService } from '../../shared/components/loader/loader.service';
 import { TradeLicenceStateService } from '../../shared/services/trade-licenses-service';
+import { NgSelectModule } from '@ng-select/ng-select';
 
 
 /* =========================
    FIX LEAFLET ICON ISSUE
 ========================= */
 interface TradeGridItem {
-  major: any;
+  major: string;
+  majorID: number;
   minor: string;
+  minorID: number;
   sub: string;
   tradeSubID: number;
   rate: number;
@@ -41,11 +40,9 @@ declare const google: any;
 
 @Component({
   selector: 'app-new-licenses',
-  imports: [CommonModule, FormsModule, RouterModule, GoogleMapsModule   ],
+  imports: [CommonModule, FormsModule, RouterModule, GoogleMapsModule, NgSelectModule],
   templateUrl: './new-licenses.html',
   styleUrl: './new-licenses.css',
-  
-  
 })
 export class NewLicenses {
   //Stepper Logic
@@ -141,12 +138,12 @@ selectedRectangle!: google.maps.Rectangle;
   selectedZoneClassification: ZoneClassification | null = null;
 
   constructor(@Inject(PLATFORM_ID) private platformId: Object, private newLicensesService: NewLicensesService, 
-  private router: Router,
-  private tokenservice : TokenService,
-  private notificationservice: NotificationService,
-  private loaderservice: LoaderService,
-  private tradeLicenceStateService: TradeLicenceStateService,
-  private cdr: ChangeDetectorRef) {}
+   private router: Router,
+   private tokenservice : TokenService,
+   private notificationservice: NotificationService,
+   private loaderservice: LoaderService,
+   private tradeLicenceStateService: TradeLicenceStateService,
+   private cdr: ChangeDetectorRef) {}
 
 
   // ================= GOOGLE MAP STATE =================
@@ -553,11 +550,30 @@ autoDetectCurrentLocation() {
   }
 
   addTrade() {
+    this.loaderservice.show();
+
     if (!this.selectedMajor || !this.selectedMinor || !this.selectedSub) {
       this.notificationservice.show(
         'Please select Major, Minor and Sub Trade',
         'warning'
       );
+      this.loaderservice.hide();
+      return;
+    }
+
+    // 🔥 Prevent Duplicate
+    const exists = this.tradeGrid.some(t =>
+      t.majorID === this.selectedMajor!.tradeMajorID &&
+      t.minorID === this.selectedMinor!.tradeMinorID &&
+      t.tradeSubID === this.selectedSub!.tradeSubID
+    );
+
+    if (exists) {
+      this.notificationservice.show(
+        'This trade combination is already added.',
+        'warning'
+      );
+      this.loaderservice.hide();
       return;
     }
 
@@ -565,24 +581,30 @@ autoDetectCurrentLocation() {
       .getLicensesFee(this.selectedSub.tradeSubID)
       .subscribe({
         next: (res) => {
+
           this.tradeGrid.push({
-            major: this.selectedMajor!.tradeMajorName,
+            major: this.selectedMajor!.tradeMajorName ?? '',
+            majorID: this.selectedMajor!.tradeMajorID,
             minor: this.selectedMinor!.tradeMinorName,
+            minorID: this.selectedMinor!.tradeMinorID,
             sub: this.selectedSub!.tradeSubName,
             tradeSubID: this.selectedSub!.tradeSubID,
             rate: res.tradeLicenceFee ?? 0
           });
 
           this.calculateFee();
+          this.loaderservice.hide();
         },
         error: () => {
           this.notificationservice.show(
             'The amount could not be added. Please try again.',
             'warning'
           );
+          this.loaderservice.hide();
         }
       });
   }
+
 
   removeTrade(index: number) {
     this.tradeGrid.splice(index, 1);
@@ -642,8 +664,10 @@ autoDetectCurrentLocation() {
   otpVerified = false;
 
   sendOtp() {
+    this.loaderservice.show();
     if (!this.tradeLicenseApplicationDetails.mobileNumber || this.tradeLicenseApplicationDetails.mobileNumber.length !== 10) {
       this.notificationservice.show('Please enter a valid 10-digit mobile number', 'warning');
+      this.loaderservice.hide();
       return;
     }
 
@@ -651,9 +675,11 @@ autoDetectCurrentLocation() {
       next: () => {
         this.otpSent = true;
         this.notificationservice.show('OTP sent successfully', 'success');
+        this.loaderservice.hide();
       },
       error: () => {
         this.notificationservice.show('Failed to send OTP', 'error');
+        this.loaderservice.hide();
       }
     });
   }
@@ -663,16 +689,14 @@ autoDetectCurrentLocation() {
   }
 
   verifyOtpAutomatically() {
+    this.loaderservice.show();
     this.newLicensesService
     .verifyOtp(this.tradeLicenseApplicationDetails.mobileNumber, this.otp)
     .subscribe({
       next: (res) => {
         if (res.isValid) {
           this.otpVerified = true; 
-          this.notificationservice.show(
-            'OTP is Verified.',
-            'success'
-          );
+          this.loaderservice.hide();
         } else {
           this.otpVerified = false;
           this.notificationservice.show(
@@ -680,11 +704,13 @@ autoDetectCurrentLocation() {
             'error'
           );
           this.otp = '';
+          this.loaderservice.hide();
         }
       },
       error: () => {
         this.otpVerified = false;
         alert('OTP verification failed');
+        this.loaderservice.hide();
       }
     });
   }
@@ -1010,29 +1036,27 @@ fetchRoadWidth(lng: number, lat: number) {
 
   //PageLoadMethod
   ngOnInit(): void {
+    // 1️⃣ Load dropdown masters (safe to load always)
+    this.loadTradeType();
+    this.loadTradeMajors();
+    this.loadMLAConstituencies();
+    this.loadZones();
+    this.loadZoneClassification();
 
-  // 1️⃣ Load dropdown masters (safe to load always)
-  this.loadTradeMajors();
-  this.loadTradeType();
-  this.loadMLAConstituencies();
-  this.loadZones();
-  this.loadZoneClassification();
+    // 2️⃣ Check if draft exists
+    const draftId = localStorage.getItem('draftLicenceApplicationId');
 
-  // 2️⃣ Check if draft exists
-  const draftId = localStorage.getItem('draftLicenceApplicationId');
+    if (draftId) {
+      // 🔥 RESTORE ONLY (do NOT initialize fresh)
+      this.restoreDraftIfExists(+draftId);
+      return;
+    }
 
-  if (draftId) {
-    // 🔥 RESTORE ONLY (do NOT initialize fresh)
-    this.restoreDraftIfExists(+draftId);
-    return;
+    // 3️⃣ Fresh application (ONLY if no draft)
+    this.tradeLicenseApplicationDetails = initializeApplicationDetails();
+    this.tradeLicenseApplications = initializeTradeApplication();
+    this.tradeLicenseApplications.licenceFromDate = new Date(this.applicationDate);
   }
-
-  // 3️⃣ Fresh application (ONLY if no draft)
-  this.tradeLicenseApplicationDetails = initializeApplicationDetails();
-  this.tradeLicenseApplications = initializeTradeApplication();
-  this.tradeLicenseApplications.licenceFromDate =
-    new Date(this.applicationDate);
-}
 
   private restoreDraftIfExists(draftId: number): void {
     if (!draftId || Number.isNaN(draftId)) {
@@ -1157,12 +1181,10 @@ fetchRoadWidth(lng: number, lat: number) {
 
   //When major changes
   onMajorChange() {
+    if (!this.selectedMajor) return;
     this.selectedMinor = null;
     this.selectedSub = null;
     this.tradeSubs = [];
-
-    if (!this.selectedMajor) return;
-
     this.newLicensesService
       .getTradeMinorsByMajor(this.selectedMajor.tradeMajorID)
       .subscribe({
@@ -1175,10 +1197,8 @@ fetchRoadWidth(lng: number, lat: number) {
 
   //When minor changes
   onMinorChange() {
-    this.selectedSub = null;
-
     if (!this.selectedMinor) return;
-
+    this.selectedSub = null;
     this.newLicensesService
       .getTradeSubsByMinor(this.selectedMinor.tradeMinorID)
       .subscribe({
@@ -1194,6 +1214,7 @@ fetchRoadWidth(lng: number, lat: number) {
     this.newLicensesService.getTradeTypes().subscribe({
       next: (res) => {
         this.tradeTypes = res;
+        this.cdr.detectChanges();
       },
       error: (err) => console.error(err)
     });
@@ -1212,6 +1233,7 @@ fetchRoadWidth(lng: number, lat: number) {
   //When MLA Constituency changes
   onMLAConstituencyChange(){
     if(!this.selectedMLAConstituency) return;
+    this.selectedWard = null;
     this.newLicensesService.getWardsByMLAConstituency(this.selectedMLAConstituency.constituencyID).subscribe({
       next: (res) => {
         this.wards = res;
