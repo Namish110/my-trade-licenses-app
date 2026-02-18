@@ -71,8 +71,8 @@ export interface TradeLicenseApplication {
   finanicalYearID: number;
   tradeTypeID: number;
   bescomRRNumber: string;
-  tinNumber: string;
-  vatNumber: string;
+  gstNumber: string;
+  panNumber: string;
   licenceFromDate: Date;
   licenceToDate: Date;
   licenceApplicationStatusID: number;

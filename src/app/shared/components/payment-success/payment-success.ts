@@ -57,38 +57,10 @@ export class PaymentSuccess {
     this.paymentSuccessService.saveApplicationToTradeLicenseWithPayment(licenceApplicationID).subscribe({
       next: (paymentRes) => {
         console.log('Application submitted to Trade License with payment:', paymentRes);
-        this.submitFinalApis(licenceApplicationID);
+        this.submitTradeLicenceFinal(licenceApplicationID);
       },
       error: (err) => {
         console.error('Error submitting application to Trade License with payment:', err);
-        this.loaderservice.hide();
-      }
-    });
-  }
-
-  private submitFinalApis(licenceApplicationID: number): void {
-    this.paymentSuccessService.saveApplicationToLicensesApp(licenceApplicationID).subscribe({
-      next: (licenceRes: any) => {
-        console.log('Licence application final submit success:', licenceRes);
-
-        const finalSubmittedLicenceApplicationID =
-          Number(licenceRes?.licenceApplicationID) || licenceApplicationID;
-
-        this.paymentSuccessService
-          .saveTradeDetailsFinalSubmit(finalSubmittedLicenceApplicationID)
-          .subscribe({
-            next: (tradeDetailsRes) => {
-              console.log('Trade details final submit success:', tradeDetailsRes);
-              this.submitTradeLicenceFinal(finalSubmittedLicenceApplicationID);
-            },
-            error: (err) => {
-              console.error('Error final submitting trade details:', err);
-              this.loaderservice.hide();
-            }
-          });
-      },
-      error: (err) => {
-        console.error('Error submitting application to Licence Application:', err);
         this.loaderservice.hide();
       }
     });
@@ -106,8 +78,7 @@ export class PaymentSuccess {
         this.paymentSuccessService.saveApplicationToTradeLicense(tradeLicenceID).subscribe({
           next: (tradeRes) => {
             console.log('Trade licence final submit success:', tradeRes);
-            console.log('Final submit flow completed.');
-            this.loaderservice.hide();
+            this.submitLicenceApplicationFinal(licenceApplicationID);
           },
           error: (err) => {
             console.error('Error saving application to Trade License:', err);
@@ -142,6 +113,20 @@ export class PaymentSuccess {
         return of(null);
       })
     );
+  }
+
+  private submitLicenceApplicationFinal(licenceApplicationID: number): void {
+    this.paymentSuccessService.saveApplicationToLicensesApp(licenceApplicationID).subscribe({
+      next: (licenceRes: any) => {
+        console.log('Licence application final submit success:', licenceRes);
+        console.log('Final submit flow completed.');
+        this.loaderservice.hide();
+      },
+      error: (err) => {
+        console.error('Error submitting application to Licence Application:', err);
+        this.loaderservice.hide();
+      }
+    });
   }
 
   goToApplication(){

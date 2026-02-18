@@ -18,7 +18,8 @@ import { initializeApplicationDetails, initializeTradeApplication } from '../../
 import { Router } from '@angular/router';
 import { TokenService } from '../../core/services/token.service';
 import { NotificationService } from '../../shared/components/notification/notification.service';
-import { forkJoin, lastValueFrom } from 'rxjs';
+import { from, lastValueFrom, timer } from 'rxjs';
+import { concatMap, retry, toArray } from 'rxjs/operators';
 import { LoaderService } from '../../shared/components/loader/loader.service';
 import { TradeLicenceStateService } from '../../shared/services/trade-licenses-service';
 import { NgSelectModule } from '@ng-select/ng-select';
@@ -108,8 +109,8 @@ selectedRectangle!: google.maps.Rectangle;
     finanicalYearID: 0,
     tradeTypeID: 0,
     bescomRRNumber: '',
-    tinNumber: '',
-    vatNumber: '',
+    gstNumber: '',
+    panNumber: '',
     licenceFromDate: null as any,
     licenceToDate: null as any,
     licenceApplicationStatusID: 0,
@@ -144,6 +145,22 @@ selectedRectangle!: google.maps.Rectangle;
    private loaderservice: LoaderService,
    private tradeLicenceStateService: TradeLicenceStateService,
    private cdr: ChangeDetectorRef) {}
+
+  private debugLog(message: string, data?: any): void {
+    if (data !== undefined) {
+      console.log(`[new-licenses] ${message}`, data);
+      return;
+    }
+    console.log(`[new-licenses] ${message}`);
+  }
+
+  private debugError(message: string, data?: any): void {
+    if (data !== undefined) {
+      console.error(`[new-licenses] ${message}`, data);
+      return;
+    }
+    console.error(`[new-licenses] ${message}`);
+  }
 
 
   // ================= GOOGLE MAP STATE =================
@@ -230,6 +247,49 @@ autoDetectCurrentLocation() {
 
   startApplication() {
     this.currentStep = 8;
+  }
+
+  private buildDraftPayloadForUpdate() {
+    const fromDate = this.tradeLicenseApplications.licenceFromDate
+      ? new Date(this.tradeLicenseApplications.licenceFromDate)
+      : new Date(this.applicationDate);
+    const toDate = this.tradeLicenseApplications.licenceToDate
+      ? new Date(this.tradeLicenseApplications.licenceToDate)
+      : fromDate;
+
+    const loginId =
+      this.tokenservice.getTraderUserId() ??
+      this.tokenservice.getUserId() ??
+      this.tokenservice.getEffectiveUserId() ??
+      0;
+
+    return {
+      licenceApplicationID: this.tradeLicenseApplications.licenceApplicationID || 0,
+      newApplicationNumber: this.tradeLicenseApplications.newApplicationNumber || '',
+      finanicalYearID: this.tradeLicenseApplications.finanicalYearID || 0,
+      tradeTypeID: this.selectedTradeType ? this.selectedTradeType.tradeTypeID : 0,
+      bescomRRNumber: this.tradeLicenseApplications.bescomRRNumber || '',
+      gstNumber: this.tradeLicenseApplications.gstNumber || '',
+      panNumber: this.tradeLicenseApplications.panNumber || '',
+      licenceFromDate: fromDate,
+      licenceToDate: toDate,
+      licenceApplicationStatusID: this.tradeLicenseApplications.licenceApplicationStatusID || 1,
+      currentStatus: this.tradeLicenseApplications.currentStatus || 1,
+      tradeLicenceID: this.tradeLicenseApplications.tradeLicenceID || 0,
+      mohID:
+        this.selectedMLAConstituency?.mohID ??
+        this.tradeLicenseApplications.mohID ??
+        0,
+      loginID: loginId,
+      entryOriginLoginID: this.tradeLicenseApplications.entryOriginLoginID || loginId,
+      inspectingOfficerID: this.tradeLicenseApplications.inspectingOfficerID || 0,
+      licenseType: this.tradeLicenseApplications.licenseType || '',
+      applicantRepersenting: this.tradeLicenseApplications.applicantRepersenting || 0,
+      jathaStatus: this.tradeLicenseApplications.jathaStatus || '',
+      docsSubmitted: !!this.tradeLicenseApplications.docsSubmitted,
+      challanNo: this.tradeLicenseApplications.challanNo || '',
+      noOfYearsApplied: this.tradeLicenseApplications.noOfYearsApplied || 0
+    };
   }
 
   nextStep() {
@@ -435,7 +495,7 @@ autoDetectCurrentLocation() {
       if (this.tradeLicenseApplications.licenceApplicationID) {
     this.newLicensesService.put(
       `/licence-application/draft/${this.tradeLicenseApplications.licenceApplicationID}`,
-      { lastCompletedStep: this.currentStep }
+      this.buildDraftPayloadForUpdate()
     ).subscribe();
   }
       this.currentStep++;
@@ -455,7 +515,7 @@ autoDetectCurrentLocation() {
       if (this.tradeLicenseApplications.licenceApplicationID) {
     this.newLicensesService.put(
       `/licence-application/draft/${this.tradeLicenseApplications.licenceApplicationID}`,
-      { lastCompletedStep: this.currentStep }
+      this.buildDraftPayloadForUpdate()
     ).subscribe();
   }
       this.currentStep--;
@@ -1310,8 +1370,8 @@ fetchRoadWidth(lng: number, lat: number) {
           tradeTypeID: this.selectedTradeType ? this.selectedTradeType.tradeTypeID : 0,
 
           bescomRRNumber: this.tradeLicenseApplications.bescomRRNumber,
-          tinNumber: this.tradeLicenseApplications.tinNumber,
-          vatNumber: this.tradeLicenseApplications.vatNumber,
+          gstNumber: this.tradeLicenseApplications.gstNumber,
+          panNumber: this.tradeLicenseApplications.panNumber,
 
           licenceFromDate: this.tradeLicenseApplications.licenceFromDate,
           licenceToDate: this.tradeLicenseApplications.licenceToDate,
@@ -1359,6 +1419,11 @@ fetchRoadWidth(lng: number, lat: number) {
 
   saveDraft(): Promise<number> {
     return new Promise((resolve, reject) => {
+      this.debugLog('saveDraft started', {
+        currentStep: this.currentStep,
+        tradeGridCount: this.tradeGrid.length,
+        selectedTradeType: this.selectedTradeType?.tradeTypeID ?? null
+      });
 
       const tradeLicencePayload = {
         applicantName: this.tradeLicenseApplicationDetails.applicantName,
@@ -1391,40 +1456,50 @@ fetchRoadWidth(lng: number, lat: number) {
         newlicenceNumber: this.tradeLicenseApplicationDetails.newlicenceNumber
       };
 
+      this.debugLog('Calling POST /trade-licence', tradeLicencePayload);
       this.newLicensesService.post('/trade-licence', tradeLicencePayload)
         .subscribe({
           next: (res: any) => {
-            this.tradeLicenceStateService.setTradeLicenceID(res.tradeLicenceID);
-            const licenceApplicationDraftPayload = {
-              finanicalYearID: this.tradeLicenseApplications.finanicalYearID,
-              tradeTypeID: this.selectedTradeType ? this.selectedTradeType.tradeTypeID : 0,
+            this.debugLog('POST /trade-licence success', res);
+            const tradeLicenceID = Number(
+              res?.tradeLicenceID ??
+              res?.tradeLicenceId ??
+              this.tradeLicenseApplications.tradeLicenceID ??
+              0
+            );
 
-              bescomRRNumber: this.tradeLicenseApplications.bescomRRNumber,
-              tinNumber: this.tradeLicenseApplications.tinNumber,
-              vatNumber: this.tradeLicenseApplications.vatNumber,
+            if (!tradeLicenceID) {
+              this.debugError('Trade licence ID missing in /trade-licence response', res);
+              reject({
+                error: {
+                  message: 'Unable to resolve Trade Licence ID before draft save.'
+                }
+              });
+              return;
+            }
 
-              licenceFromDate: this.tradeLicenseApplications.licenceFromDate,
-              licenceToDate: this.tradeLicenseApplications.licenceToDate,
+            this.tradeLicenseApplications.tradeLicenceID = tradeLicenceID;
+            this.tradeLicenceStateService.setTradeLicenceID(tradeLicenceID);
+            const licenceApplicationDraftPayload = this.buildDraftPayloadForUpdate();
+            licenceApplicationDraftPayload.tradeLicenceID = tradeLicenceID;
 
-              tradeLicenceID: res.tradeLicenceID, // from API-1
-              
-              loginID: this.tokenservice.getTraderUserId(),
-              entryOriginLoginID: this.tradeLicenseApplications.entryOriginLoginID,
-              inspectingOfficerID: this.tradeLicenseApplications.inspectingOfficerID,
+            if (!licenceApplicationDraftPayload.tradeTypeID || !licenceApplicationDraftPayload.loginID) {
+              this.debugError('Draft payload validation failed before API call', licenceApplicationDraftPayload);
+              reject({
+                error: {
+                  message: 'Trade Type and login are required before saving draft.'
+                }
+              });
+              return;
+            }
 
-              licenseType: this.tradeLicenseApplications.licenseType,
-              applicantRepersenting: this.tradeLicenseApplications.applicantRepersenting,
-              jathaStatus: this.tradeLicenseApplications.jathaStatus,
-              mohID: this.selectedMLAConstituency ? this.selectedMLAConstituency.mohID : 0,
-              docsSubmitted: this.tradeLicenseApplications.docsSubmitted,
-              challanNo: this.tradeLicenseApplications.challanNo,
-              noOfYearsApplied: this.tradeLicenseApplications.noOfYearsApplied
-            };
+            this.debugLog('Calling POST /licence-application/draft', licenceApplicationDraftPayload);
 
             this.newLicensesService
               .post('/licence-application/draft', licenceApplicationDraftPayload)
               .subscribe({
                 next: async (draftRes: any) => {
+                  this.debugLog('POST /licence-application/draft success', draftRes);
                   this.tradeLicenseApplications.licenceApplicationID =
                     draftRes.licenceApplicationID;
 
@@ -1434,10 +1509,22 @@ fetchRoadWidth(lng: number, lat: number) {
 
                   resolve(draftRes.licenceApplicationID);
                 },
-                error: reject
+                error: (err) => {
+                  const details =
+                    err?.error?.errors ??
+                    err?.error?.message ??
+                    err?.error?.title ??
+                    err?.error ??
+                    err;
+                  this.debugError('POST /licence-application/draft failed', details);
+                  reject(err);
+                }
               });
           },
-          error: reject
+          error: (err) => {
+            this.debugError('POST /trade-licence failed', err);
+            reject(err);
+          }
         });
     });
   }
@@ -1445,30 +1532,52 @@ fetchRoadWidth(lng: number, lat: number) {
   private saveTradeDetailsTemp(licenceAppId: number): Promise<void> {
     return new Promise((resolve, reject) => {
       if (!licenceAppId || Number.isNaN(licenceAppId)) {
+        this.debugError('Skipping temp trade save: invalid licenceApplicationID', licenceAppId);
         resolve();
         return;
       }
 
       if (!this.tradeGrid.length) {
+        this.debugError('Skipping temp trade save: tradeGrid is empty');
         resolve();
         return;
       }
 
-      const requests = this.tradeGrid.map((item) =>
-        this.newLicensesService.saveTradeDetailTemp({
-          licenceApplicationID: licenceAppId,
-          tradeSubID: item.tradeSubID,
-          tradeFee: item.rate
-        })
-      );
+      from(this.tradeGrid)
+        .pipe(
+          concatMap((item) => {
+            const payload = {
+              licenceApplicationID: licenceAppId,
+              tradeSubID: item.tradeSubID,
+              tradeFee: item.rate
+            };
+            this.debugLog('Calling POST /licence-trade-details/temp', payload);
 
-      forkJoin(requests).subscribe({
-        next: () => resolve(),
-        error: (err) => {
-          console.error('Failed to save trade details temp:', err);
-          reject(err);
-        }
-      });
+            return this.newLicensesService.saveTradeDetailTemp(payload).pipe(
+              retry({
+                count: 2,
+                delay: (err, retryCount) => {
+                  this.debugError(
+                    `Retrying temp save (attempt ${retryCount + 1}) for tradeSubID ${item.tradeSubID}`,
+                    err
+                  );
+                  return timer(400 * retryCount);
+                }
+              })
+            );
+          }),
+          toArray()
+        )
+        .subscribe({
+          next: (res) => {
+            this.debugLog('POST /licence-trade-details/temp success', res);
+            resolve();
+          },
+          error: (err) => {
+            this.debugError('POST /licence-trade-details/temp failed', err);
+            reject(err);
+          }
+        });
     });
   }
 
@@ -1570,6 +1679,7 @@ fetchRoadWidth(lng: number, lat: number) {
           'Location details are incomplete. Please select a location.',
           'warning'
         );
+        reject('Location details are incomplete');
         return;
       }
 
@@ -1578,12 +1688,13 @@ fetchRoadWidth(lng: number, lat: number) {
           'Please confirm the road width before continuing.',
           'warning'
         );
+        reject('Road width confirmation missing');
         return;
       }
 
       if(!licenceAppId){
         this.notificationservice.show('Invalid Licence Application ID');
-        resolve(); // resolve to avoid blocking caller
+        reject('Invalid Licence Application ID');
         return;
       }
 
@@ -1608,6 +1719,7 @@ fetchRoadWidth(lng: number, lat: number) {
             'Failed to save location details. Please try again.',
             'error'
           );
+          reject(err);
         }
       });
     });
@@ -1635,15 +1747,27 @@ fetchRoadWidth(lng: number, lat: number) {
   //#region ProccedForPayment
   proceedForPayment() {
     this.loaderservice.show();
+    this.debugLog('Proceed for payment clicked');
     this.saveDraft().then(() => {
 
       this.loaderservice.hide();
+      this.debugLog('saveDraft completed, initiating payment');
       this.initiatePayment();
     })
-    .catch(() => {
+    .catch((err) => {
       this.loaderservice.hide();
+      this.debugError('saveDraft failed before payment', err);
+      const validationErrors = err?.error?.errors
+        ? Object.values(err.error.errors).flat().join(' | ')
+        : '';
+      const msg =
+        validationErrors ||
+        err?.error?.message ||
+        err?.error?.title ||
+        (typeof err?.error === 'string' ? err.error : '') ||
+        'Unable to save before payment';
       this.notificationservice.show(
-        'Unable to save before payment',
+        msg,
         'error'
       );
     });
