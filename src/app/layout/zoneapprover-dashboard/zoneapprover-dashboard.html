@@ -1,5 +1,9 @@
-<div class="zone-dashboard">
+<div class="zone-dashboard" (mousemove)="onParallaxMove($event)" (mouseleave)="resetParallax()">
   <section class="hero">
+    <div class="hero-orb orb-a" [style.transform]="layerTransform(10)"></div>
+    <div class="hero-orb orb-b" [style.transform]="layerTransform(-14)"></div>
+    <div class="hero-grid" [style.transform]="layerTransform(6)"></div>
+
     <div>
       <h3>Zone Approver Dashboard</h3>
       <p>Cross-check inspected applications zone-wise and forward valid files for final approval.</p>
@@ -10,7 +14,7 @@
   <section class="kpi-grid">
     <article class="kpi-card" *ngFor="let item of kpis" [ngClass]="item.tone">
       <span>{{ item.label }}</span>
-      <h4>{{ item.value }}</h4>
+      <h4>{{ formatNumber(item.value) }}</h4>
     </article>
   </section>
 
@@ -34,6 +38,9 @@
               <td class="text-end">{{ row.forwarded }}</td>
               <td class="text-end">{{ row.objections }}</td>
             </tr>
+            <tr *ngIf="!isLoading && zoneSummary.length === 0">
+              <td colspan="4" class="text-center text-muted py-3">No zone workload data available.</td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -42,13 +49,16 @@
     <article class="panel">
       <header>Action Queue</header>
       <div class="queue">
-        <div class="queue-item danger">2 applications overdue for cross-check</div>
-        <div class="queue-item warning">5 applications pending beyond 3 days</div>
-        <div class="queue-item info">4 files waiting for forward to senior</div>
+        <div class="queue-item danger">{{ actionQueue[0] }}</div>
+        <div class="queue-item warning">{{ actionQueue[1] }}</div>
+        <div class="queue-item info">{{ actionQueue[2] }}</div>
       </div>
       <a class="btn btn-outline-primary btn-sm w-100 mt-2" routerLink="/zone-approver/zone-approving-officer">
         Review Priority Applications
       </a>
     </article>
   </section>
+
+  <div class="status-line" *ngIf="isLoading">Loading live zone metrics...</div>
+  <div class="status-line error" *ngIf="!isLoading && loadError">{{ loadError }}</div>
 </div>

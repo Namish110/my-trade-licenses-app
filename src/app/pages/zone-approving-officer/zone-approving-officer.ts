@@ -7,6 +7,7 @@ import { TokenService } from '../../core/services/token.service';
 import { NotificationService } from '../../shared/components/notification/notification.service';
 import {
   ZoneApproverApplication,
+  ZoneApproverApplicationsResponse,
   ZoneApprovingOfficerService
 } from './zone-approving-officer.service';
 
@@ -74,17 +75,17 @@ export class ZoneApprovingOfficer implements OnDestroy {
     const sub = this.zoneApprovingOfficerService
       .getZoneApproverApplications(loginId, this.pageNumber, this.pageSize)
       .subscribe({
-        next: (response) => {
+        next: (response: ZoneApproverApplicationsResponse) => {
           if (currentRequest !== this.requestId) {
             return;
           }
 
-          this.applications = response?.data ?? [];
-          this.totalRecords = Number(response?.totalRecords ?? 0);
-          this.pageNumber = Number(response?.pageNumber ?? this.pageNumber);
-          this.pageSize = Number(response?.pageSize ?? this.pageSize);
+          this.applications = response?.data ?? response?.Data ?? [];
+          this.totalRecords = Number(response?.totalRecords ?? response?.TotalRecords ?? 0);
+          this.pageNumber = Number(response?.pageNumber ?? response?.PageNumber ?? this.pageNumber);
+          this.pageSize = Number(response?.pageSize ?? response?.PageSize ?? this.pageSize);
           this.totalPages = Math.max(1, Math.ceil(this.totalRecords / this.pageSize));
-          this.visibleStatuses = response?.visibleStatuses ?? [];
+          this.visibleStatuses = response?.visibleStatuses ?? response?.VisibleStatuses ?? [];
 
           this.zones = Array.from(
             new Set(this.applications.map((app) => app.mohName).filter(Boolean))
