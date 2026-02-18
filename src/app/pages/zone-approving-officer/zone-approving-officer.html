@@ -1,4 +1,26 @@
-<div class="card table-card">
+<div class="zone-workspace" (mousemove)="onParallaxMove($event)" (mouseleave)="resetParallax()">
+  <section class="hero-strip mb-3">
+    <div class="hero-orb orb-a" [style.transform]="layerTransform(10)"></div>
+    <div class="hero-orb orb-b" [style.transform]="layerTransform(-14)"></div>
+    <div class="hero-grid" [style.transform]="layerTransform(6)"></div>
+    <div class="hero-title-wrap">
+      <p class="hero-eyebrow mb-1">Zone Approval Workflow</p>
+      <h2 class="hero-title mb-1">Cross-check Application Queue</h2>
+      <p class="hero-subtitle mb-0">Filter by zone/ward and complete cross-check actions quickly.</p>
+    </div>
+    <div class="hero-metrics">
+      <div class="metric-pill">
+        <span class="metric-label">Total Records</span>
+        <span class="metric-value">{{ displayTotalRecords }}</span>
+      </div>
+      <div class="metric-pill">
+        <span class="metric-label">Page</span>
+        <span class="metric-value">{{ pageNumber }} / {{ totalPages || 1 }}</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="card table-card">
   <div class="card-body">
     <div class="row g-2 align-items-end mb-3">
       <div class="col-md-3">
@@ -132,4 +154,5 @@
       </div>
     </div>
   </div>
+</div>
 </div>

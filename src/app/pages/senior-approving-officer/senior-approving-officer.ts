@@ -6,7 +6,7 @@ import { TokenService } from '../../core/services/token.service';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { InspectionSubmittedApplication } from './senior-approving-officer.model';
+import { InspectionSubmittedApplication, SeniorApprovedApplications } from './senior-approving-officer.model';
 
 @Component({
   selector: 'app-senior-approving-officer',
@@ -16,6 +16,8 @@ import { InspectionSubmittedApplication } from './senior-approving-officer.model
   standalone: true
 })
 export class SeniorApprovingOfficer {
+    private parallaxX = 0;
+    private parallaxY = 0;
 
     selectedApplication: number | null = null;
     pageNumber = 1;
@@ -53,17 +55,20 @@ export class SeniorApprovingOfficer {
 
   loadSubmittedInspectionApplications() {
     this.isLoading = true;
-    const loginId = this.tokenservice.getUserId();
+    const loginId = this.resolveLoginId();
     if(!loginId){
       this.notificationservice.show('Invalid Login ID', 'error');
+      this.isLoading = false;
       return;
     }
     this.seniorapprovingofficerService.getSubmittedInspectionApplications(loginId, this.pageNumber, this.pageSize).subscribe({
-      next: (response) => {
+      next: (response: SeniorApprovedApplications) => {
         console.log('Response:', response);
-        this.submittedInspectionApplications = response.data;
+        this.submittedInspectionApplications = response?.data ?? response?.Data ?? [];
         console.log(this.submittedInspectionApplications);
-        this.totalRecords = response.totalRecords;
+        this.totalRecords = Number(response?.totalRecords ?? response?.TotalRecords ?? 0);
+        this.pageNumber = Number(response?.pageNumber ?? response?.PageNumber ?? this.pageNumber);
+        this.pageSize = Number(response?.pageSize ?? response?.PageSize ?? this.pageSize);
         this.totalPages = Math.ceil(this.totalRecords / this.pageSize);
         this.generatePages();
         this.isLoading = false;
@@ -107,6 +112,49 @@ export class SeniorApprovingOfficer {
   //showing from details for user
   get showingFrom(): number {
     return (this.pageNumber - 1) * this.pageSize + 1;
+  }
+
+  onParallaxMove(event: MouseEvent): void {
+    const host = event.currentTarget as HTMLElement | null;
+    if (!host) {
+      return;
+    }
+    const rect = host.getBoundingClientRect();
+    const x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+    const y = ((event.clientY - rect.top) / rect.height) * 2 - 1;
+    this.parallaxX = Math.max(-1, Math.min(1, x));
+    this.parallaxY = Math.max(-1, Math.min(1, y));
+  }
+
+  resetParallax(): void {
+    this.parallaxX = 0;
+    this.parallaxY = 0;
+  }
+
+  layerTransform(depth: number): string {
+    return `translate3d(${this.parallaxX * depth}px, ${this.parallaxY * depth}px, 0)`;
+  }
+
+  private resolveLoginId(): number | null {
+    const decoded = this.tokenservice.getDecodedToken() as any;
+    const candidates = [
+      decoded?.loginID,
+      decoded?.loginId,
+      decoded?.LoginID,
+      decoded?.sub,
+      this.tokenservice.getEffectiveUserId(),
+      this.tokenservice.getUserId(),
+      this.tokenservice.getTraderUserId()
+    ];
+
+    for (const candidate of candidates) {
+      const parsed = Number(candidate);
+      if (Number.isFinite(parsed) && parsed > 0) {
+        return parsed;
+      }
+    }
+
+    return null;
   }
 
 }

@@ -1,71 +1,100 @@
-<div class="dashboard-wrapper">
+<div class="dashboard-wrapper" (mousemove)="onParallaxMove($event)" (mouseleave)="resetParallax()">
   <div class="container dashboard-content">
+    <section class="hero-banner">
+      <div class="hero-orb orb-a" [style.transform]="layerTransform(10)"></div>
+      <div class="hero-orb orb-b" [style.transform]="layerTransform(-14)"></div>
+      <div class="hero-grid" [style.transform]="layerTransform(6)"></div>
+      <div class="hero-copy">
+        <p class="eyebrow">Senior Approval Command</p>
+        <h2>Final Decision Intelligence</h2>
+        <p>Track forwarded, objection, approved, and rejected volumes in real time.</p>
+      </div>
+    </section>
 
-    <!-- ================= KPI CARDS ================= -->
-    <div class="row g-3 mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <div class="text-muted small">Last updated: {{ lastUpdated | date: 'dd MMM yyyy, hh:mm a' }}</div>
+      <button class="btn btn-sm btn-outline-primary" (click)="loadDashboard()" [disabled]="isLoading">
+        {{ isLoading ? 'Refreshing...' : 'Refresh Counts' }}
+      </button>
+    </div>
+
+    <div class="alert alert-danger py-2 px-3 mb-3" *ngIf="loadError">
+      {{ loadError }}
+    </div>
+
+    <div class="row g-3 mb-4" *ngIf="!loadError">
       <div class="col-md-3">
         <div class="kpi-card primary">
           <span>Forwarded Applications</span>
-          <h3>18</h3>
+          <h3>{{ formatNumber(stats.TotalForwarded) }}</h3>
         </div>
       </div>
 
       <div class="col-md-3">
         <div class="kpi-card warning">
-          <span>Pending Final Approval</span>
-          <h3>6</h3>
+          <span>Objection Cases</span>
+          <h3>{{ formatNumber(stats.TotalObjection) }}</h3>
         </div>
       </div>
 
       <div class="col-md-3">
         <div class="kpi-card info">
-          <span>High-Value Inspections</span>
-          <h3>4</h3>
+          <span>Approved Cases</span>
+          <h3>{{ formatNumber(stats.TotalApproved) }}</h3>
         </div>
       </div>
 
       <div class="col-md-3">
         <div class="kpi-card danger">
-          <span>Overdue Decisions</span>
-          <h3>2</h3>
+          <span>Rejected Cases</span>
+          <h3>{{ formatNumber(stats.TotalRejected) }}</h3>
         </div>
       </div>
     </div>
 
-    <!-- ================= ANALYTICS ================= -->
     <div class="row g-3 mb-4">
-      <!-- Status Distribution -->
       <div class="col-md-4">
         <div class="analytics-card">
-          <div class="analytics-header">Final Decision Status</div>
-          <div class="analytics-body">
-            <canvas id="finalStatusChart"></canvas>
+          <div class="analytics-header">Overall Coverage</div>
+          <div class="analytics-body coverage-body">
+            <div class="mix-ring" [style.background]="decisionMixGradient">
+              <div class="mix-ring-center">
+                <h2>{{ accountedPercent | number : '1.0-1' }}%</h2>
+                <span>Coverage</span>
+              </div>
+            </div>
+            <div class="small mt-2">Grand Total: {{ formatNumber(stats.GrandTotal) }}</div>
           </div>
         </div>
       </div>
 
-      <!-- Decision Trend -->
       <div class="col-md-8">
         <div class="analytics-card">
-          <div class="analytics-header">Approval Trend (Last 30 Days)</div>
-          <div class="analytics-body">
-            <canvas id="decisionTrendChart"></canvas>
+          <div class="analytics-header">Decision Mix Graph</div>
+          <div class="analytics-body bars-body">
+            <div class="mix-row" *ngFor="let item of decisionBars">
+              <div class="mix-meta">
+                <span>{{ item.label }}</span>
+                <span>{{ formatNumber(item.value) }} ({{ item.percent | number : '1.0-1' }}%)</span>
+              </div>
+              <div class="mix-track">
+                <div class="mix-fill" [ngClass]="item.tone" [style.width.%]="item.percent"></div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- ================= OPERATIONAL INSIGHTS ================= -->
     <div class="row g-3">
-      <!-- Risk / Value Analysis -->
       <div class="col-md-6">
         <div class="analytics-card">
-          <div class="analytics-header">Risk & Value Analysis</div>
+          <div class="analytics-header">Risk and Value Analysis</div>
           <div class="analytics-body">
             <ul class="insight-list">
-              <li>🔍 4 high-value applications require review</li>
-              <li>⚠ 2 applications delayed beyond SLA</li>
-              <li>📄 3 inspections need clarification</li>
+              <li>Grand total in scope: {{ formatNumber(stats.GrandTotal) }}</li>
+              <li>Forwarded share: {{ totalForwardedPercent | number : '1.0-1' }}%</li>
+              <li>Approved share: {{ totalApprovedPercent | number : '1.0-1' }}%</li>
             </ul>
             <button class="btn btn-sm btn-outline-primary mt-2">
               Review High-Risk Applications
@@ -74,19 +103,18 @@
         </div>
       </div>
 
-      <!-- Action Panel -->
       <div class="col-md-6">
         <div class="analytics-card">
           <div class="analytics-header">Immediate Actions</div>
           <div class="analytics-body action-panel">
             <div class="action-item danger">
-              ⏰ 2 decisions overdue
+              Rejected cases: {{ formatNumber(stats.TotalRejected) }}
             </div>
             <div class="action-item warning">
-              ⌛ 6 pending final approvals
+              Objection cases: {{ formatNumber(stats.TotalObjection) }}
             </div>
             <div class="action-item info">
-              📤 3 escalations awaiting response
+              Coverage accounted: {{ accountedPercent | number : '1.0-1' }}%
             </div>
             <button class="btn btn-sm btn-outline-danger mt-2">
               View Priority Queue

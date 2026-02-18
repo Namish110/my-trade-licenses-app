@@ -7,6 +7,7 @@ export interface AdminApplicationFilterState {
   zoneId: number | null;
   mohId: number | null;
   wardId: number | null;
+  status: string;
 }
 
 @Component({
@@ -22,7 +23,9 @@ export class AdminApplicationFiltersComponent implements OnChanges {
   @Input() selectedZoneId: number | null = null;
   @Input() selectedMohId: number | null = null;
   @Input() selectedWardId: number | null = null;
+  @Input() selectedStatus = '';
   @Input() searchText = '';
+  @Input() statusOptions: string[] = [];
 
   @Output() filtersChange = new EventEmitter<AdminApplicationFilterState>();
   @Output() searchChange = new EventEmitter<string>();
@@ -30,6 +33,7 @@ export class AdminApplicationFiltersComponent implements OnChanges {
   zoneId: number | null = null;
   mohId: number | null = null;
   wardId: number | null = null;
+  status = '';
   localSearchText = '';
   zoneSearchTerm = '';
   mohSearchTerm = '';
@@ -70,11 +74,13 @@ export class AdminApplicationFiltersComponent implements OnChanges {
       changes['selectedZoneId'] ||
       changes['selectedMohId'] ||
       changes['selectedWardId'] ||
+      changes['selectedStatus'] ||
       changes['searchText']
     ) {
       this.zoneId = this.selectedZoneId;
       this.mohId = this.selectedMohId;
       this.wardId = this.selectedWardId;
+      this.status = this.selectedStatus;
       this.localSearchText = this.searchText;
       this.zoneSearchTerm = this.getZoneNameById(this.zoneId);
       this.mohSearchTerm = this.getMohNameById(this.mohId);
@@ -105,6 +111,10 @@ export class AdminApplicationFiltersComponent implements OnChanges {
 
   onSearchChanged(): void {
     this.searchChange.emit(this.localSearchText);
+  }
+
+  onStatusChanged(): void {
+    this.emitFilters();
   }
 
   clearZone(): void {
@@ -189,7 +199,8 @@ export class AdminApplicationFiltersComponent implements OnChanges {
     this.filtersChange.emit({
       zoneId: this.zoneId,
       mohId: this.mohId,
-      wardId: this.wardId
+      wardId: this.wardId,
+      status: this.status
     });
   }
 }

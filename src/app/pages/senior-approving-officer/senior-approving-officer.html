@@ -1,147 +1,131 @@
-
-
-<!-- ALERT -->
-<div class="alert alert-warning">
-  ⚠ Application <strong>TL-2026-0102</strong> pending final decision beyond SLA
-</div>
-
-<!-- FILTERS -->
-<div class="card filter-card mb-3">
-  <div class="card-body">
-    <div class="row g-2 align-items-end">
-      <div class="col-md-3">
-        <label class="form-label">Search</label>
-        <input class="form-control" placeholder="Application No / Trader" />
+<div class="senior-workspace" (mousemove)="onParallaxMove($event)" (mouseleave)="resetParallax()">
+  <section class="hero-strip mb-3">
+    <div class="hero-orb orb-a" [style.transform]="layerTransform(10)"></div>
+    <div class="hero-orb orb-b" [style.transform]="layerTransform(-14)"></div>
+    <div class="hero-grid" [style.transform]="layerTransform(6)"></div>
+    <div class="hero-title-wrap">
+      <p class="hero-eyebrow mb-1">Senior Approval Workflow</p>
+      <h2 class="hero-title mb-1">Final Decision Queue</h2>
+      <p class="hero-subtitle mb-0">Review forwarded files and complete final status decisions.</p>
+    </div>
+    <div class="hero-metrics">
+      <div class="metric-pill">
+        <span class="metric-label">Total Records</span>
+        <span class="metric-value">{{ totalRecords }}</span>
       </div>
-
-      <div class="col-md-2">
-        <label class="form-label">Status</label>
-        <select class="form-select">
-          <option>All</option>
-          <option>Pending</option>
-          <option>Approved</option>
-          <option>Rejected</option>
-        </select>
+      <div class="metric-pill">
+        <span class="metric-label">Page</span>
+        <span class="metric-value">{{ pageNumber }} / {{ totalPages || 1 }}</span>
       </div>
+    </div>
+  </section>
 
-      <div class="col-md-2">
-        <label class="form-label">Priority</label>
-        <select class="form-select">
-          <option>All</option>
-          <option>High</option>
-          <option>Normal</option>
-        </select>
-      </div>
+  <div class="alert alert-warning">
+    Application <strong>TL-2026-0102</strong> pending final decision beyond SLA
+  </div>
 
-      <div class="col-md-3 text-end">
-        <button class="btn btn-secondary">Apply Filters</button>
+  <div class="card filter-card mb-3">
+    <div class="card-body">
+      <div class="row g-2 align-items-end">
+        <div class="col-md-3">
+          <label class="form-label">Search</label>
+          <input class="form-control" placeholder="Application No / Trader" />
+        </div>
+
+        <div class="col-md-2">
+          <label class="form-label">Status</label>
+          <select class="form-select">
+            <option>All</option>
+            <option>Pending</option>
+            <option>Approved</option>
+            <option>Rejected</option>
+          </select>
+        </div>
+
+        <div class="col-md-2">
+          <label class="form-label">Priority</label>
+          <select class="form-select">
+            <option>All</option>
+            <option>High</option>
+            <option>Normal</option>
+          </select>
+        </div>
+
+        <div class="col-md-3 text-end">
+          <button class="btn btn-secondary">Apply Filters</button>
+        </div>
       </div>
     </div>
   </div>
-</div>
 
-<!-- APPLICATION TABLE -->
-<div class="card table-card">
-  <div class="card-body p-0">
-    <table class="table table-bordered table-hover mb-0 fixed-table">
-      <thead class="table-light">
-        <tr>
-          <th style="width: 60px;">Sl. No</th>
-          <th style="width: 220px;">Application Name</th>
-          <th style="width: 200px;">Application No</th>
-          <th style="width: 140px;">Submitted Date</th>
-          <th style="width: 240px;">Trade Name</th>
-          <th style="width: 120px;">Status</th>
-        </tr>
-      </thead>
+  <div class="card table-card">
+    <div class="card-body p-0">
+      <table class="table table-bordered table-hover mb-0 fixed-table">
+        <thead class="table-light">
+          <tr>
+            <th style="width: 60px;">Sl. No</th>
+            <th style="width: 220px;">Application Name</th>
+            <th style="width: 200px;">Application No</th>
+            <th style="width: 140px;">Submitted Date</th>
+            <th style="width: 240px;">Trade Name</th>
+            <th style="width: 120px;">Status</th>
+          </tr>
+        </thead>
 
-      <tbody>
-        <tr *ngIf="isLoading">
-          <td colspan="5" class="text-center py-4">
-            <div class="spinner-border text-primary" role="status">
-              <span class="visually-hidden">Loading...</span>
-            </div>
-            <div class="mt-2 text-muted">Loading applications...</div>
-          </td>
-        </tr>
-        
-        <ng-container *ngIf="!isLoading && submittedInspectionApplications.length > 0">
-          <tr
-            *ngFor="let app of submittedInspectionApplications; let i = index"
-            class="clickable-row"
-            (click)="onInspectionClick(app.licenceApplicationID)"
-          >
-            <td>{{ i + 1 }}</td>
-            <td>{{ app.applicantName }}</td>
-            <td>{{ app.applicationNumber }}</td>
-            <td>{{ app.applicationSubmitDate | date:'dd-MMM-yyyy' }}</td>
-            <td>
-              {{ app.tradeName }}
-            </td>
-            <td>
-              <span class="badge bg-info text-dark">
-                {{ app.licenceApplicationStatusName }}
-              </span>
+        <tbody>
+          <tr *ngIf="isLoading">
+            <td colspan="5" class="text-center py-4">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+              <div class="mt-2 text-muted">Loading applications...</div>
             </td>
           </tr>
-        </ng-container>
 
-        <!-- No Data -->
-        <tr *ngIf="!isLoading && submittedInspectionApplications.length === 0">
-          <td colspan="6" class="text-center text-muted">
-            No applications found
-          </td>
-        </tr>
-      </tbody>
-    </table>
+          <ng-container *ngIf="!isLoading && submittedInspectionApplications.length > 0">
+            <tr
+              *ngFor="let app of submittedInspectionApplications; let i = index"
+              class="clickable-row"
+              (click)="onInspectionClick(app.licenceApplicationID)"
+            >
+              <td>{{ i + 1 }}</td>
+              <td>{{ app.applicantName }}</td>
+              <td>{{ app.applicationNumber }}</td>
+              <td>{{ app.applicationSubmitDate | date:'dd-MMM-yyyy' }}</td>
+              <td>{{ app.tradeName }}</td>
+              <td>
+                <span class="badge bg-info text-dark">{{ app.licenceApplicationStatusName }}</span>
+              </td>
+            </tr>
+          </ng-container>
 
-    <ng-template #noData>
-      <tr>
-        <td colspan="5" class="text-center text-muted">
-          No applications found
-        </td>
-      </tr>
-    </ng-template>
-
-  </div>
-  <div class="d-flex justify-content-between align-items-center mt-3 px-2">
-    <!-- Records info -->
-    <div class="text-muted small">
-      Showing {{ showingFrom }} – {{ showingTo }} of {{ totalRecords }} records
+          <tr *ngIf="!isLoading && submittedInspectionApplications.length === 0">
+            <td colspan="6" class="text-center text-muted">No applications found</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
 
+    <div class="d-flex justify-content-between align-items-center mt-3 px-2">
+      <div class="text-muted small">
+        Showing {{ showingFrom }} - {{ showingTo }} of {{ totalRecords }} records
+      </div>
 
-    <!-- Pagination -->
-    <nav>
-      <ul class="pagination pagination-sm mb-0">
+      <nav>
+        <ul class="pagination pagination-sm mb-0">
+          <li class="page-item" [class.disabled]="pageNumber === 1">
+            <button class="page-link" (click)="changePage(pageNumber - 1)">Prev</button>
+          </li>
 
-        <!-- Previous -->
-        <li class="page-item" [class.disabled]="pageNumber === 1">
-          <button class="page-link" (click)="changePage(pageNumber - 1)">
-            ‹
-          </button>
-        </li>
+          <li class="page-item" *ngFor="let p of pages" [class.active]="p === pageNumber">
+            <button class="page-link" (click)="changePage(p)">{{ p }}</button>
+          </li>
 
-        <!-- Page numbers -->
-        <li
-          class="page-item"
-          *ngFor="let p of pages"
-          [class.active]="p === pageNumber"
-        >
-          <button class="page-link" (click)="changePage(p)">
-            {{ p }}
-          </button>
-        </li>
-
-        <!-- Next -->
-        <li class="page-item" [class.disabled]="pageNumber === totalPages">
-          <button class="page-link" (click)="changePage(pageNumber + 1)">
-            ›
-          </button>
-        </li>
-
-      </ul>
-    </nav>
+          <li class="page-item" [class.disabled]="pageNumber === totalPages">
+            <button class="page-link" (click)="changePage(pageNumber + 1)">Next</button>
+          </li>
+        </ul>
+      </nav>
+    </div>
   </div>
 </div>
-

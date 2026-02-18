@@ -1,6 +1,9 @@
-<div class="approver-workspace">
+<div class="approver-workspace" (mousemove)="onParallaxMove($event)" (mouseleave)="resetParallax()">
   <div class="container dashboard-content">
     <section class="hero-strip mb-3">
+      <div class="hero-orb orb-a" [style.transform]="layerTransform(9)"></div>
+      <div class="hero-orb orb-b" [style.transform]="layerTransform(-12)"></div>
+      <div class="hero-grid" [style.transform]="layerTransform(5)"></div>
       <div class="hero-title-wrap">
         <p class="hero-eyebrow mb-1">Approver Workflow</p>
         <h2 class="hero-title mb-1">Application Review Queue</h2>

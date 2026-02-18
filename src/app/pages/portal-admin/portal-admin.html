@@ -1,189 +1,115 @@
-<div class="admin-dashboard-content">
+<div class="admin-dashboard-content" (mousemove)="onParallaxMove($event)" (mouseleave)="resetParallax()">
+  <section class="hero-banner">
+    <div class="hero-orb orb-a" [style.transform]="layerTransform(10)"></div>
+    <div class="hero-orb orb-b" [style.transform]="layerTransform(-14)"></div>
+    <div class="hero-grid" [style.transform]="layerTransform(6)"></div>
+    <div class="hero-copy">
+      <p class="eyebrow">Portal Admin Command Center</p>
+      <h2>Trade License Analytics</h2>
+      <p>Live operational summary across entered, applied, approved, rejected, objection, forwarded, and inspected pipelines.</p>
+    </div>
+    <button class="btn btn-light btn-sm" (click)="dashboardDataLoad()" [disabled]="isLoading">
+      {{ isLoading ? 'Refreshing...' : 'Refresh Dashboard' }}
+    </button>
+  </section>
 
-  <!-- HEADER -->
-  <div class="dashboard-header">
-    <h4>Welcome, Portal Administrator</h4>
-    <p>
-      Manage users, workflows, system settings, and monitor overall portal health.
-    </p>
-  </div>
+  <section class="status-row">
+    <span>Last updated: {{ lastUpdated | date: 'dd MMM yyyy, hh:mm a' }}</span>
+    <span *ngIf="!loadError">Grand Total: {{ formatNumber(dashboard.GrandTotal) }}</span>
+  </section>
 
-  <!-- STATS ROW -->
-  <!-- <div class="row g-3 mb-4 equal-height-row">
-    <div class="col-lg-3 col-md-6">
-      <div class="stat-card">
-        <div class="stat-icon bg-primary">
-          <i class="bi bi-people"></i>
-        </div>
-        <div>
-          <span>Total Users</span>
-          <h4>1,248</h4>
+  <section class="error-state" *ngIf="loadError">
+    <span>{{ loadError }}</span>
+    <button class="btn btn-outline-danger btn-sm" (click)="dashboardDataLoad()">Try Again</button>
+  </section>
+
+  <section class="kpi-grid" *ngIf="!loadError">
+    <article class="kpi-card entered" [routerLink]="['/admin/licence-applications']" [queryParams]="{ status: 'ENTERED' }">
+      <span>Entered</span>
+      <h3>{{ formatNumber(dashboard.Entered) }}</h3>
+    </article>
+    <article class="kpi-card applied" [routerLink]="['/admin/licence-applications']" [queryParams]="{ status: 'APPLIED' }">
+      <span>Applied</span>
+      <h3>{{ formatNumber(dashboard.Applied) }}</h3>
+    </article>
+    <article class="kpi-card approved" [routerLink]="['/admin/licence-applications']" [queryParams]="{ status: 'APPROVED' }">
+      <span>Approved</span>
+      <h3>{{ formatNumber(dashboard.Approved) }}</h3>
+    </article>
+    <article class="kpi-card rejected" [routerLink]="['/admin/licence-applications']" [queryParams]="{ status: 'REJECTED' }">
+      <span>Rejected</span>
+      <h3>{{ formatNumber(dashboard.Rejected) }}</h3>
+    </article>
+    <article class="kpi-card objection" [routerLink]="['/admin/licence-applications']" [queryParams]="{ status: 'OBJECTION' }">
+      <span>Objection</span>
+      <h3>{{ formatNumber(dashboard.Objection) }}</h3>
+    </article>
+    <article class="kpi-card forwarded" [routerLink]="['/admin/licence-applications']" [queryParams]="{ status: 'FORWARDED' }">
+      <span>Forwarded</span>
+      <h3>{{ formatNumber(dashboard.Forwarded) }}</h3>
+    </article>
+    <article class="kpi-card inspected" [routerLink]="['/admin/licence-applications']" [queryParams]="{ status: 'INSPECTED' }">
+      <span>Inspected</span>
+      <h3>{{ formatNumber(dashboard.Inspected) }}</h3>
+    </article>
+    <article class="kpi-card grand" [routerLink]="['/admin/licence-applications']">
+      <span>Grand Total</span>
+      <h3>{{ formatNumber(dashboard.GrandTotal) }}</h3>
+    </article>
+  </section>
+
+  <section class="analytics-grid" *ngIf="!loadError">
+    <article class="panel">
+      <header>Distribution Ring</header>
+      <div class="panel-body ring-body">
+        <div class="mix-ring" [style.background]="mixGradient">
+          <div class="mix-ring-center">
+            <strong>{{ formatNumber(dashboard.GrandTotal) }}</strong>
+            <span>Total Records</span>
+          </div>
         </div>
       </div>
-    </div>
+    </article>
 
-    <div class="col-lg-3 col-md-6">
-      <div class="stat-card">
-        <div class="stat-icon bg-success">
-          <i class="bi bi-diagram-3"></i>
-        </div>
-        <div>
-          <span>Active Workflows</span>
-          <h4>8</h4>
+    <article class="panel">
+      <header>Status Analytics</header>
+      <div class="panel-body bars-body">
+        <div class="mix-row" *ngFor="let item of decisionBars">
+          <div class="mix-meta">
+            <span>{{ item.label }}</span>
+            <span>{{ formatNumber(item.value) }} ({{ item.percent | number : '1.0-1' }}%)</span>
+          </div>
+          <div class="mix-track">
+            <div class="mix-fill" [ngClass]="item.tone" [style.width.%]="item.percent"></div>
+          </div>
         </div>
       </div>
-    </div>
+    </article>
+  </section>
 
-    <div class="col-lg-3 col-md-6">
-      <div class="stat-card">
-        <div class="stat-icon bg-warning">
-          <i class="bi bi-clock-history"></i>
-        </div>
-        <div>
-          <span>Pending Approvals</span>
-          <h4>37</h4>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-lg-3 col-md-6">
-      <div class="stat-card">
-        <div class="stat-icon bg-info">
-          <i class="bi bi-activity"></i>
-        </div>
-        <div>
-          <span>System Health</span>
-          <h4 class="text-success">Stable</h4>
-        </div>
-      </div>
-    </div>
-  </div> -->
-  <div class="row g-3 mb-4 equal-height-row">
-    <div class="col-lg-3 col-md-6">
-      <div class="stat-card">
-        <div class="stat-icon bg-primary">
-          <i class="bi bi-people"></i>
-        </div>
-        <div>
-          <span>Applied</span>
-          <h4>{{ statusMap['APPLIED'] }}</h4>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-lg-3 col-md-6">
-      <div class="stat-card">
-        <div class="stat-icon bg-warning">
-          <i class="bi bi-clock-history"></i>
-        </div>
-        <div>
-          <span>Inspected</span>
-          <h4>{{ statusMap['INSPECTED'] }}</h4>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-lg-3 col-md-6">
-      <div class="stat-card">
-        <div class="stat-icon bg-success">
-          <i class="bi bi-diagram-3"></i>
-        </div>
-        <div>
-          <span>Approved</span>
-          <h4>{{ statusMap['APPROVED'] }}</h4>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-lg-3 col-md-6">
-      <div class="stat-card">
-        <div class="stat-icon bg-info">
-          <i class="bi bi-activity"></i>
-        </div>
-        <div>
-          <span>Rejected</span>
-          <h4 class="text-success">{{ statusMap['REJECTED'] }}</h4>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ADMIN ACTIONS -->
-  <div class="row g-3 mb-4 equal-height-row">
-    <div class="col-lg-3 col-md-6">
-      <div class="action-card">
+  <section class="panel action-panel" *ngIf="!loadError">
+    <header>Administrative Actions</header>
+    <div class="panel-body action-grid">
+      <a class="action-card" routerLink="/admin/users-roles">
         <i class="bi bi-people"></i>
-        <h6>Manage Users & Roles</h6>
-        <p>Create users, assign roles, and manage approver hierarchy.</p>
-        <button class="btn btn-outline-primary btn-sm">Manage Users</button>
-      </div>
-    </div>
-
-    <div class="col-lg-3 col-md-6">
-      <div class="action-card">
+        <h6>Manage Users</h6>
+        <p>Create users, assign roles, and update workflow hierarchy.</p>
+      </a>
+      <a class="action-card" routerLink="/admin/system-settings">
         <i class="bi bi-gear"></i>
         <h6>System Settings</h6>
-        <p>Configure approval workflows, reminders, and escalations.</p>
-        <button class="btn btn-outline-primary btn-sm">Configure System</button>
-      </div>
-    </div>
-
-    <div class="col-lg-3 col-md-6">
-      <div class="action-card">
+        <p>Configure workflows, reminders, and process controls.</p>
+      </a>
+      <a class="action-card" routerLink="/admin/master-data-compliance">
         <i class="bi bi-database"></i>
-        <h6>Master Data & Compliance</h6>
-        <p>Maintain trade categories, zones, rules, and fee structures.</p>
-        <button class="btn btn-outline-primary btn-sm">Manage Master Data</button>
-      </div>
-    </div>
-
-    <div class="col-lg-3 col-md-6">
-      <div class="action-card">
-        <i class="bi bi-arrow-left-right"></i>
-        <h6>Data Migration & Validation</h6>
-        <p>Import legacy data, validate records, and resolve inconsistencies.</p>
-        <button class="btn btn-outline-primary btn-sm">
-          Data Migration
-        </button>
-      </div>
-    </div>
-
-    <div class="col-lg-3 col-md-6">
-      <div class="action-card">
+        <h6>Master Data</h6>
+        <p>Maintain fees, zones, trade categories, and compliance rules.</p>
+      </a>
+      <a class="action-card" routerLink="/admin/licence-certificate-lookup">
         <i class="bi bi-file-earmark-text"></i>
         <h6>Generate Licence</h6>
         <p>Generate and download approved trade licence certificates.</p>
-        <button
-          class="btn btn-outline-primary btn-sm"
-          [routerLink]="['/admin/licence-certificate-lookup']">
-          Generate Licence
-        </button>
-      </div>
+      </a>
     </div>
-  </div>
-
-  <!-- BOTTOM PANELS -->
-  <div class="row g-3 equal-height-row">
-    <div class="col-lg-6">
-      <div class="panel-card">
-        <h6>System Monitoring</h6>
-        <ul class="status-list">
-          <li class="ok">API Status: Running</li>
-          <li class="ok">Database: Connected</li>
-          <li class="ok">Background Jobs: Active</li>
-        </ul>
-      </div>
-    </div>
-
-    <div class="col-lg-6">
-      <div class="panel-card">
-        <h6>Administrative Reports</h6>
-        <p>
-          Generate usage, approval, audit, and compliance reports.
-        </p>
-        <button class="btn btn-primary btn-sm">View Reports</button>
-      </div>
-    </div>
-  </div>
-
+  </section>
 </div>

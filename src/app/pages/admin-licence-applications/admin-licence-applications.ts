@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy } from '@angular/core';
 import { forkJoin, Subscription } from 'rxjs';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { AdminApplicationFiltersComponent, AdminApplicationFilterState } from './components/admin-application-filters/admin-application-filters';
 import { AdminApplicationTableComponent } from './components/admin-application-table/admin-application-table';
 import { AdminApplication, AdminApplicationsService } from './admin-applications.service';
@@ -24,7 +24,9 @@ export class AdminLicenceApplications implements OnDestroy {
   selectedZoneId: number | null = null;
   selectedMohId: number | null = null;
   selectedWardId: number | null = null;
+  selectedStatus = '';
   searchText = '';
+  statusOptions: string[] = [];
 
   totalRecords = 0;
   pageNumber = 1;
@@ -36,10 +38,12 @@ export class AdminLicenceApplications implements OnDestroy {
 
   constructor(
     private readonly adminApplicationsService: AdminApplicationsService,
-    private readonly router: Router
+    private readonly router: Router,
+    private readonly route: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
+    this.readRouteFilters();
     this.loadFilterMasters();
     this.loadAdminApplications();
   }
@@ -57,6 +61,7 @@ export class AdminLicenceApplications implements OnDestroy {
     const wardChanged = this.selectedWardId !== filterState.wardId;
 
     this.selectedZoneId = filterState.zoneId;
+    this.selectedStatus = filterState.status;
     this.filteredMohs = this.selectedZoneId
       ? this.mohs.filter((moh) => moh.zoneID === this.selectedZoneId)
       : [...this.mohs];
@@ -79,7 +84,10 @@ export class AdminLicenceApplications implements OnDestroy {
     if (zoneChanged || mohChanged || wardChanged) {
       this.pageNumber = 1;
       this.loadAdminApplications();
+      return;
     }
+
+    this.applyStatusFilterOnly();
   }
 
   onSearchChanged(value: string): void {
@@ -142,10 +150,19 @@ export class AdminLicenceApplications implements OnDestroy {
           return;
         }
 
-        this.applications = response?.data ?? [];
-        this.totalRecords = Number(response?.totalRecords ?? 0);
-        this.pageNumber = Number(response?.pageNumber ?? this.pageNumber);
-        this.pageSize = Number(response?.pageSize ?? this.pageSize);
+        this.applications = response?.data ?? response?.Data ?? [];
+        this.statusOptions = Array.from(
+          new Set(
+            this.applications
+              .map((app) => (app.licenceApplicationStatusName || '').trim())
+              .filter((value) => !!value)
+          )
+        ).sort();
+
+        this.applyStatusFilterOnly();
+        this.totalRecords = Number(response?.totalRecords ?? response?.TotalRecords ?? 0);
+        this.pageNumber = Number(response?.pageNumber ?? response?.PageNumber ?? this.pageNumber);
+        this.pageSize = Number(response?.pageSize ?? response?.PageSize ?? this.pageSize);
         this.isLoadingApplications = false;
       },
       error: (error) => {
@@ -154,6 +171,7 @@ export class AdminLicenceApplications implements OnDestroy {
         }
         console.error('Failed to load admin applications', error);
         this.applications = [];
+        this.statusOptions = [];
         this.totalRecords = 0;
         this.isLoadingApplications = false;
       }
@@ -227,5 +245,24 @@ export class AdminLicenceApplications implements OnDestroy {
     });
 
     this.subscriptions.add(sub);
+  }
+
+  private applyStatusFilterOnly(): void {
+    if (!this.selectedStatus?.trim()) {
+      return;
+    }
+    const target = this.selectedStatus.trim().toUpperCase();
+    this.applications = this.applications.filter(
+      (app) => (app.licenceApplicationStatusName || '').trim().toUpperCase() === target
+    );
+    this.totalRecords = this.applications.length;
+    this.pageNumber = 1;
+  }
+
+  private readRouteFilters(): void {
+    const rawStatus = this.route.snapshot.queryParamMap.get('status');
+    if (rawStatus?.trim()) {
+      this.selectedStatus = rawStatus.trim().toUpperCase();
+    }
   }
 }

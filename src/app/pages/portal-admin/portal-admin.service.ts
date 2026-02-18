@@ -18,6 +18,27 @@ export class PortalAdminService {
     );
   }
   //#endregion
+
+  getAdminDashboard(params?: {
+    zoneId?: number | null;
+    mohId?: number | null;
+    wardId?: number | null;
+  }) {
+    let httpParams = new HttpParams();
+    if (params?.zoneId) httpParams = httpParams.set('zoneId', params.zoneId.toString());
+    if (params?.mohId) httpParams = httpParams.set('mohId', params.mohId.toString());
+    if (params?.wardId) httpParams = httpParams.set('wardId', params.wardId.toString());
+
+    return this.http.get<{
+      role?: string;
+      Role?: string;
+      dashboard?: Record<string, any>;
+      Dashboard?: Record<string, any>;
+    }>(
+      `${this.baseUrl}/trade-licence/admin/dashboard`,
+      { params: httpParams }
+    );
+  }
   
   get<T>(url: string) {
     return this.http.get<T>(`${this.baseUrl}${url}`);

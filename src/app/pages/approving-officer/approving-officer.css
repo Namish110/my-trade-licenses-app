@@ -21,6 +21,8 @@
 }
 
 .hero-strip {
+  position: relative;
+  overflow: hidden;
   background: var(--approver-panel);
   border: 1px solid var(--approver-line);
   border-radius: 16px;
@@ -29,6 +31,48 @@
   justify-content: space-between;
   gap: 16px;
   box-shadow: var(--approver-shadow);
+}
+
+.hero-title-wrap,
+.hero-metrics {
+  position: relative;
+  z-index: 2;
+}
+
+.hero-orb,
+.hero-grid {
+  position: absolute;
+  pointer-events: none;
+  transition: transform 160ms ease-out;
+}
+
+.hero-orb {
+  border-radius: 50%;
+}
+
+.orb-a {
+  width: 190px;
+  height: 190px;
+  right: -45px;
+  top: -68px;
+  background: radial-gradient(circle, rgba(11, 116, 222, 0.16), rgba(11, 116, 222, 0.02));
+}
+
+.orb-b {
+  width: 150px;
+  height: 150px;
+  left: -22px;
+  bottom: -54px;
+  background: radial-gradient(circle, rgba(34, 197, 94, 0.2), rgba(34, 197, 94, 0.03));
+}
+
+.hero-grid {
+  inset: 0;
+  opacity: 0.2;
+  background-image:
+    linear-gradient(rgba(15, 23, 42, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15, 23, 42, 0.06) 1px, transparent 1px);
+  background-size: 20px 20px;
 }
 
 .hero-eyebrow {

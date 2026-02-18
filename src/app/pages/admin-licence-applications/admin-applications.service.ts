@@ -24,10 +24,20 @@ export interface AdminApplication {
 }
 
 export interface AdminApplicationsResponse {
-  totalRecords: number;
-  pageNumber: number;
-  pageSize: number;
-  data: AdminApplication[];
+  role?: string;
+  Role?: string;
+  mode?: string;
+  Mode?: string;
+  totalRecords?: number;
+  TotalRecords?: number;
+  pageNumber?: number;
+  PageNumber?: number;
+  pageSize?: number;
+  PageSize?: number;
+  totalPages?: number;
+  TotalPages?: number;
+  data?: AdminApplication[];
+  Data?: AdminApplication[];
 }
 
 export interface AdminApplicationsQuery {

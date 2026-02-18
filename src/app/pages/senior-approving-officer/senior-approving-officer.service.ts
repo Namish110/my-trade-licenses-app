@@ -1,6 +1,6 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { SeniorApprovedApplications } from './senior-approving-officer.model';
+import { SeniorApprovedApplications, SeniorApproverDashboardResponse } from './senior-approving-officer.model';
 
 @Injectable({
   providedIn: 'root'
@@ -23,7 +23,54 @@ export class SeniorApprovingOfficerService {
     return this.http.put<T>(`${this.baseUrl}${url}`, body);
   }
 
-  getSubmittedInspectionApplications(loginId: number, pageNumber: number, pageSize: number) {
-    return this.http.get<SeniorApprovedApplications>(`${this.baseUrl}/trade-licence/senior-approver/applications?loginId=${loginId}&pageNumber=${pageNumber}&pageSize=${pageSize}`);
+  getSubmittedInspectionApplications(
+    loginId: number,
+    pageNumber: number,
+    pageSize: number,
+    filters?: {
+      mohId?: number | null;
+      wardId?: number | null;
+      licenceApplicationId?: number | null;
+      applicationNumber?: string | null;
+    }
+  ) {
+    let params = new HttpParams()
+      .set('loginId', loginId.toString())
+      .set('pageNumber', pageNumber.toString())
+      .set('pageSize', pageSize.toString());
+
+    if (filters?.mohId) {
+      params = params.set('mohId', filters.mohId.toString());
+    }
+    if (filters?.wardId) {
+      params = params.set('wardId', filters.wardId.toString());
+    }
+    if (filters?.licenceApplicationId) {
+      params = params.set('licenceApplicationId', filters.licenceApplicationId.toString());
+    }
+    if (filters?.applicationNumber?.trim()) {
+      params = params.set('applicationNumber', filters.applicationNumber.trim());
+    }
+
+    return this.http.get<SeniorApprovedApplications>(
+      `${this.baseUrl}/trade-licence/senior-approver/applications`,
+      { params }
+    );
+  }
+
+  getSeniorApproverDashboard(loginId: number, mohId?: number | null, wardId?: number | null) {
+    let params = new HttpParams().set('loginId', loginId.toString());
+
+    if (mohId) {
+      params = params.set('mohId', mohId.toString());
+    }
+    if (wardId) {
+      params = params.set('wardId', wardId.toString());
+    }
+
+    return this.http.get<SeniorApproverDashboardResponse>(
+      `${this.baseUrl}/trade-licence/senior-approver/dashboard`,
+      { params }
+    );
   }
 }

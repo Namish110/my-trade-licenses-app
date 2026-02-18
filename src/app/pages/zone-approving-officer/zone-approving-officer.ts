@@ -18,6 +18,8 @@ import {
   styleUrl: './zone-approving-officer.css'
 })
 export class ZoneApprovingOfficer implements OnDestroy {
+  private parallaxX = 0;
+  private parallaxY = 0;
   applications: ZoneApproverApplication[] = [];
   filteredApplications: ZoneApproverApplication[] = [];
   pageApplications: ZoneApproverApplication[] = [];
@@ -279,5 +281,26 @@ export class ZoneApprovingOfficer implements OnDestroy {
       this.selectedStatus.trim()
     );
     return hasLocalFilter ? this.filteredApplications.length : this.totalRecords;
+  }
+
+  onParallaxMove(event: MouseEvent): void {
+    const host = event.currentTarget as HTMLElement | null;
+    if (!host) {
+      return;
+    }
+    const rect = host.getBoundingClientRect();
+    const x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+    const y = ((event.clientY - rect.top) / rect.height) * 2 - 1;
+    this.parallaxX = Math.max(-1, Math.min(1, x));
+    this.parallaxY = Math.max(-1, Math.min(1, y));
+  }
+
+  resetParallax(): void {
+    this.parallaxX = 0;
+    this.parallaxY = 0;
+  }
+
+  layerTransform(depth: number): string {
+    return `translate3d(${this.parallaxX * depth}px, ${this.parallaxY * depth}px, 0)`;
   }
 }

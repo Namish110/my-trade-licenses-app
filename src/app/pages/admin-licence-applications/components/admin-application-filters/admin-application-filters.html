@@ -69,6 +69,14 @@
     </datalist>
   </div>
 
+  <div>
+    <label class="form-label">Status</label>
+    <select class="form-select" [(ngModel)]="status" (change)="onStatusChanged()">
+      <option value="">All Statuses</option>
+      <option *ngFor="let s of statusOptions" [value]="s">{{ s }}</option>
+    </select>
+  </div>
+
   <div class="search-col">
     <label class="form-label">Search</label>
     <input
