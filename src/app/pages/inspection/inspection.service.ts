@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { map } from 'rxjs';
 import { TradeType } from '../../core/models/new-trade-licenses.model';
 import { ApprovedApplications, LicenceApplicationModel, TradeLicensesApplicationDetails } from '../../core/models/trade-licenses-details.model';
-import { LocationDetails } from './inspection.model';
+import { LicensesApplicationDocument, LocationDetails } from './inspection.model';
 
 export interface LicenceProcessTimelineItem {
   licenceFlowID: number;
@@ -112,4 +112,21 @@ export class InspectionService {
       })
     );
   }
+
+  getDocumentDetails(licenceApplicationID: number) {
+    return this.http.get<LicensesApplicationDocument[]>(`${this.baseUrl}/licence-documents/by-application/${licenceApplicationID}`);
+  }
+
+  // getDocumentDetailsById(documentID: number) {
+  //   return this.http.get<LicensesApplicationDocument>(`${this.baseUrl}/licence-documents/download/${documentID}`);
+  // }
+  getDocumentDetailsById(documentID: number) {
+    return this.http.get(
+      `${this.baseUrl}/licence-documents/download/${documentID}`,
+      {
+        responseType: 'blob'
+      }
+    );
+  }
+
 }

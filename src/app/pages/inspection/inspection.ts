@@ -11,7 +11,7 @@ import { AfterViewInit, Inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { TokenService } from '../../core/services/token.service';
 import { GoogleMapsModule } from '@angular/google-maps';
-import { LocationDetails } from './inspection.model';
+import { LocationDetails, LicensesApplicationDocument } from './inspection.model';
 import { LicenceProcessTimelineItem } from './inspection.service';
 
 interface InspectionPhoto {
@@ -68,8 +68,6 @@ export class Inspection {
     this.applicationNo = this.activeroute.snapshot.paramMap.get('applicationNo')!;
     this.role = this.tokenservice.getRole();
     this.loadAppliedApproverApplicatiosn();
-    this.loadApplicationDetails();
-    this.loadTimeline();
   }
 
   //#region To load Map 
@@ -85,14 +83,17 @@ export class Inspection {
   totalPages = 0;
 
   loadAppliedApproverApplicatiosn(): void{
+    this.loaderservice.show();
     const loginId = this.tokenservice.getUserId();
     if(!loginId){
       this.notificationservice.show('Invalid login id', 'warning');
+      this.loaderservice.hide();
       return;
     }
     const appNo = Number(this.applicationNo);
     if (isNaN(appNo)) {
       console.error('Invalid application number');
+      this.loaderservice.hide();
       return;
     }
     const source$ = this.isSeniorApprover
@@ -103,13 +104,18 @@ export class Inspection {
       next: (res: ApprovedApplications) => {
         if (res.data && res.data.length > 0) {
           this.licenceApplicationDetails = res.data[0];
+          this.loadLocationDetailsDetails();
+          this.loadDocumentDetails();
+          this.loadTimeline();
           console.log(this.licenceApplicationDetails);
         }
         this.totalRecords = res.totalRecords;
+        this.loaderservice.hide();
         this.cdr.detectChanges();
       },
       error: () => { 
         this.licenceApplicationDetails = null;
+        this.loaderservice.hide();
         this.cdr.detectChanges();
       }
     });
@@ -130,12 +136,11 @@ export class Inspection {
     draggable: false
   };
 
-  loadApplicationDetails() {
+  loadLocationDetailsDetails() {
     // Example API response
     this.inspectionservice.getgeolocationByLicensesAppId(Number(this.applicationNo)).subscribe({
       next: (res) => {
         this.loadlocationDetails = res;
-         // ✅ SET MAP CENTER AFTER DATA COMES
         this.mapCenter = {
           lat: Number(res.latitude),
           lng: Number(res.longitude)
@@ -143,17 +148,43 @@ export class Inspection {
 
         // Optional but safe
         this.cdr.detectChanges();
-        console.log(this.loadlocationDetails);
       },
       error: (err) => {
         console.error('Error fetching location details:', err);
       }
     });
-    // this.mapCenter = {
-    //   lat: this.loadlocationDetails?.latitude || 0,
-    //   lng: this.loadlocationDetails?.longitude || 0
-    // };
   }
+
+  //To Load document details in the document tab
+  LicensesApplicationDocuments: LicensesApplicationDocument[] = [];
+  loadDocumentDetails() {
+    this.inspectionservice.getDocumentDetails(Number(this.applicationNo)).subscribe({
+      next: (res) => {
+        this.LicensesApplicationDocuments = res;
+        console.log('Document details loaded:', this.LicensesApplicationDocuments);
+        console.log('Document details loaded:', res);
+        console.log(this.applicationNo);
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Error fetching document details:', err);
+      }
+    });
+  }
+  //To Download document
+  downloadDocument(documentId: number) {
+    this.inspectionservice.getDocumentDetailsById(documentId).subscribe({
+      next: (res: Blob) => {
+        const blob = new Blob([res], { type: 'application/pdf' });
+        const url = window.URL.createObjectURL(blob);
+        window.open(url);
+      },
+      error: (err) => {
+        console.error(err);
+      }
+    });
+  }
+
 
 
   /*loadApplicationDetailsByLicensesId(licenceApplicationID: number){
@@ -210,9 +241,6 @@ export class Inspection {
   }
   //#endregions
 
-  downloadDocument(documentName: string){
-
-  }
   saveDraft() {
     console.log('Draft saved', {
       applicationNo: this.applicationNo,

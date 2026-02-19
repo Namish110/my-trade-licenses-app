@@ -69,14 +69,14 @@
 
 
   <!-- Documents Details -->
-  <div class="card section-card">
-    <div class="card-header">Documents Details</div>
+  <!-- <div class="card section-card"> -->
+    <!-- <div class="card-header">Documents Details</div>
 
     <div class="card-body">
-      <div class="row g-3">
+      <div class="row g-3"> -->
 
         <!-- Document 1 -->
-        <div class="col-md-6">
+        <!-- <div class="col-md-6">
           <div class="document-card">
             <div class="doc-info">
               <i class="bi bi-file-earmark-pdf-fill text-danger"></i>
@@ -89,10 +89,10 @@
               Download
             </button>
           </div>
-        </div>
+        </div> -->
 
         <!-- Document 2 -->
-        <div class="col-md-6">
+        <!-- <div class="col-md-6">
           <div class="document-card">
             <div class="doc-info">
               <i class="bi bi-file-earmark-pdf-fill text-danger"></i>
@@ -105,10 +105,10 @@
               Download
             </button>
           </div>
-        </div>
+        </div> -->
 
         <!-- Document 3 -->
-        <div class="col-md-6">
+        <!-- <div class="col-md-6">
           <div class="document-card">
             <div class="doc-info">
               <i class="bi bi-file-earmark-pdf-fill text-danger"></i>
@@ -121,10 +121,10 @@
               Download
             </button>
           </div>
-        </div>
+        </div> -->
 
         <!-- Document 4 -->
-        <div class="col-md-6">
+        <!-- <div class="col-md-6">
           <div class="document-card">
             <div class="doc-info">
               <i class="bi bi-file-earmark-pdf-fill text-danger"></i>
@@ -137,11 +137,42 @@
               Download
             </button>
           </div>
-        </div>
+        </div> -->
 
+      <!-- </div>
+    </div>
+  </div> -->
+  <div class="card section-card">
+    <div class="card-header">Documents Details</div>
+
+    <div class="card-body">
+      <div class="row g-3">
+
+        <div class="col-md-6" *ngFor="let doc of LicensesApplicationDocuments">
+          <div class="document-card">
+            <div class="doc-info">
+              <i class="bi bi-file-earmark-pdf-fill text-danger"></i>
+              <span>{{ doc.documentName }}</span>
+            </div>
+
+            <button
+              class="btn btn-outline-primary btn-sm"
+              (click)="downloadDocument(doc.ApplicationDocumentID)"
+            >
+              Download
+            </button>
+          </div>
+          <div class="document-date mt-1">
+            <small class="text-secondary">
+              <i class="bi bi-calendar-event me-1"></i>
+              {{ doc.EntryDate | date:'medium' }}
+            </small>
+          </div>
+        </div>
       </div>
     </div>
   </div>
+
 
 
   <!-- Checklist -->

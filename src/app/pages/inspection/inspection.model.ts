@@ -10,3 +10,15 @@ export interface LocationDetails{
   isConfirmed: boolean,
   entryDate: Date | null
 }
+
+export interface LicensesApplicationDocument {
+  ApplicationDocumentID: number;
+  LicenceApplicationID: number;
+  DocumentID: number;
+  documentName: string;
+  FileName: string;
+  FilePath: string;
+  FileExtension: string;
+  FileSizeKB: number;
+  EntryDate: string; // ISO date string
+}
