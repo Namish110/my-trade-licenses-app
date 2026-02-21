@@ -7,7 +7,7 @@ import { MLCConstituency, TradeMajor, TradeMinor, TradeSub, TradeType, Ward, Zon
 })
 export class MasterDataComplianceService {
 
-  private baseUrl = 'https://localhost:7181/api'; // 👈 change to your backend
+  private baseUrl = 'https://pickitover.com/api/api/'; // 👈 change to your backend
 
   constructor(private http: HttpClient) {}
 
@@ -54,3 +54,4 @@ export class MasterDataComplianceService {
       return this.get<ZoneClassification[]>('/trade-zonal-classification');
     }
 }
+

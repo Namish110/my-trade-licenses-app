@@ -448,6 +448,7 @@ autoDetectCurrentLocation() {
     if (this.roadWidthDetails) {
       this.roadWidthDetails.road_Width_mtrs = this.manualRoadWidth.toString();
     }
+    this.roadWidth_feet = this.metersToFeet(this.manualRoadWidth);
   }
 }
 
@@ -802,6 +803,29 @@ autoDetectCurrentLocation() {
   manualRoadWidth: number | null = null;
   roadWidthReason = '';
 
+  private metersToFeet(meters: number): number {
+    return +(meters * 3.28084).toFixed(2);
+  }
+
+  get effectiveRoadWidthMeters(): number {
+    if (this.roadWidthConfirmed === false && this.manualRoadWidth && this.manualRoadWidth > 0) {
+      return Number(this.manualRoadWidth);
+    }
+    return Number(this.roadWidthDetails?.road_Width_mtrs ?? 0);
+  }
+
+  get effectiveRoadWidthFeet(): number {
+    return this.metersToFeet(this.effectiveRoadWidthMeters);
+  }
+
+  onManualRoadWidthChange(): void {
+    if (this.roadWidthConfirmed !== false) {
+      return;
+    }
+    const manualMeters = Number(this.manualRoadWidth ?? 0);
+    this.roadWidth_feet = manualMeters > 0 ? this.metersToFeet(manualMeters) : 0;
+  }
+
   //ngAfterViewInit(): void {}
 ngAfterViewInit(): void {
   setTimeout(() => {
@@ -983,7 +1007,7 @@ fetchRoadWidthByBox(
   this.newLicensesService.getRoadWidth(payload).subscribe({
     next: (res: RoadWidthDetails[]) => {
       this.roadWidthDetails = res?.[0] ?? null;
-      this.roadWidth_feet = +(this.roadWidthDetails?.road_Width_mtrs || 0) * 3.28084;
+      this.roadWidth_feet = this.metersToFeet(Number(this.roadWidthDetails?.road_Width_mtrs || 0));
     },
     error: () => {
       this.roadWidthDetails = null;
@@ -1022,7 +1046,7 @@ fetchRoadWidth(lng: number, lat: number) {
       if (res?.code === 'SUCCESS' && Array.isArray(res.data) && res.data.length > 0) {
 
         this.roadWidthDetails = res.data[0];
-        this.roadWidth_feet = +(this.roadWidthDetails?.road_Width_mtrs || 0) * 3.28084;
+        this.roadWidth_feet = this.metersToFeet(Number(this.roadWidthDetails?.road_Width_mtrs || 0));
         this.roadWidthStatus = 'Road width detected automatically';
 
         this.notificationservice.show(
@@ -1683,9 +1707,9 @@ fetchRoadWidth(lng: number, lat: number) {
         return;
       }
 
-      if (this.roadWidthConfirmed !== true) {
+      if (!this.canProceedRoadWidth()) {
         this.notificationservice.show(
-          'Please confirm the road width before continuing.',
+          'Please confirm road width or enter a valid manual road width.',
           'warning'
         );
         reject('Road width confirmation missing');
@@ -1698,12 +1722,17 @@ fetchRoadWidth(lng: number, lat: number) {
         return;
       }
 
+      const roadWidthMtrs =
+        this.roadWidthConfirmed === false
+          ? Number(this.manualRoadWidth)
+          : Number(this.roadWidthDetails.road_Width_mtrs ?? 0);
+
       const payload = {
         licenceApplicationID: licenceAppId,
         latitude: this.latitude,
         longitude: this.longitude,
         roadID: this.roadWidthDetails.roadType ?? '',
-        roadWidthMtrs: this.roadWidthDetails.road_Width_mtrs ?? 0,
+        roadWidthMtrs,
         roadCategoryCode: this.roadWidthDetails.roadCategoryCode ?? '',
         roadCategory: this.roadWidthDetails.roadCategory ?? '',
         loginID: this.tokenservice.getTraderUserId()

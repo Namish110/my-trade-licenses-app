@@ -72,7 +72,7 @@ export class UsersRolesService {
 
   /* ================= BASE URL ================= */
 
-  private readonly baseUrl = 'https://localhost:7181/api';
+  private readonly baseUrl = 'https://pickitover.com/api/api/';
 
   /* ================= ENDPOINTS ================= */
 
@@ -204,3 +204,4 @@ export class UsersRolesService {
     return this.http.get<Zones[]>(this.zonesUrl);
   }
 }
+

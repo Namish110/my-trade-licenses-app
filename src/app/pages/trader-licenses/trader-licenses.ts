@@ -18,6 +18,9 @@ import { AppliedLicensesResponse, LicenceApplicationDetails } from '../../core/m
 export class TraderLicenses {
 
   userName = '';
+  showInspectionDisclaimer = true;
+  inspectionDeclarationAccepted = false;
+  private readonly inspectionDisclaimerStorageKey = 'trader_inspection_disclaimer_seen';
 
   constructor(private router: Router,
     private tokenservice: TokenService,
@@ -28,6 +31,12 @@ export class TraderLicenses {
   ngOnInit(){
     this.loadAppliedLicensesApplicationByLoginId();
     this.userName = this.tokenservice.getUserFullName();
+    const loginId = this.tokenservice.getUserId();
+    const key = loginId
+      ? `${this.inspectionDisclaimerStorageKey}_${loginId}`
+      : this.inspectionDisclaimerStorageKey;
+    this.showInspectionDisclaimer = sessionStorage.getItem(key) !== '1';
+    this.inspectionDeclarationAccepted = false;
   }
 
   //load all applied applications by loginID
@@ -141,6 +150,23 @@ export class TraderLicenses {
       renewal_due: 'badge bg-warning-subtle text-warning',
       under_review: 'badge bg-primary-subtle text-primary',
     }[status];
+  }
+
+  dismissInspectionDisclaimer(): void {
+    if (!this.inspectionDeclarationAccepted) {
+      this.notificationservice.show(
+        'Please accept the declaration before proceeding.',
+        'warning'
+      );
+      return;
+    }
+
+    this.showInspectionDisclaimer = false;
+    const loginId = this.tokenservice.getUserId();
+    const key = loginId
+      ? `${this.inspectionDisclaimerStorageKey}_${loginId}`
+      : this.inspectionDisclaimerStorageKey;
+    sessionStorage.setItem(key, '1');
   }
 
 }

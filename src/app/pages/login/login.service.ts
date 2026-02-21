@@ -6,25 +6,31 @@ import { Injectable } from '@angular/core';
 })
 export class LoginService {
 
-  private baseUrl = 'https://localhost:7181/api'; // 👈 change to your backend
+  private baseUrl = 'https://pickitover.com/api/api/'; // change to your backend
 
   constructor(private http: HttpClient) {}
 
+  private buildUrl(url: string): string {
+    const normalizedBase = this.baseUrl.replace(/\/+$/, '');
+    const normalizedPath = url.replace(/^\/+/, '');
+    return `${normalizedBase}/${normalizedPath}`;
+  }
+
   get<T>(url: string) {
-    return this.http.get<T>(`${this.baseUrl}${url}`);
+    return this.http.get<T>(this.buildUrl(url));
   }
 
   post<T>(url: string, body: any) {
-    return this.http.post<T>(`${this.baseUrl}${url}`, body);
+    return this.http.post<T>(this.buildUrl(url), body);
   }
 
   put<T>(url: string, body: any) {
-    return this.http.put<T>(`${this.baseUrl}${url}`, body);
+    return this.http.put<T>(this.buildUrl(url), body);
   }
 
   sendOtp(phone: string) {
     return this.http.post<any>(
-      `${this.baseUrl}/sms/otp/send`,
+      this.buildUrl('/sms/otp/send'),
       {
         mobileNo: phone
       },
@@ -36,7 +42,7 @@ export class LoginService {
 
   verifyOtp(phone: string, otp: string) {
     return this.http.post<any>(
-      `${this.baseUrl}/sms/otp/verify`,
+      this.buildUrl('/sms/otp/verify'),
       {
         mobileNo: phone,
         otp: otp

@@ -9,7 +9,7 @@ import { Observable } from 'rxjs';
 })
 export class NewLicensesService {
 
-  private baseUrl = 'https://localhost:7181/api'; // 👈 change to your backend
+  private baseUrl = 'https://pickitover.com/api/api/'; // 👈 change to your backend
 
   constructor(private http: HttpClient) {}
 
@@ -135,3 +135,4 @@ getDraftByLogin(loginId: number) {
     return this.http.post<any>(`${this.baseUrl}/licence-trade-details/temp`, payload);
   }
 }
+

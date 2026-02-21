@@ -6,7 +6,7 @@ import { Injectable } from '@angular/core';
 })
 export class SystemSettingsService {
 
-  private baseUrl = 'https://localhost:5001/api'; // 👈 change to your backend
+  private baseUrl = 'https://pickitover.com/api/api/'; // ðŸ‘ˆ change to your backend
 
   constructor(private http: HttpClient) {}
 
@@ -22,3 +22,4 @@ export class SystemSettingsService {
     return this.http.put<T>(`${this.baseUrl}${url}`, body);
   }
 }
+

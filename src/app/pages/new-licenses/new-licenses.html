@@ -474,14 +474,14 @@
                 <div class="mb-2">
                   <label class="fw-semibold text-secondary">Road Width (meters)</label>
                   <input class="form-control form-control-sm"
-                        [value]="roadWidthDetails?.road_Width_mtrs"
+                        [value]="effectiveRoadWidthMeters"
                         readonly>
                 </div>
 
                 <div class="mb-2">
-                  <label class="fw-semibold text-secondary">Road Width (sqfts)</label>
+                  <label class="fw-semibold text-secondary">Road Width (feet)</label>
                   <input class="form-control form-control-sm"
-                        [value]="roadWidth_feet"
+                        [value]="effectiveRoadWidthFeet"
                         readonly>
                 </div>
 
@@ -545,7 +545,8 @@
                     class="form-control"
                     min="1"
                     placeholder="Enter road width manually"
-                    [(ngModel)]="manualRoadWidth">
+                    [(ngModel)]="manualRoadWidth"
+                    (ngModelChange)="onManualRoadWidthChange()">
                 </div>
             </div>  
           </div>
@@ -574,7 +575,7 @@
   <div class="d-flex justify-content-between mt-4">
     <button class="btn btn-outline-secondary" (click)="prevStep()">← Back</button>
   <button class="btn btn-primary"
-        [disabled]="roadWidthConfirmed !== true"
+        [disabled]="!canProceedRoadWidth()"
         (click)="nextStep()">
   Continue →
 </button>

@@ -9,6 +9,7 @@ import { LocationDetails } from '../inspection/inspection.model';
 import { TokenService } from '../../core/services/token.service';
 import { NotificationService } from '../../shared/components/notification/notification.service';
 import { LicenceProcessTimelineItem } from '../inspection/inspection.service';
+import { LicensesApplicationDocument } from '../inspection/inspection.model';
 
 interface AdminApplicationDetails {
   licenceApplicationID: number;
@@ -44,6 +45,9 @@ export class AdminLicenceApplicationDetails {
   timeline: LicenceProcessTimelineItem[] = [];
   timelineLoading = false;
   timelineError = '';
+  documents: LicensesApplicationDocument[] = [];
+  documentsLoading = false;
+  documentsError = '';
 
   inspectionChecklist = [
     { label: 'Trade name board displayed', checked: false },
@@ -102,6 +106,8 @@ export class AdminLicenceApplicationDetails {
           this.loading = false;
           if (!this.details) {
             this.errorMessage = 'Application not found.';
+          } else {
+            this.loadDocumentDetails(this.details.licenceApplicationID);
           }
           this.cdr.detectChanges();
         },
@@ -145,6 +151,42 @@ export class AdminLicenceApplicationDetails {
 
   downloadDocument(): void {
     return;
+  }
+
+  private loadDocumentDetails(licenceApplicationID: number): void {
+    this.documentsLoading = true;
+    this.documentsError = '';
+    this.documents = [];
+
+    this.inspectionService.getDocumentDetails(licenceApplicationID).subscribe({
+      next: (res) => {
+        this.documents = res ?? [];
+        this.documentsLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.documentsLoading = false;
+        this.documentsError = 'Unable to load documents.';
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  openOrDownloadDocument(applicationDocumentId: number): void {
+    if (!applicationDocumentId) {
+      return;
+    }
+
+    this.inspectionService.getDocumentDetailsById(applicationDocumentId).subscribe({
+      next: (res: Blob) => {
+        const blob = new Blob([res], { type: 'application/pdf' });
+        const url = window.URL.createObjectURL(blob);
+        window.open(url, '_blank');
+      },
+      error: () => {
+        this.notificationService.show('Unable to open document', 'error');
+      }
+    });
   }
 
   submitAdminAction(licenceProcessID: number, successMessage: string): void {

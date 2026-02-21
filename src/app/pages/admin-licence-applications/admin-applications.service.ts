@@ -54,7 +54,7 @@ export interface AdminApplicationsQuery {
   providedIn: 'root'
 })
 export class AdminApplicationsService {
-  private readonly baseUrl = 'https://localhost:7181/api';
+  private readonly baseUrl = 'https://pickitover.com/api/api/';
 
   constructor(private readonly http: HttpClient) {}
 
@@ -101,3 +101,4 @@ export class AdminApplicationsService {
     );
   }
 }
+

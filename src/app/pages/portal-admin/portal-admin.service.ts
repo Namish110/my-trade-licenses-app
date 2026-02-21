@@ -7,8 +7,8 @@ import { PortalAdminModel } from '../../core/models/portal-admin.model';
 })
 export class PortalAdminService {
 
-  private baseUrl = 'https://localhost:7181/api'; // 👈 change to your backend
-  //https://localhost:7181/api/dashboard/application-status-count
+  private baseUrl = 'https://pickitover.com/api/api/'; // 👈 change to your backend
+  //https://pickitover.com/api/api/dashboard/application-status-count
   constructor(private http: HttpClient) {}
 
   //#region Getting data to load in dashboard
@@ -88,3 +88,4 @@ export class PortalAdminService {
     );
   }
 }
+

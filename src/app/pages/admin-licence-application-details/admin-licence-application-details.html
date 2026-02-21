@@ -74,55 +74,33 @@
       <div class="card-header">Documents Details</div>
 
       <div class="card-body">
-        <div class="row g-3">
-          <div class="col-md-6">
+        <div *ngIf="documentsLoading" class="text-muted">Loading documents...</div>
+        <div *ngIf="!documentsLoading && documentsError" class="text-danger">{{ documentsError }}</div>
+        <div *ngIf="!documentsLoading && !documentsError && documents.length === 0" class="text-muted">
+          No documents found.
+        </div>
+        <div *ngIf="!documentsLoading && !documentsError && documents.length > 0" class="row g-3">
+          <div class="col-md-6" *ngFor="let doc of documents">
             <div class="document-card">
               <div class="doc-info">
                 <i class="bi bi-file-earmark-pdf-fill text-danger"></i>
-                <span>Trade License Application</span>
+                <span>{{ doc.documentName }}</span>
               </div>
-              <button class="btn btn-outline-primary btn-sm" disabled>
-                Download
+              <button
+                class="btn btn-outline-primary btn-sm"
+                type="button"
+                (click)="openOrDownloadDocument(doc.ApplicationDocumentID)"
+              >
+                Open / Download
               </button>
             </div>
-          </div>
-
-          <div class="col-md-6">
-            <div class="document-card">
-              <div class="doc-info">
-                <i class="bi bi-file-earmark-pdf-fill text-danger"></i>
-                <span>Identity Proof</span>
-              </div>
-              <button class="btn btn-outline-primary btn-sm" disabled>
-                Download
-              </button>
+            <div class="document-date mt-1">
+              <small class="text-secondary">
+                <i class="bi bi-calendar-event me-1"></i>
+                {{ doc.EntryDate | date:'medium' }}
+              </small>
             </div>
           </div>
-
-          <div class="col-md-6">
-            <div class="document-card">
-              <div class="doc-info">
-                <i class="bi bi-file-earmark-pdf-fill text-danger"></i>
-                <span>Address Proof</span>
-              </div>
-              <button class="btn btn-outline-primary btn-sm" disabled>
-                Download
-              </button>
-            </div>
-          </div>
-
-          <div class="col-md-6">
-            <div class="document-card">
-              <div class="doc-info">
-                <i class="bi bi-file-earmark-pdf-fill text-danger"></i>
-                <span>Fire Safety Certificate</span>
-              </div>
-              <button class="btn btn-outline-primary btn-sm" disabled>
-                Download
-              </button>
-            </div>
-          </div>
-
         </div>
       </div>
     </div>

@@ -118,15 +118,37 @@ export class PaymentSuccess {
   private submitLicenceApplicationFinal(licenceApplicationID: number): void {
     this.paymentSuccessService.saveApplicationToLicensesApp(licenceApplicationID).subscribe({
       next: (licenceRes: any) => {
+        if (this.isAlreadyFinallySubmitted(licenceRes)) {
+          console.warn('Licence application already finally submitted. Treating as success.', licenceRes);
+          console.log('Final submit flow completed.');
+          this.loaderservice.hide();
+          return;
+        }
         console.log('Licence application final submit success:', licenceRes);
         console.log('Final submit flow completed.');
         this.loaderservice.hide();
       },
       error: (err) => {
+        const payload = err?.error ?? err;
+        if (this.isAlreadyFinallySubmitted(payload)) {
+          console.warn('Licence application already finally submitted (error payload). Treating as success.', payload);
+          console.log('Final submit flow completed.');
+          this.loaderservice.hide();
+          return;
+        }
         console.error('Error submitting application to Licence Application:', err);
         this.loaderservice.hide();
       }
     });
+  }
+
+  private isAlreadyFinallySubmitted(payload: any): boolean {
+    const message = String(payload?.message ?? payload?.Message ?? '').trim().toLowerCase();
+    const submitted = payload?.submitted;
+    return (
+      message.includes('already finally submitted') ||
+      (submitted === false && message.includes('already submitted'))
+    );
   }
 
   goToApplication(){
