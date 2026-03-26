@@ -148,18 +148,18 @@ selectedRectangle!: google.maps.Rectangle;
 
   private debugLog(message: string, data?: any): void {
     if (data !== undefined) {
-      console.log(`[new-licenses] ${message}`, data);
+      //console.log(`[new-licenses] ${message}`, data);
       return;
     }
-    console.log(`[new-licenses] ${message}`);
+      //console.log(`[new-licenses] ${message}`);
   }
 
   private debugError(message: string, data?: any): void {
     if (data !== undefined) {
-      console.error(`[new-licenses] ${message}`, data);
+      //console.error(`[new-licenses] ${message}`, data);
       return;
     }
-    console.error(`[new-licenses] ${message}`);
+    ///console.error(`[new-licenses] ${message}`);
   }
 
 
@@ -871,7 +871,7 @@ private initAutocomplete(): void {
   if (!this.searchInput?.nativeElement) return;
 
   if (!google?.maps?.places) {
-    console.error('Google Places library not loaded');
+    //console.error('Google Places library not loaded');
     return;
   }
 
@@ -1223,7 +1223,7 @@ fetchRoadWidth(lng: number, lat: number) {
         this.loaderservice.hide();
       },
       error: (err) => {
-        console.error('Failed to restore draft', err);
+        //console.error('Failed to restore draft', err);
         this.notificationservice.show(
           'Failed to restore draft. Starting a new application.',
           'warning'
@@ -1274,7 +1274,9 @@ fetchRoadWidth(lng: number, lat: number) {
               }
               this.cdr.detectChanges();
             },
-            error: (err) => console.error(err)
+            error: (err) => {
+              //console.error(err)
+            }
           });
       }
     }
@@ -1288,7 +1290,9 @@ fetchRoadWidth(lng: number, lat: number) {
       next: (res) => {
         this.tradeMajors = res;
       },
-      error: (err) => console.error(err)
+      error: (err) => {
+        //console.error(err)
+      }
     });
   }
 
@@ -1304,7 +1308,9 @@ fetchRoadWidth(lng: number, lat: number) {
         next: (res) => {
           this.tradeMinors = res;
         },
-        error: (err) => console.error(err)
+        error: (err) => {
+          //console.error(err)
+        }
       });
   }
 
@@ -1318,7 +1324,9 @@ fetchRoadWidth(lng: number, lat: number) {
         next: (res) => {
           this.tradeSubs = res;
         },
-        error: (err) => console.error(err)
+        error: (err) => {
+          //console.error(err)
+        }
       });
   }
 
@@ -1329,7 +1337,9 @@ fetchRoadWidth(lng: number, lat: number) {
         this.tradeTypes = res;
         this.cdr.detectChanges();
       },
-      error: (err) => console.error(err)
+      error: (err) => {
+        //console.error(err)
+      }
     });
   }
 
@@ -1339,7 +1349,9 @@ fetchRoadWidth(lng: number, lat: number) {
       next: (res) => {
         this.mlaConstituencies = res;
       },
-      error: (err) => console.error(err)
+      error: (err) => {
+        //console.error(err)
+      }
     });
   }
 
@@ -1351,7 +1363,9 @@ fetchRoadWidth(lng: number, lat: number) {
       next: (res) => {
         this.wards = res;
       },
-      error: (err) => console.error(err)
+      error: (err) => {
+        //console.error(err)
+      }
     });
   }
   
@@ -1361,7 +1375,9 @@ fetchRoadWidth(lng: number, lat: number) {
       next: (res) => {
         this.zones = res;
       },
-      error: (err) => console.error(err)
+      error: (err) => {
+        //console.error(err)
+      }
     });
   }
 
@@ -1371,7 +1387,9 @@ fetchRoadWidth(lng: number, lat: number) {
       next: (res) => {
         this.zoneClassifications = res;
       },
-      error: (err) => console.error(err)
+      error: (err) => {
+        //console.error(err)
+      }
     });
     
   }
@@ -1694,17 +1712,17 @@ fetchRoadWidth(lng: number, lat: number) {
                 .subscribe({
                   next: () => {
                     completed++;
-                    console.log(
-                      `${existing ? 'Updated' : 'Inserted'} document`,
-                      doc.documentId
-                    );
+                    // console.log(
+                    //   `${existing ? 'Updated' : 'Inserted'} document`,
+                    //   doc.documentId
+                    // );
 
                     if (completed === total) {
                       resolve(); // 🔥 all uploads finished
                     }
                   },
                   error: (err) => {
-                    console.error('Upload failed', err);
+                    //console.error('Upload failed', err);
 
                     // ❌ reject(err);
                     // ✅ allow flow to continue
@@ -1841,10 +1859,12 @@ fetchRoadWidth(lng: number, lat: number) {
       email: this.tradeLicenseApplicationDetails.emailID,
       phone: this.tradeLicenseApplicationDetails.mobileNumber
     };
-    console.log(payload);
+    //console.log(payload);
     this.newLicensesService.paymentIntiate(payload).subscribe({
       next: res => this.redirectToPayment(res.html),
-      error: err => console.error('Payment initiation failed', err)
+      error: err => {
+        //console.error('Payment initiation failed', err)
+      }
     });
   }
 
@@ -1858,7 +1878,7 @@ fetchRoadWidth(lng: number, lat: number) {
     const form = tempDiv.querySelector('form') as HTMLFormElement;
 
     if (!form) {
-      console.error('Payment form not found in response');
+      //console.error('Payment form not found in response');
       return;
     }
 
