@@ -36,7 +36,7 @@ interface LicenceProcessTimelineResponse {
 })
 export class TrackApplicationService {
 
-  private baseUrl = 'https://pickitover.com/api/api/'; // primary backend
+  private baseUrl = '/api/api'; // proxy through Angular in dev
 
   constructor(private http: HttpClient) {}
 

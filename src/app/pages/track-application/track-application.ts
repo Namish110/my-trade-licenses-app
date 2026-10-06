@@ -65,9 +65,13 @@ export class TrackApplication {
     private notificationService: NotificationService
   ) {}
 
+  private normalizeRole(role: string | null | undefined): string {
+    return (role ?? '').toLowerCase().replace(/[\s_-]+/g, '');
+  }
+
   ngOnInit() {
-    const role = this.tokenservice.getUserRole();
-    if (role == 'TRADE_OWNER') {
+    const role = this.normalizeRole(this.tokenservice.getEffectiveRole() || this.tokenservice.getUserRole() || this.tokenservice.getRole());
+    if (role === 'tradeowner' || role === 'trader') {
       this.isUser = true;
     }
     this.loadUserApplications();

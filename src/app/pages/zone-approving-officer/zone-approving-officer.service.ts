@@ -57,7 +57,7 @@ export interface ZoneApproverDashboardResponse {
   providedIn: 'root'
 })
 export class ZoneApprovingOfficerService {
-  private readonly baseUrl = 'https://pickitover.com/api/api/';
+  private readonly baseUrl = '/api/api';
 
   constructor(private readonly http: HttpClient) {}
 

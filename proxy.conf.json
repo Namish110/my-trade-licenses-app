@@ -1,0 +1,8 @@
+{
+  "/api": {
+    "target": "https://pickitover.com",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "warn"
+  }
+}

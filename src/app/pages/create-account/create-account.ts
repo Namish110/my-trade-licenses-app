@@ -201,8 +201,10 @@ export class CreateAccount {
     this.auth.userlogin(payload).subscribe({
       next: () => {
         // login successful if we reach here
-        const role = this.tokenService.getUserRole();
-        if(role == 'TRADE_OWNER'){
+        const role = (this.tokenService.getEffectiveRole() || this.tokenService.getUserRole() || this.tokenService.getRole())
+          .toLowerCase()
+          .replace(/[\s_-]+/g, '');
+        if (role === 'tradeowner' || role === 'trader') {
           this.router.navigate(['/trader']);
         }
       },

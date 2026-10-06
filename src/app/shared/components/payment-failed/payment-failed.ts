@@ -17,9 +17,14 @@ export class PaymentFailed {
 
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
-      this.txnId = params['txnid'];
-      this.errorMsg = params['error'] || 'Payment was not completed';
+      this.txnId = this.sanitizeQueryValue(params['txnid'], 64);
+      this.errorMsg = this.sanitizeQueryValue(params['error'], 240) || 'Payment was not completed';
     });
+  }
+
+  private sanitizeQueryValue(value: unknown, maxLength: number): string {
+    const normalized = String(value ?? '').replace(/[\u0000-\u001f\u007f<>`"']/g, '').trim();
+    return normalized.slice(0, maxLength);
   }
 
   retryPayment() {

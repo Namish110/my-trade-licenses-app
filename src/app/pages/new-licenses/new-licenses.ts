@@ -18,7 +18,7 @@ import { initializeApplicationDetails, initializeTradeApplication } from '../../
 import { Router } from '@angular/router';
 import { TokenService } from '../../core/services/token.service';
 import { NotificationService } from '../../shared/components/notification/notification.service';
-import { from, lastValueFrom, timer } from 'rxjs';
+import { firstValueFrom, from, timer } from 'rxjs';
 import { concatMap, retry, toArray } from 'rxjs/operators';
 import { LoaderService } from '../../shared/components/loader/loader.service';
 import { TradeLicenceStateService } from '../../shared/services/trade-licenses-service';
@@ -292,7 +292,95 @@ autoDetectCurrentLocation() {
     };
   }
 
-  nextStep() {
+  private buildTradeLicencePayload() {
+    return {
+      applicantName: this.tradeLicenseApplicationDetails.applicantName,
+      doorNumber: this.tradeLicenseApplicationDetails.doorNumber,
+      address1: this.tradeLicenseApplicationDetails.address1,
+      address2: this.tradeLicenseApplicationDetails.address2,
+      address3: this.tradeLicenseApplicationDetails.address3,
+      pincode: this.tradeLicenseApplicationDetails.pincode,
+      landLineNumber: this.tradeLicenseApplicationDetails.landLineNumber,
+      mobileNumber: this.tradeLicenseApplicationDetails.mobileNumber,
+      emailID: this.tradeLicenseApplicationDetails.emailID,
+      tradeName: this.tradeLicenseApplicationDetails.tradeName,
+
+      zonalClassificationID: this.selectedZoneClassification ? this.selectedZoneClassification.zonalClassificationID : 0,
+      mohID: this.selectedMLAConstituency ? this.selectedMLAConstituency.mohID : 0,
+      wardID: this.selectedWard ? this.selectedWard.wardID : 0,
+
+      propertyID: this.tradeLicenseApplicationDetails.propertyID,
+      pidNumber: this.tradeLicenseApplicationDetails.pidNumber,
+      khathaNumber: this.tradeLicenseApplicationDetails.khathaNumber,
+      surveyNumber: this.tradeLicenseApplicationDetails.surveyNumber,
+      street: this.tradeLicenseApplicationDetails.street,
+      gisNumber: this.tradeLicenseApplicationDetails.gisNumber,
+
+      licenceNumber: this.tradeLicenseApplicationDetails.licenceNumber,
+      licenceCommencementDate: this.tradeLicenseApplicationDetails.licenceCommencementDate,
+      licenceStatusID: 1,
+
+      oldapplicationNumber: this.tradeLicenseApplicationDetails.oldapplicationNumber,
+      newlicenceNumber: this.tradeLicenseApplicationDetails.newlicenceNumber
+    };
+  }
+
+  private getCurrentDraftApplicationId(): number {
+    const currentDraftId = Number(this.tradeLicenseApplications.licenceApplicationID ?? 0);
+    const storedDraftId = Number(localStorage.getItem('draftLicenceApplicationId') ?? 0);
+    return currentDraftId || storedDraftId || 0;
+  }
+
+  private persistDraftApplicationId(licenceApplicationID: number): void {
+    this.tradeLicenseApplications.licenceApplicationID = licenceApplicationID;
+    localStorage.setItem('draftLicenceApplicationId', String(licenceApplicationID));
+  }
+
+  private async createDraftHeaderIfNeeded(): Promise<number> {
+    const existingDraftId = this.getCurrentDraftApplicationId();
+    if (existingDraftId) {
+      return existingDraftId;
+    }
+
+    const tradeLicenceRes: any = await firstValueFrom(
+      this.newLicensesService.post('/trade-licence', this.buildTradeLicencePayload())
+    );
+
+    const tradeLicenceID = Number(
+      tradeLicenceRes?.tradeLicenceID ??
+      tradeLicenceRes?.tradeLicenceId ??
+      this.tradeLicenseApplications.tradeLicenceID ??
+      0
+    );
+
+    if (!tradeLicenceID) {
+      throw new Error('Unable to resolve Trade Licence ID before draft creation.');
+    }
+
+    this.tradeLicenseApplications.tradeLicenceID = tradeLicenceID;
+    this.tradeLicenceStateService.setTradeLicenceID(tradeLicenceID);
+
+    const licenceApplicationDraftPayload = this.buildDraftPayloadForUpdate();
+    licenceApplicationDraftPayload.tradeLicenceID = tradeLicenceID;
+
+    if (!licenceApplicationDraftPayload.tradeTypeID || !licenceApplicationDraftPayload.loginID) {
+      throw new Error('Trade Type and login are required before saving draft.');
+    }
+
+    const draftRes: any = await firstValueFrom(
+      this.newLicensesService.post('/licence-application/draft', licenceApplicationDraftPayload)
+    );
+
+    const licenceApplicationID = Number(draftRes?.licenceApplicationID ?? 0);
+    if (!licenceApplicationID) {
+      throw new Error('Unable to resolve Licence Application ID from draft response.');
+    }
+
+    this.persistDraftApplicationId(licenceApplicationID);
+    return licenceApplicationID;
+  }
+
+  async nextStep() {
     if(this.currentStep === 1){
     // 1. Applicant Representation (radio)
     const repSelected = document.querySelector('input[name="rep"]:checked');
@@ -488,6 +576,19 @@ autoDetectCurrentLocation() {
       // Optional sanity check
       if (this.powerFee < 0) {
         this.notificationservice.show('Power fee calculation error', 'warning');
+        return;
+      }
+    }
+
+    if (this.currentStep === 3 && !this.getCurrentDraftApplicationId()) {
+      try {
+        await this.createDraftHeaderIfNeeded();
+      } catch (err: any) {
+        const message =
+          err?.error?.message ??
+          err?.message ??
+          'Unable to create application draft before moving to Location';
+        this.notificationservice.show(message, 'error');
         return;
       }
     }
@@ -1025,8 +1126,17 @@ fetchRoadWidthByBox(
   ne: google.maps.LatLng,
   sw: google.maps.LatLng
 ) {
+  const licenceApplicationID = this.getCurrentDraftApplicationId();
+  if (!licenceApplicationID) {
+    this.notificationservice.show(
+      'Save the draft first so the application ID is available.',
+      'warning'
+    );
+    return;
+  }
+
   const payload = {
-    licenceApplicationID: this.tokenservice.getTraderUserId(),
+    licenceApplicationID,
     northLat: ne.lat(),
     northLng: ne.lng(),
     southLat: sw.lat(),
@@ -1064,8 +1174,20 @@ fetchRoadWidth(lng: number, lat: number) {
   this.loaderservice.show();
   this.roadWidthStatus = 'Fetching road width from server...';
 
+  const licenceApplicationID = this.getCurrentDraftApplicationId();
+
+  if (!licenceApplicationID) {
+    this.loaderservice.hide();
+    this.roadWidthStatus = 'Save the draft first so the application ID is available.';
+    this.notificationservice.show(
+      'Save the draft first so the application ID is available.',
+      'warning'
+    );
+    return;
+  }
+
   const payload = {
-    licenceApplicationID: this.tokenservice.getTraderUserId(),
+    licenceApplicationID,
     latitude: lat,
     longitude: lng
   };
@@ -1496,36 +1618,7 @@ fetchRoadWidth(lng: number, lat: number) {
         selectedTradeType: this.selectedTradeType?.tradeTypeID ?? null
       });
 
-      const tradeLicencePayload = {
-        applicantName: this.tradeLicenseApplicationDetails.applicantName,
-        doorNumber: this.tradeLicenseApplicationDetails.doorNumber,
-        address1: this.tradeLicenseApplicationDetails.address1,
-        address2: this.tradeLicenseApplicationDetails.address2,
-        address3: this.tradeLicenseApplicationDetails.address3,
-        pincode: this.tradeLicenseApplicationDetails.pincode,
-        landLineNumber: this.tradeLicenseApplicationDetails.landLineNumber,
-        mobileNumber: this.tradeLicenseApplicationDetails.mobileNumber,
-        emailID: this.tradeLicenseApplicationDetails.emailID,
-        tradeName: this.tradeLicenseApplicationDetails.tradeName,
-
-        zonalClassificationID: this.selectedZoneClassification ? this.selectedZoneClassification.zonalClassificationID : 0,
-        mohID: this.selectedMLAConstituency ? this.selectedMLAConstituency.mohID : 0,
-        wardID: this.selectedWard ? this.selectedWard.wardID : 0,
-
-        propertyID: this.tradeLicenseApplicationDetails.propertyID,
-        pidNumber: this.tradeLicenseApplicationDetails.pidNumber,
-        khathaNumber: this.tradeLicenseApplicationDetails.khathaNumber,
-        surveyNumber: this.tradeLicenseApplicationDetails.surveyNumber,
-        street: this.tradeLicenseApplicationDetails.street,
-        gisNumber: this.tradeLicenseApplicationDetails.gisNumber,
-
-        licenceNumber: this.tradeLicenseApplicationDetails.licenceNumber,
-        licenceCommencementDate: this.tradeLicenseApplicationDetails.licenceCommencementDate,
-        licenceStatusID: 1, // Active
-
-        oldapplicationNumber: this.tradeLicenseApplicationDetails.oldapplicationNumber,
-        newlicenceNumber: this.tradeLicenseApplicationDetails.newlicenceNumber
-      };
+      const tradeLicencePayload = this.buildTradeLicencePayload();
 
       this.debugLog('Calling POST /trade-licence', tradeLicencePayload);
       this.newLicensesService.post('/trade-licence', tradeLicencePayload)
@@ -1571,8 +1664,7 @@ fetchRoadWidth(lng: number, lat: number) {
               .subscribe({
                 next: async (draftRes: any) => {
                   this.debugLog('POST /licence-application/draft success', draftRes);
-                  this.tradeLicenseApplications.licenceApplicationID =
-                    draftRes.licenceApplicationID;
+                  this.persistDraftApplicationId(draftRes.licenceApplicationID);
 
                   await this.saveTradeDetailsTemp(draftRes.licenceApplicationID);
                   await this.saveUserLocationDetails(draftRes.licenceApplicationID);
@@ -1774,6 +1866,12 @@ fetchRoadWidth(lng: number, lat: number) {
           ? Number(this.manualRoadWidth)
           : Number(this.roadWidthDetails.road_Width_mtrs ?? 0);
 
+      const loginID =
+        this.tokenservice.getTraderUserId() ??
+        this.tokenservice.getEffectiveUserId() ??
+        this.tokenservice.getUserId() ??
+        0;
+
       const payload = {
         licenceApplicationID: licenceAppId,
         latitude: this.latitude,
@@ -1782,7 +1880,7 @@ fetchRoadWidth(lng: number, lat: number) {
         roadWidthMtrs,
         roadCategoryCode: this.roadWidthDetails.roadCategoryCode ?? '',
         roadCategory: this.roadWidthDetails.roadCategory ?? '',
-        loginID: this.tokenservice.getTraderUserId()
+        loginID
       };
 
       this.newLicensesService.saveLocationDetails(payload).subscribe({
@@ -1851,11 +1949,17 @@ fetchRoadWidth(lng: number, lat: number) {
 
 
   initiatePayment() {
+    const applicantName =
+      this.tradeLicenseApplicationDetails.applicantName?.trim() ||
+      this.tokenservice.getUserFullName()?.trim() ||
+      '';
+
     const payload = {
       licenceApplicationId: this.tradeLicenseApplications.licenceApplicationID,
       corporationId: 1,
       amount: this.licenseFee,
-      applicantName: this.tokenservice.getUserFullName(),
+      applicantName,
+      firstname: applicantName,
       email: this.tradeLicenseApplicationDetails.emailID,
       phone: this.tradeLicenseApplicationDetails.mobileNumber
     };

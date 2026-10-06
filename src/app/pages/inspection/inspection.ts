@@ -30,7 +30,8 @@ export class Inspection {
   applicationNo!: string;
   role = '';
   get isSeniorApprover(): boolean {
-    return this.role === 'SeniorApprover' || this.role === 'SENIOR_APPROVER';
+    const normalized = this.normalizeRole(this.role);
+    return normalized === 'seniorapprover' || normalized === 'seniorapprovingofficer';
   }
 
   // Mock inspection data (later replace with API)
@@ -64,6 +65,10 @@ export class Inspection {
     private cdr:ChangeDetectorRef,
      @Inject(PLATFORM_ID) private platformId: Object
   ) {}
+
+  private normalizeRole(role: string | null | undefined): string {
+    return (role ?? '').toLowerCase().replace(/[\s_-]+/g, '');
+  }
 
   ngOnInit(): void {
     this.applicationNo = this.activeroute.snapshot.paramMap.get('applicationNo')!;

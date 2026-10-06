@@ -399,7 +399,7 @@ export class UsersRoles implements OnInit, OnDestroy {
 
   private updateUser(loginID: number, payload: LoginMasterRequest): void {
     console.log('[UsersRoles] PUT /login-master/{id}', {
-      url: `https://pickitover.com/api/api/login-master/${loginID}`,
+      url: `/api/api/login-master/${loginID}`,
       loginID,
       payload,
     });

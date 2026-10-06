@@ -7,7 +7,7 @@ import { Observable } from 'rxjs';
 })
 export class PaymentSuccessService {
 
-  private baseUrl = 'https://pickitover.com/api/api/';
+  private baseUrl = '/api/api';
 
   constructor(private http: HttpClient) {}
 

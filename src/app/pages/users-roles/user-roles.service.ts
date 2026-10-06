@@ -64,7 +64,7 @@ export interface UserDesignation {
 export class UsersRolesService {
 
   // ✅ Confirmed from Swagger: real base is /api/api
-  private readonly baseUrl = 'https://pickitover.com/api/api';
+  private readonly baseUrl = '/api/api';
 
   // No leading slash — baseUrl already has no trailing slash
   private readonly loginMasterUrl = `${this.baseUrl}/login-master`;

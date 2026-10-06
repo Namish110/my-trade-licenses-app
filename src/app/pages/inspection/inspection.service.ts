@@ -29,7 +29,7 @@ interface LicenceProcessTimelineResponse {
 })
 export class InspectionService {
 
-  private baseUrl = 'https://pickitover.com/api/api/'; // 👈 change to your backend
+  private baseUrl = '/api/api'; // proxy through Angular in dev
 
   constructor(private http: HttpClient) {}
 
@@ -80,7 +80,7 @@ export class InspectionService {
     pageSize: number;
   }) {
     return this.http.post<ApprovedApplications>(
-      `${this.baseUrl}/trade-licence/approver/applications/search`,
+      `${this.baseUrl}/trade-licence/approver/applications`,
       request
     );
   }
@@ -102,7 +102,7 @@ export class InspectionService {
     pageSize: number;
   }) {
     return this.http.post<ApprovedApplications>(
-      `${this.baseUrl}/trade-licence/senior-approver/applications/search`,
+      `${this.baseUrl}/trade-licence/senior-approver/applications`,
       request
     );
   }
@@ -152,7 +152,7 @@ export class InspectionService {
   }
 
   saveDocument(payload: FormData) {
-    return this.http.post(`${this.baseUrl}licence-documents/save-update`, payload);
+    return this.http.post(`${this.baseUrl}/licence-documents/save-update`, payload);
   }
 
 }
