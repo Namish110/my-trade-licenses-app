@@ -1,0 +1,64 @@
+<div class="zone-dashboard" (mousemove)="onParallaxMove($event)" (mouseleave)="resetParallax()">
+  <section class="hero">
+    <div class="hero-orb orb-a" [style.transform]="layerTransform(10)"></div>
+    <div class="hero-orb orb-b" [style.transform]="layerTransform(-14)"></div>
+    <div class="hero-grid" [style.transform]="layerTransform(6)"></div>
+
+    <div>
+      <h3>Zone Approver Dashboard</h3>
+      <p>Cross-check inspected applications zone-wise and forward valid files for final approval.</p>
+    </div>
+    <a class="btn btn-sm btn-light" routerLink="/zone-approver/zone-approving-officer">Open Workflow Panel</a>
+  </section>
+
+  <section class="kpi-grid">
+    <article class="kpi-card" *ngFor="let item of kpis" [ngClass]="item.tone">
+      <span>{{ item.label }}</span>
+      <h4>{{ formatNumber(item.value) }}</h4>
+    </article>
+  </section>
+
+  <section class="content-grid">
+    <article class="panel">
+      <header>Zone Workload</header>
+      <div class="table-responsive">
+        <table class="table table-sm align-middle mb-0">
+          <thead>
+            <tr>
+              <th>Zone</th>
+              <th class="text-end">Pending</th>
+              <th class="text-end">Forwarded</th>
+              <th class="text-end">Objections</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let row of zoneSummary">
+              <td>{{ row.zone }}</td>
+              <td class="text-end">{{ row.pending }}</td>
+              <td class="text-end">{{ row.forwarded }}</td>
+              <td class="text-end">{{ row.objections }}</td>
+            </tr>
+            <tr *ngIf="!isLoading && zoneSummary.length === 0">
+              <td colspan="4" class="text-center text-muted py-3">No zone workload data available.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </article>
+
+    <article class="panel">
+      <header>Action Queue</header>
+      <div class="queue">
+        <div class="queue-item danger">{{ actionQueue[0] }}</div>
+        <div class="queue-item warning">{{ actionQueue[1] }}</div>
+        <div class="queue-item info">{{ actionQueue[2] }}</div>
+      </div>
+      <a class="btn btn-outline-primary btn-sm w-100 mt-2" routerLink="/zone-approver/zone-approving-officer">
+        Review Priority Applications
+      </a>
+    </article>
+  </section>
+
+  <div class="status-line" *ngIf="isLoading">Loading live zone metrics...</div>
+  <div class="status-line error" *ngIf="!isLoading && loadError">{{ loadError }}</div>
+</div>

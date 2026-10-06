@@ -1,0 +1,26 @@
+.filter-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  margin-bottom: 16px;
+}
+
+.search-col {
+  grid-column: span 2;
+}
+
+.suggestion-input-wrap {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.clear-btn {
+  white-space: nowrap;
+}
+
+@media (max-width: 992px) {
+  .search-col {
+    grid-column: span 1;
+  }
+}
