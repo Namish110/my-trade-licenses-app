@@ -27,12 +27,13 @@ export class PaymentFailed {
     return normalized.slice(0, maxLength);
   }
 
+  // Draft application is listed on the trader dashboard; payment can be retried from there
   retryPayment() {
-    this.router.navigate(['/trade-license/payment']);
+    this.router.navigate(['/trader/trader-licenses']);
   }
 
   goBack() {
-    this.router.navigate(['/trade']);
+    this.router.navigate(['/trader']);
   }
 
 }

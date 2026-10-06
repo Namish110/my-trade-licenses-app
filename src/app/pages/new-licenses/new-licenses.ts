@@ -819,13 +819,23 @@ autoDetectCurrentLocation() {
   
 
   /* =========================
-     OTP LOGIC (MOCK)
+     OTP LOGIC
   ========================= */
   otp = '';
   otpSent = false;
   otpVerified = false;
+  otpResendSeconds = 0;
+  private otpResendTimer: any;
+
+  get maskedOtpMobile(): string {
+    const mobile = this.tradeLicenseApplicationDetails?.mobileNumber ?? '';
+    return mobile.length > 4 ? 'XXXXXX' + mobile.slice(-4) : mobile;
+  }
 
   sendOtp() {
+    if (this.otpResendSeconds > 0) {
+      return;
+    }
     this.loaderservice.show();
     if (!this.tradeLicenseApplicationDetails.mobileNumber || this.tradeLicenseApplicationDetails.mobileNumber.length !== 10) {
       this.notificationservice.show('Please enter a valid 10-digit mobile number', 'warning');
@@ -836,14 +846,45 @@ autoDetectCurrentLocation() {
     this.newLicensesService.sendOtp(this.tradeLicenseApplicationDetails.mobileNumber).subscribe({
       next: () => {
         this.otpSent = true;
-        this.notificationservice.show('OTP sent successfully', 'success');
+        this.otp = '';
+        this.notificationservice.show(`OTP sent to ${this.maskedOtpMobile}`, 'success');
         this.loaderservice.hide();
+        this.startOtpResendCountdown();
       },
-      error: () => {
-        this.notificationservice.show('Failed to send OTP', 'error');
+      error: (err) => {
+        const msg =
+          err?.error?.message ||
+          err?.error?.Message ||
+          (typeof err?.error === 'string' ? err.error : '') ||
+          'Failed to send OTP';
+        this.notificationservice.show(msg, 'error');
         this.loaderservice.hide();
       }
     });
+  }
+
+  private startOtpResendCountdown(seconds = 30) {
+    clearInterval(this.otpResendTimer);
+    this.otpResendSeconds = seconds;
+    this.otpResendTimer = setInterval(() => {
+      this.otpResendSeconds--;
+      if (this.otpResendSeconds <= 0) {
+        clearInterval(this.otpResendTimer);
+      }
+      this.cdr.detectChanges();
+    }, 1000);
+  }
+
+  ngOnDestroy(): void {
+    clearInterval(this.otpResendTimer);
+  }
+
+  // digits only; verify automatically once 6 digits are entered
+  onOtpInput() {
+    this.otp = (this.otp ?? '').replace(/\D/g, '').slice(0, 6);
+    if (this.otp.length === 6) {
+      this.verifyOtpAutomatically();
+    }
   }
 
   verifyOtp(){
@@ -1964,33 +2005,33 @@ fetchRoadWidth(lng: number, lat: number) {
       phone: this.tradeLicenseApplicationDetails.mobileNumber
     };
     //console.log(payload);
+    this.loaderservice.show();
     this.newLicensesService.paymentIntiate(payload).subscribe({
-      next: res => this.redirectToPayment(res.html),
+      next: res => this.redirectToPayment(res?.paymentUrl),
       error: err => {
-        //console.error('Payment initiation failed', err)
+        this.loaderservice.hide();
+        const msg =
+          err?.error?.message ||
+          err?.error?.Message ||
+          (typeof err?.error === 'string' ? err.error : '') ||
+          'Unable to start payment. Please try again.';
+        this.notificationservice.show(msg, 'error');
       }
     });
   }
 
 
-  redirectToPayment(html: string) {
-    // 1. Create a temporary container
-    const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = html;
+  // Easebuzz hosted checkout: https://pay.easebuzz.in/pay/{accesskey}
+  redirectToPayment(paymentUrl: string) {
+    const isEasebuzzUrl = /^https:\/\/(test)?pay\.easebuzz\.in\/pay\//.test(paymentUrl ?? '');
 
-    // 2. Extract the form
-    const form = tempDiv.querySelector('form') as HTMLFormElement;
-
-    if (!form) {
-      //console.error('Payment form not found in response');
+    if (!isEasebuzzUrl) {
+      this.loaderservice.hide();
+      this.notificationservice.show('Unable to start payment. Please try again.', 'error');
       return;
     }
 
-    // 3. Append form to body
-    document.body.appendChild(form);
-
-    // 4. Manually submit the form
-    form.submit();
+    window.location.href = paymentUrl;
   }
 
   //#endregion

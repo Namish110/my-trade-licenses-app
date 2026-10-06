@@ -1,6 +1,5 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { of } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -24,40 +23,28 @@ export class CreateAccountService {
   }
   
   sendOtp(phone: string) {
-    // return this.http.post<any>(
-    //   `${this.baseUrl}/sms/otp/send`,
-    //   {
-    //     mobileNo: phone
-    //   },
-    //   {
-    //     headers: { 'Content-Type': 'application/json' }
-    //   }
-    // );
-    return of({
-      isMock: true,
-      mobileNo: phone,
-      Message: 'OTP sent successfully (sample OTP: 123456)'
-    });
+    return this.http.post<any>(
+      `${this.baseUrl}/sms/otp/send`,
+      {
+        mobileNo: phone
+      },
+      {
+        headers: { 'Content-Type': 'application/json' }
+      }
+    );
   }
 
   verifyOtp(phone: string, otp: string) {
-    // return this.http.post<any>(
-    //   `${this.baseUrl}/sms/otp/verify`,
-    //   {
-    //     mobileNo: phone,
-    //     otp: otp
-    //   },
-    //   {
-    //     headers: { 'Content-Type': 'application/json' }
-    //   }
-    // );
-    const isValid = otp === '123456';
-    return of({
-      isMock: true,
-      mobileNo: phone,
-      isValid,
-      Message: isValid ? 'OTP verified' : 'Invalid OTP'
-    });
+    return this.http.post<any>(
+      `${this.baseUrl}/sms/otp/verify`,
+      {
+        mobileNo: phone,
+        otp: otp
+      },
+      {
+        headers: { 'Content-Type': 'application/json' }
+      }
+    );
   }
 
   getUserLoginDetails(phone : string){

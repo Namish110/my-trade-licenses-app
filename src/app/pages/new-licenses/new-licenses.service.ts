@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { AssemblyConstituency, LicenseDocuments, MLCConstituency, RoadWidthDetails, TradeLicenseApplicationDetails, TradeLicensesFee, TradeMajor, TradeMinor, TradeSub, TradeType, Ward, ZoneClassification, Zones } from '../../core/models/new-trade-licenses.model';
 import { platform } from 'os';
-import { Observable, of } from 'rxjs';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -75,40 +75,28 @@ getDraftByLogin(loginId: number) {
   }
 
   sendOtp(phone: string) {
-    // return this.http.post<any>(
-    //   `${this.baseUrl}/sms/otp/send`,
-    //   {
-    //     mobileNo: phone
-    //   },
-    //   {
-    //     headers: { 'Content-Type': 'application/json' }
-    //   }
-    // );
-    return of({
-      isMock: true,
-      mobileNo: phone,
-      Message: 'OTP sent successfully (sample OTP: 123456)'
-    });
+    return this.http.post<any>(
+      `${this.baseUrl}/sms/otp/send`,
+      {
+        mobileNo: phone
+      },
+      {
+        headers: { 'Content-Type': 'application/json' }
+      }
+    );
   }
 
   verifyOtp(phone: string, otp: string) {
-    // return this.http.post<any>(
-    //   `${this.baseUrl}/sms/otp/verify`,
-    //   {
-    //     mobileNo: phone,
-    //     otp: otp
-    //   },
-    //   {
-    //     headers: { 'Content-Type': 'application/json' }
-    //   }
-    // );
-    const isValid = otp === '123456';
-    return of({
-      isMock: true,
-      mobileNo: phone,
-      isValid,
-      Message: isValid ? 'OTP verified' : 'Invalid OTP'
-    });
+    return this.http.post<any>(
+      `${this.baseUrl}/sms/otp/verify`,
+      {
+        mobileNo: phone,
+        otp: otp
+      },
+      {
+        headers: { 'Content-Type': 'application/json' }
+      }
+    );
   }
 
   saveDraftLicence(payload: any) {
